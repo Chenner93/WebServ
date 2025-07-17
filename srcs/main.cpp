@@ -3,7 +3,7 @@
 int main(int ac, char **av) {
 
 	if (ac != 2) {
-		std::cout << RED"Not cool"RESET << std::endl;
+		std::cout << RED"Error: only require config file"RESET << std::endl;
 		return 1;
 	}
 
