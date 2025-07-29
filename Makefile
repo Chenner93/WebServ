@@ -4,7 +4,8 @@
 
 NAME := webserv
 CC := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -MMD -g3
+# CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -MMD -g3
+CXXFLAGS := -std=c++98 -MMD -g3
 
   ############
  #	COLOR	#
