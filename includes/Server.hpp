@@ -1,13 +1,23 @@
 #pragma once
 
-#include <webserv.hpp>
-#include <sys/socket.h>
+// #include <webserv.hpp>
+// #include <sys/socket.h>
 
 class	Server {
 
-	public:
-		unsigned char[4]	ip;
-		int	port;
-
 	private:
+		std::string	_name;
+		std::string	_ip;
+		int			_port;
+
+	public:
+		Server();
+		~Server();
+		Server(const Server& copy);
+		Server &operator = (const Server& src);
+
+		/*	GETTER	*/
+		int			getPort();
+		std::string	getName();
+		std::string	getIp();
 };
