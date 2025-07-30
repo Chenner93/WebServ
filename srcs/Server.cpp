@@ -34,3 +34,14 @@ std::string	Server::getName() {
 std::string	Server::getIp() {
 	return _ip;
 }
+
+  /********* */
+ /*	SETTER	*/
+/********* */
+
+void	Server::setServer(std::string name, std::string ip, int port) {
+	std::cout << GREEN"Server Set"RESET << std::endl;
+	_name = name;
+	_ip = ip;
+	_port = port;
+}

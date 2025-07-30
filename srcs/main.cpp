@@ -1,15 +1,5 @@
+#include <webserv.hpp>
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <signal.h>
-
-
-
-#define PORT 8080
 int	server_fd;
 
 void handle_sigint(int sig) {
@@ -24,6 +14,12 @@ int main(int argc, char const *argv[])
 
 	signal(SIGINT, handle_sigint);
 
+	int		epoll_fd = epoll_create1(0);
+
+	if (epoll_fd == -1) {
+		std::cout << RED"Error create"RESET << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	
     int new_socket; long valread;
     struct sockaddr_in address;
@@ -65,9 +61,24 @@ int main(int argc, char const *argv[])
         perror("In listen");
         exit(EXIT_FAILURE);
     }
+
+	struct epoll_event	event;
+	memset(&event, 0, sizeof(event));
+	event.data.fd = server_fd;
+	event.events = EPOLLIN;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &event) == -1) {
+		perror("epoll_ctl");
+		exit(EXIT_FAILURE);
+	}
+
+	#define MAX_EVENTS 10
     while(1)
     {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+
+		struct epoll_event events[MAX_EVENTS];
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		std::cout << RED"Epoll wait triggered"RESET << std::endl;
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
         {
             perror("In accept");
@@ -81,5 +92,8 @@ int main(int argc, char const *argv[])
         printf("------------------Hello message sent-------------------\n");
         close(new_socket);
     }
+
+
+
     return 0;
 }
