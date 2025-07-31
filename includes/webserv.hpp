@@ -14,21 +14,12 @@
 
 
 
-#define PORT 8080
 
 
   /*******************/
  /*	BASIC INCLUDE	*/
 /*******************/
-#include <iomanip>
-#include <iostream>
-#include <exception>
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <signal.h>
-#include <sys/epoll.h>
+#include <cstdlib>      // Pour std::exit, std::atoi, etc.
+#include <csignal>      // Pour std::signal, SIGINT, etc.
+

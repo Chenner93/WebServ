@@ -1,99 +1,104 @@
 #include <webserv.hpp>
+#include <Server.hpp>
+#include <Client.hpp>
 
-int	server_fd;
 
-void handle_sigint(int sig) {
-    printf("\n[INFO] Fermeture du serveur...\n");
-    close(server_fd);  // Libère le port
-    printf("[INFO] Port libéré, serveur arrêté.\n");
-    exit(0);
+bool	g_runWebserv = true;
+
+void	closeWebserv(int sig) {
+	g_runWebserv = false;
+	std::cout << std::endl << RED"[INFO] Shutting Down Server(s)..."RESET << std::endl;
 }
 
-int main(int argc, char const *argv[])
-{
+void	tmp_config(int ac, std::vector<Server> &server) {
+	if (ac != 2)
+		std::cerr << "_.conf file only, but we continue because it's just a test" << std::endl;
 
-	signal(SIGINT, handle_sigint);
+	Server	s1, s2, s3;
 
-	int		epoll_fd = epoll_create1(0);
+	s1.setServer("Alpha", "127.0.0.1", 8081);
+	s2.setServer("Beta", "127.0.0.1", 8082);
+	s3.setServer("Gamma", "127.0.0.1", 8083);
+
+	server.reserve(3);
+
+	server.push_back(s1);
+	server.push_back(s2);
+	server.push_back(s3);
+
+	// return server;
+}
+
+int main(int ac, char **av) {
+
+	signal(SIGINT, closeWebserv);
+
+	//check arguments and parse config_file, return vector of Server
+	std::vector<Server>	servers;
+	tmp_config(ac, servers);
+
+	int	epoll_fd = epoll_create1(0);
 
 	if (epoll_fd == -1) {
-		std::cout << RED"Error create"RESET << std::endl;
+		// std::cerr << RED"Error: "RESET << std::strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	
-    int new_socket; long valread;
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
-    
-    // char *hello = "Hello from server";
-	char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-    // std::string	files = ;
-	// int			fd = open()
 
-    // Creating socket file descriptor
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-    {
-        perror("In socket");
-        exit(EXIT_FAILURE);
-    }
+	int	new_socket;
+	long valread;
+	struct sockaddr_in address;
+	int addrlen = sizeof(address);
 
-	int opt = 1;	//A ne pas garder, aide juste a refermer aussitot le port
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-	    perror("setsockopt");
-	    exit(EXIT_FAILURE);
+
+	try {
+		std::vector<Server>::iterator	it;
+		for (it = servers.begin(); it != servers.end(); ++it) {
+			it->setSocket();
+			if (it->getSocket() == -1) {
+				throw "Error SetSocket: ";
+			}
+			it->setSockAddr();
+			it->bindSocket();
+			it->listenSocket();
+			it->addEpollCtl(epoll_fd);
+		}
 	}
-    
-
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
-    
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);
-    
-    
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-    {
-        perror("In bind");
-        exit(EXIT_FAILURE);
-    }
-    if (listen(server_fd, 10) < 0)
-    {
-        perror("In listen");
-        exit(EXIT_FAILURE);
-    }
-
-	struct epoll_event	event;
-	memset(&event, 0, sizeof(event));
-	event.data.fd = server_fd;
-	event.events = EPOLLIN;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &event) == -1) {
-		perror("epoll_ctl");
+	catch (std::exception &e) {
+		close(epoll_fd);
+		std::cerr << RED << e.what() << RESET << std::strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	std::vector<Server>::iterator	it;
+	for (it = servers.begin(); it != servers.end(); ++it) {
+		std::cout << MAGENTA << it->getName() << " " << it->getSocket() << RESET << std::endl;
+	}
+	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
 
 	#define MAX_EVENTS 10
-    while(1)
-    {
-        printf("\n+++++++ Waiting for new connection ++++++++\n\n");
+	while (g_runWebserv) {
 
-		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-		std::cout << RED"Epoll wait triggered"RESET << std::endl;
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
-        {
-            perror("In accept");
-            exit(EXIT_FAILURE);
-        }
-        
-        char buffer[30000] = {0};
-        valread = read(new_socket , buffer, 30000);
-        printf("%s\n",buffer );
-		write(new_socket , hello , strlen(hello));
-        printf("------------------Hello message sent-------------------\n");
-        close(new_socket);
-    }
-
-
-
-    return 0;
+		struct epoll_event	events[MAX_EVENTS];
+		int	n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		for (int i = 0; i < n; i++) {
+			Client	*client = Client::getPtrClient(events[i].data.fd, servers);
+			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
+				Server::acceptClient(events[i].data.fd, servers, epoll_fd);
+			}
+			else if (client && events[i].events & EPOLLIN){
+				//JE DOIS LIRE et attention si 0 des la premiere lecture ON FERME TOUUUUT
+				char	buffer[30000];
+				while (recv(client->getSocket(), buffer, 30000, 0) > 0) {
+					printf("%s", buffer);
+				}
+				std::cout << std::endl;
+				events[i].events = EPOLLIN | EPOLLOUT;
+			}
+			else if (client && events[i].events & EPOLLOUT) {
+				//Je dois REPONDRE
+			}
+		}
+	}
+	Server::closeAllSocket(epoll_fd, servers);
+	std::cout << RED"[INFO] Server(s) Down"RESET << std::endl;
+	/*	add server to epoll with epoll_ctl	*/
 }
