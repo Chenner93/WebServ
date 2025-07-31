@@ -2,6 +2,7 @@
 #include <Server.hpp>
 #include <Client.hpp>
 
+#include <sys/socket.h>
 
 bool	g_runWebserv = true;
 
@@ -94,7 +95,7 @@ int main(int ac, char **av) {
 				events[i].events = EPOLLIN | EPOLLOUT;
 			}
 			else if (client && events[i].events & EPOLLOUT) {
-				//Je dois REPONDRE
+				send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 			}
 		}
 	}
