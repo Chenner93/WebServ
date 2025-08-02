@@ -18,7 +18,8 @@ Client::Client(const Client& copy) {
 }
 
 Client&	Client::operator = (const Client& src) {
-	std::cout << "Ope = Client Called" << std::endl;
+	std::cout << CYAN"Ope = Client Called"RESET << std::endl;
+	_socket = src.getSocket();
 	return *this;
 }
 
@@ -30,7 +31,7 @@ void	Client::setSocket(int fd) {
 	_socket = fd;
 }
 
-void	Client::setServer(Server server) {
+void	Client::setServer(Server &server) {
 	_server = &server;
 }
 
@@ -46,7 +47,7 @@ int		Client::getSocket() const{
  /*	STATIC	*/
 /********* */
 
-Client*	Client::getPtrClient(int fd, std::vector<Server> &server) {
+bool	Client::isClientSocket(int fd, std::vector<Server> &server) {
 	std::vector<Server>::iterator	it;
 
 	for (it = server.begin(); it != server.end(); ++it) {
@@ -54,8 +55,8 @@ Client*	Client::getPtrClient(int fd, std::vector<Server> &server) {
 		std::vector<Client>::iterator	itC;
 		for (itC = clients.begin(); itC != clients.end(); ++itC) {
 			if (itC->getSocket() == fd)
-				return &(*itC);
+				return true;
 		}
 	}
-	return 0;
+	return false;
 }

@@ -142,6 +142,24 @@ void	Server::acceptClient(int fd, std::vector<Server> &server, int epfd) {
 
 }
 
+void	Server::closingClient(int epfd, int fd, std::vector<Server> &servers) {
+
+	std::vector<Server>::iterator	it;
+
+	for (it = servers.begin(); it != servers.end(); ++it) {
+		std::vector<Client>::iterator	itC;
+		for (itC = it->_clients.begin(); itC != it->_clients.end(); ++itC) {
+			if (itC->getSocket() == fd) {
+				epoll_ctl(epfd, EPOLL_CTL_DEL, fd, 0);
+				close(fd);
+				it->_clients.erase(itC);
+				std::cout << BLUE"ERASEEEEEEEEEEED"RESET << std::endl;
+				return ;
+			}
+		}
+	}
+}
+
 void	Server::closeAllSocket(int epfd, std::vector<Server> &servers) {
 	
 	std::vector<Server>::iterator	it;

@@ -37,12 +37,12 @@ class	Client {
 
 	/*	SETTER	*/
 		void	setSocket(int fd);
-		void	setServer(Server server);
+		void	setServer(Server &server);
 
 	/*	GETTER	*/
 		int		getSocket() const;
 
 	/*	STATIC	*/
-		static Client*	getPtrClient(int fd, std::vector<Server> &server);
+		static bool	isClientSocket(int fd, std::vector<Server> &server);
 
 };

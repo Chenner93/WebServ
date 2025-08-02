@@ -73,7 +73,14 @@ int main(int ac, char **av) {
 	for (it = servers.begin(); it != servers.end(); ++it) {
 		std::cout << MAGENTA << it->getName() << " " << it->getSocket() << RESET << std::endl;
 	}
-	std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+	// std::string hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+	
+	std::string hello =
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: text/plain\r\n"
+    "Content-Length: 12\r\n"
+    "\r\n"
+    "Hello world!\n";
 
 	#define MAX_EVENTS 10
 	while (g_runWebserv) {
@@ -81,21 +88,41 @@ int main(int ac, char **av) {
 		struct epoll_event	events[MAX_EVENTS];
 		int	n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
 		for (int i = 0; i < n; i++) {
-			Client	*client = Client::getPtrClient(events[i].data.fd, servers);
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
 				Server::acceptClient(events[i].data.fd, servers, epoll_fd);
 			}
-			else if (client && events[i].events & EPOLLIN){
+			else if (Client::isClientSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)){
 				//JE DOIS LIRE et attention si 0 des la premiere lecture ON FERME TOUUUUT
 				char	buffer[30000];
-				while (recv(client->getSocket(), buffer, 30000, 0) > 0) {
+				if (recv(events[i].data.fd, buffer, 30000, 0) == 0) {
+					std::cout << BLUE"CLOSING CLIENT"RESET << std::endl;
+					Server::closingClient(epoll_fd, events[i].data.fd, servers);
+					continue;
+				}
+				printf("%s", buffer);
+				memset(buffer, 0, sizeof(buffer));
+				while (recv(events[i].data.fd, buffer, 30000, 0) > 0) {
 					printf("%s", buffer);
+					memset(buffer, 0, sizeof(buffer));
 				}
 				std::cout << std::endl;
-				events[i].events = EPOLLIN | EPOLLOUT;
+				events[i].events = EPOLLOUT | EPOLLET;// je dois utiliser CTL
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
+					std::cerr << RED"Error epoll_ctl: "RESET << std::strerror(errno) << std::endl;
+					//detruire le client socket ?
+					Server::closingClient(epoll_fd, events[i].data.fd, servers);
+				}
+
 			}
-			else if (client && events[i].events & EPOLLOUT) {
+			else if (Client::isClientSocket(events[i].data.fd, servers) && (events[i].events & EPOLLOUT)) {
 				send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+				std::cout << RED"TEST========"RESET << std::endl;
+				events[i].events = EPOLLIN | EPOLLET;// je dois utiliser CTL
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
+					std::cerr << RED"Error epoll_ctl: "RESET << std::strerror(errno) << std::endl;
+					//detruire le client socket ?
+					Server::closingClient(epoll_fd, events[i].data.fd, servers);
+				}
 			}
 		}
 	}
