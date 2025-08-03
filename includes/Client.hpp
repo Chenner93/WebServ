@@ -41,6 +41,8 @@ class	Client {
 
 	/*	GETTER	*/
 		int		getSocket() const;
+		Server	*getPtrServer() const;
+
 
 	/*	STATIC	*/
 		static bool	isClientSocket(int fd, std::vector<Server> &server);

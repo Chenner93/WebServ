@@ -45,10 +45,6 @@ int	Server::getSocket() const{
 	return _socket;
 }
 
-std::vector<Client>	Server::getVectorClient() const {
-	return _clients;
-}
-
   /********* */
  /*	SETTER	*/
 /********* */
@@ -111,20 +107,20 @@ bool	Server::isServerSocket(int fd, std::vector<Server> &server) {
 	return false;
 }
 
-void	Server::acceptClient(int fd, std::vector<Server> &server, int epfd) {
+void	Server::acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> clients, int epfd) {
 
-	std::vector<Server>::iterator	it;
-	for (it = server.begin(); it != server.end(); ++it) {
-		if (it->getSocket() == fd)
+	int	i;	//Got the right server ;
+	for (i = 0; i < servers.size(); i++) {
+		if (servers[i].getSocket() == fd)
 			break ;
 	}
-	if (it == server.end()) {
+	if (servers[i].getSocket() != fd) {
 		std::cerr << RED"Erreur Server::acceptClient: Cannot happen !" << std::endl;
 		return ;
 	}
 	Client	client;
-	client.setServer(*it);
-	client.setSocket(::accept(fd, (struct sockaddr *)&it->_addr, (socklen_t *)&it->_addrlen));
+	client.setServer(servers[i]);
+	client.setSocket(::accept(fd, (struct sockaddr *)&servers[i]._addr, (socklen_t *)&servers[i]._addrlen));
 	if (client.getSocket() < 0) {
 		std::cerr << RED"Error accept: "RESET << std::strerror(errno) << std::endl;
 		return ;
@@ -138,38 +134,37 @@ void	Server::acceptClient(int fd, std::vector<Server> &server, int epfd) {
 		std::cerr << RED"Error epoll_ctl: "RESET << std::strerror(errno) << std::endl;
 		return ;
 	}
-	it->_clients.push_back(client);
-
+	clients.push_back(client);
 }
 
-void	Server::closingClient(int epfd, int fd, std::vector<Server> &servers) {
+// void	Server::closingClient(int epfd, int fd, std::vector<Server> &servers) {
 
-	std::vector<Server>::iterator	it;
+// 	std::vector<Server>::iterator	it;
 
-	for (it = servers.begin(); it != servers.end(); ++it) {
-		std::vector<Client>::iterator	itC;
-		for (itC = it->_clients.begin(); itC != it->_clients.end(); ++itC) {
-			if (itC->getSocket() == fd) {
-				epoll_ctl(epfd, EPOLL_CTL_DEL, fd, 0);
-				close(fd);
-				it->_clients.erase(itC);
-				std::cout << BLUE"ERASEEEEEEEEEEED"RESET << std::endl;
-				return ;
-			}
-		}
+// 	for (it = servers.begin(); it != servers.end(); ++it) {
+// 		std::vector<Client>::iterator	itC;
+// 		for (itC = it->_clients.begin(); itC != it->_clients.end(); ++itC) {
+// 			if (itC->getSocket() == fd) {
+// 				epoll_ctl(epfd, EPOLL_CTL_DEL, fd, 0);
+// 				close(fd);
+// 				it->_clients.erase(itC);
+// 				std::cout << BLUE"ERASEEEEEEEEEEED"RESET << std::endl;
+// 				return ;
+// 			}
+// 		}
+// 	}
+// }
+
+void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<Client> &clients) {
+	{
+		std::vector<Server>::iterator	it;
+		for (it = servers.begin(); it != servers.end(); ++it)
+			close(it->getSocket());
 	}
-}
-
-void	Server::closeAllSocket(int epfd, std::vector<Server> &servers) {
-	
-	std::vector<Server>::iterator	it;
-	for (it = servers.begin(); it != servers.end(); ++it) {
-		close(it->getSocket());
-		std::vector<Client> clients = it->getVectorClient();
-		std::vector<Client>::iterator	itC;
-		for (itC = clients.begin(); itC != clients.end(); ++itC) {
-			close(itC->getSocket());
-		}
+	{
+		std::vector<Client>::iterator	it;
+		for (it = clients.begin(); it != clients.end(); ++it)
+			close(it->getSocket());
 	}
 	close(epfd);
 }
