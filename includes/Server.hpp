@@ -58,7 +58,7 @@ class	Server {
 		// void		acceptClient();
 
 		static bool	isServerSocket(int fd, std::vector<Server> &server);
-		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> clients, int epfd);
+		// static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> clients, int epfd);
 		static void closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<Client> &clients);
 		// static void	closingClient(int epfd, int fd, std::vector<Server> &servers);
 

@@ -2,7 +2,9 @@ Objectifs:
 	-Renvoyer une page html complete
 	-Comprendre et implementer epoll au plus simple
 	
+CMD utils:
 
+bash -c 'for i in {1..1000}; do curl http://localhost:8081; done'
 
 
 

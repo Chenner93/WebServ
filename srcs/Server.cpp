@@ -13,7 +13,7 @@ Server::~Server() {
 }
 
 Server::Server(const Server& copy) {
-	std::cout << BLUE"Copy Server Called"RESET << std::endl;
+	std::cout << BLUE "Copy Server Called" RESET << std::endl;
 
 	_name = copy.getName();
 	_ip = copy.getIp();
@@ -22,6 +22,9 @@ Server::Server(const Server& copy) {
 
 Server&	Server::operator = (const Server& src) {
 	std::cout << "Ope = Server Called" << std::endl;
+	_name = src.getName();
+	_ip = src.getIp();
+	_port = src.getPort();
 	return *this;
 }
 
@@ -50,7 +53,7 @@ int	Server::getSocket() const{
 /********* */
 
 void	Server::setServer(std::string name, std::string ip, int port) {
-	std::cout << GREEN"Server Set"RESET << std::endl;
+	std::cout << GREEN "Server Set" RESET << std::endl;
 	_name = name;
 	_ip = ip;
 	_port = port;
@@ -106,54 +109,6 @@ bool	Server::isServerSocket(int fd, std::vector<Server> &server) {
 	}
 	return false;
 }
-
-void	Server::acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> clients, int epfd) {
-
-	int	i;	//Got the right server ;
-	for (i = 0; i < servers.size(); i++) {
-		if (servers[i].getSocket() == fd)
-			break ;
-	}
-	if (servers[i].getSocket() != fd) {
-		std::cerr << RED"Erreur Server::acceptClient: Cannot happen !" << std::endl;
-		return ;
-	}
-	Client	client;
-	client.setServer(servers[i]);
-	client.setSocket(::accept(fd, (struct sockaddr *)&servers[i]._addr, (socklen_t *)&servers[i]._addrlen));
-	if (client.getSocket() < 0) {
-		std::cerr << RED"Error accept: "RESET << std::strerror(errno) << std::endl;
-		return ;
-	}
-	fcntl(client.getSocket(), F_SETFL, O_NONBLOCK);
-	struct epoll_event	event;
-	event.data.fd = client.getSocket();
-	event.events = EPOLLIN | EPOLLET;
-	if (epoll_ctl(epfd, EPOLL_CTL_ADD, client.getSocket(), &event) < 0) {
-		close(client.getSocket());
-		std::cerr << RED"Error epoll_ctl: "RESET << std::strerror(errno) << std::endl;
-		return ;
-	}
-	clients.push_back(client);
-}
-
-// void	Server::closingClient(int epfd, int fd, std::vector<Server> &servers) {
-
-// 	std::vector<Server>::iterator	it;
-
-// 	for (it = servers.begin(); it != servers.end(); ++it) {
-// 		std::vector<Client>::iterator	itC;
-// 		for (itC = it->_clients.begin(); itC != it->_clients.end(); ++itC) {
-// 			if (itC->getSocket() == fd) {
-// 				epoll_ctl(epfd, EPOLL_CTL_DEL, fd, 0);
-// 				close(fd);
-// 				it->_clients.erase(itC);
-// 				std::cout << BLUE"ERASEEEEEEEEEEED"RESET << std::endl;
-// 				return ;
-// 			}
-// 		}
-// 	}
-// }
 
 void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<Client> &clients) {
 	{

@@ -15,6 +15,7 @@
 #include <cerrno>
 #include <netinet/in.h>
 #include <unistd.h>     // POSIX : read(), write(), close()
+#include <stdlib.h>		// exit
 
 class	Server;
 class	Client {
@@ -42,9 +43,14 @@ class	Client {
 	/*	GETTER	*/
 		int		getSocket() const;
 		Server	*getPtrServer() const;
+		int		getAddrlen() const;
+		struct sockaddr_in	getAddr() const;
 
 
 	/*	STATIC	*/
-		static bool	isClientSocket(int fd, std::vector<Server> &server);
+		static bool	isClientSocket(int fd, std::vector<Client> &clients);
+		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
+		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
+
 
 };
