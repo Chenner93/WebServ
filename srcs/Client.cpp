@@ -115,7 +115,7 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 	fcntl(client.getSocket(), F_SETFL, O_NONBLOCK | flags);
 	struct epoll_event	event;
 	event.data.fd = client.getSocket();
-	event.events = EPOLLIN | EPOLLET;
+	event.events = EPOLLIN;
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, client.getSocket(), &event) < 0) {
 		close(client.getSocket());
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;

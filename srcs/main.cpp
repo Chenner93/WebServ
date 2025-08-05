@@ -80,11 +80,13 @@ int main(int ac, char **av) {
     "\r\n"
     "Hello world!\n";
 
-	#define MAX_EVENTS 10
+	#define MAX_EVENTS	10
+	#define BYTESREAD	10
 	while (g_runWebserv) {
 
 		struct epoll_event	events[MAX_EVENTS];
-		int	n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		int	n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
+		std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
 		for (int i = 0; i < n; i++) {
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
 				std::cout << GREEN "Creation client" RESET << std::endl;
@@ -94,21 +96,22 @@ int main(int ac, char **av) {
 				//JE DOIS LIRE et attention si 0 des la premiere lecture ON FERME TOUUUUT
 				std::cout << GREEN "client et epollin" RESET << std::endl;
 			
-				char	buffer[11];
+				char	buffer[BYTESREAD + 1];
 				memset(buffer, 0, sizeof(buffer));
-				ssize_t bytesSend = recv(events[i].data.fd, buffer, 10, 0);
+				size_t bytesSend = recv(events[i].data.fd, buffer, BYTESREAD, 0);
 				if (bytesSend == 0) {
 					std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
 					Client::closingClient(epoll_fd, events[i].data.fd, clients);
 					continue;
 				}
 				
-				if (bytesSend > 0) {
+				if (bytesSend > 0 && bytesSend == BYTESREAD) {
 					printf("%s", buffer);
 					memset(buffer, 0, sizeof(buffer));
 				}
 				else {
-					events[i].events = EPOLLOUT | EPOLLET;// je dois utiliser CTL
+					std::cout << RED "Got there" RESET << std::endl;
+					events[i].events = EPOLLOUT;// je dois utiliser CTL
 					if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
 						std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 						//detruire le client socket ?
