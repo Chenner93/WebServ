@@ -87,33 +87,38 @@ int main(int ac, char **av) {
 		int	n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
 		for (int i = 0; i < n; i++) {
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
+				std::cout << GREEN "Creation client" RESET << std::endl;
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN)){
 				//JE DOIS LIRE et attention si 0 des la premiere lecture ON FERME TOUUUUT
+				std::cout << GREEN "client et epollin" RESET << std::endl;
 			
-				char	buffer[30000];
+				char	buffer[11];
 				memset(buffer, 0, sizeof(buffer));
-				if (recv(events[i].data.fd, buffer, 30000, 0) == 0) {
+				ssize_t bytesSend = recv(events[i].data.fd, buffer, 10, 0);
+				if (bytesSend == 0) {
 					std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
 					Client::closingClient(epoll_fd, events[i].data.fd, clients);
 					continue;
 				}
-				printf("%s", buffer);
-				memset(buffer, 0, sizeof(buffer));
-				while (recv(events[i].data.fd, buffer, 30000, 0) > 0) {
+				
+				if (bytesSend > 0) {
 					printf("%s", buffer);
 					memset(buffer, 0, sizeof(buffer));
 				}
-				std::cout << std::endl;
-				events[i].events = EPOLLOUT | EPOLLET;// je dois utiliser CTL
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
-					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-					//detruire le client socket ?
-					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+				else {
+					events[i].events = EPOLLOUT | EPOLLET;// je dois utiliser CTL
+					if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
+						std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+						//detruire le client socket ?
+						Client::closingClient(epoll_fd, events[i].data.fd, clients);
+					}
 				}
+				std::cout << std::endl;
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
+				std::cout << GREEN "client et epollout" RESET << std::endl;
 				send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 				std::cout << RED "TEST========" RESET << std::endl;
 				events[i].events = EPOLLIN | EPOLLET;// je dois utiliser CTL

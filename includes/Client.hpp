@@ -27,6 +27,7 @@ class	Client {
 		struct sockaddr_in	_addr;
 		int					_addrlen;
 
+		// std::string			*_request;
 		// char				_buffer[30000];
 		// size_t				_sizeBuffer = 30000;
 

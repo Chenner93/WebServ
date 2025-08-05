@@ -60,7 +60,7 @@ void	Server::setServer(std::string name, std::string ip, int port) {
 }
 
 void	Server::setSocket() {
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
+	_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	int	opt = 1;
 	if (_socket != -1 && (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) < 0) {
 		throw "Error SetsockOPT: ";

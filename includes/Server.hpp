@@ -45,7 +45,6 @@ class	Server {
 		std::string			getName() const;
 		std::string			getIp() const;
 		int					getSocket() const;
-		// std::vector<Client>	getVectorClient() const;
 
 		/*	SETTER	*/
 		void	setServer(std::string name, std::string ip, int port);
@@ -55,13 +54,9 @@ class	Server {
 		void		bindSocket();
 		void		listenSocket();
 		void		addEpollCtl(int epfd);
-		// void		acceptClient();
 
 		static bool	isServerSocket(int fd, std::vector<Server> &server);
-		// static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> clients, int epfd);
 		static void closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<Client> &clients);
-		// static void	closingClient(int epfd, int fd, std::vector<Server> &servers);
-
 
 		/*	DEBUG	*/
 	};
