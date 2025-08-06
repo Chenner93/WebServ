@@ -39,7 +39,7 @@ int main(int ac, char **av) {
 	//check arguments and parse config_file, return vector of Server
 	std::vector<Server>	servers;
 	std::vector<Client>	clients;
-	clients.reserve(100);
+	clients.reserve(10);
 	tmp_config(ac, servers);
 
 	int	epoll_fd = epoll_create1(0);
@@ -94,36 +94,11 @@ int main(int ac, char **av) {
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN)){
 				//JE DOIS LIRE et attention si 0 des la premiere lecture ON FERME TOUUUUT
-				std::cout << GREEN "client et epollin" RESET << std::endl;
-			
-				char	buffer[BYTESREAD + 1];
-				memset(buffer, 0, sizeof(buffer));
-				size_t bytesSend = recv(events[i].data.fd, buffer, BYTESREAD, 0);
-				if (bytesSend == 0) {
-					std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
-					Client::closingClient(epoll_fd, events[i].data.fd, clients);
-					continue;
-				}
-				
-				if (bytesSend > 0 && bytesSend == BYTESREAD) {
-					printf("%s", buffer);
-					memset(buffer, 0, sizeof(buffer));
-				}
-				else {
-					std::cout << RED "Got there" RESET << std::endl;
-					events[i].events = EPOLLOUT;// je dois utiliser CTL
-					if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
-						std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-						//detruire le client socket ?
-						Client::closingClient(epoll_fd, events[i].data.fd, clients);
-					}
-				}
-				std::cout << std::endl;
+				Client::epollinEvent(clients, events[i], epoll_fd);
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
-				std::cout << GREEN "client et epollout" RESET << std::endl;
+				// std::cout << GREEN "client et epollout" RESET << std::endl;
 				send(events[i].data.fd, hello.c_str(), hello.size(), 0);
-				std::cout << RED "TEST========" RESET << std::endl;
 				events[i].events = EPOLLIN | EPOLLET;// je dois utiliser CTL
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
 					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;

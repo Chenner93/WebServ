@@ -9,6 +9,8 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
+#define B_READ	10
+
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -27,7 +29,7 @@ class	Client {
 		struct sockaddr_in	_addr;
 		int					_addrlen;
 
-		// std::string			*_request;
+		std::string			*_request;
 		// char				_buffer[30000];
 		// size_t				_sizeBuffer = 30000;
 
@@ -41,17 +43,21 @@ class	Client {
 		void	setSocket(int fd);
 		void	setServer(Server &server);
 
+		void	appendRequest(char buffer[B_READ + 1]);
+
 	/*	GETTER	*/
-		int		getSocket() const;
-		Server	*getPtrServer() const;
-		int		getAddrlen() const;
+		int					getSocket() const;
+		Server				*getPtrServer() const;
+		int					getAddrlen() const;
 		struct sockaddr_in	getAddr() const;
+		std::string			*getRequest() const;
+
 
 
 	/*	STATIC	*/
 		static bool	isClientSocket(int fd, std::vector<Client> &clients);
 		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
-
+		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
 
 };

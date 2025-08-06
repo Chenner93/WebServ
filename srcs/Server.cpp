@@ -118,8 +118,10 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 	}
 	{
 		std::vector<Client>::iterator	it;
-		for (it = clients.begin(); it != clients.end(); ++it)
+		for (it = clients.begin(); it != clients.end(); ++it) {
 			close(it->getSocket());
+			delete it->getRequest();
+		}
 	}
 	close(epfd);
 }
