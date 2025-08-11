@@ -76,7 +76,7 @@ int main(int ac, char **av) {
 	std::string hello =
     "HTTP/1.1 200 OK\r\n"
     "Content-Type: text/plain\r\n"
-    "Content-Length: 12\r\n"
+    "Content-Length: 13\r\n"
     "\r\n"
     "Hello world!\n";
 
@@ -107,6 +107,7 @@ int main(int ac, char **av) {
 				}
 			}
 		}
+		//Check if timeout ?
 	}
 	Server::closeAllSocket(epoll_fd, servers, clients);
 	std::cout << RED "[INFO] Server(s) Down" RESET << std::endl;

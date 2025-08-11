@@ -30,8 +30,8 @@ class	Client {
 		int					_addrlen;
 
 		std::string			*_request;
-		// char				_buffer[30000];
-		// size_t				_sizeBuffer = 30000;
+
+		bool				_keepAlive;
 
 	public:
 		Client();
@@ -51,6 +51,7 @@ class	Client {
 		int					getAddrlen() const;
 		struct sockaddr_in	getAddr() const;
 		std::string			*getRequest() const;
+		bool				getKeepAlive() const;
 
 
 

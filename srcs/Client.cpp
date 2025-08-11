@@ -8,6 +8,7 @@ Client::Client() {
 	_server = 0;
 	_addrlen = sizeof(_addr);
 	_request = 0;
+	_keepAlive = true;
 }
 
 Client::~Client() {
@@ -19,13 +20,17 @@ Client::Client(const Client& copy) {
 	_socket = copy.getSocket();
 	_server = copy.getPtrServer();
 	_request = copy._request;
+	_keepAlive = copy.getKeepAlive();
 }
 
 Client&	Client::operator = (const Client& src) {
 	std::cout << CYAN "Ope = Client Called" RESET << std::endl;
-	_socket = src.getSocket();
-	_server = src.getPtrServer();
-	_request = src._request;
+	if (this != &src) {
+		_socket = src.getSocket();
+		_server = src.getPtrServer();
+		_request = src._request;
+		_keepAlive = src.getKeepAlive();
+	}
 	return *this;
 }
 
@@ -66,6 +71,10 @@ struct sockaddr_in	Client::getAddr() const {
 
 int		Client::getAddrlen() const {
 	return _addrlen;
+}
+
+bool	Client::getKeepAlive() const {
+	return _keepAlive;
 }
 
 std::string	*Client::getRequest() const {

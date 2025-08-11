@@ -22,6 +22,8 @@ Server::Server(const Server& copy) {
 
 Server&	Server::operator = (const Server& src) {
 	std::cout << "Ope = Server Called" << std::endl;
+	if (this == &src)
+		return *this;
 	_name = src.getName();
 	_ip = src.getIp();
 	_port = src.getPort();
