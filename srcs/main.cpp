@@ -98,6 +98,16 @@ int main(int ac, char **av) {
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
 				// std::cout << GREEN "client et epollout" RESET << std::endl;
+
+				/*		--NEXT STEP HERE--
+					
+					PARSE REQUEST HERE
+					savoir si on doit GET/POST/DEL
+					si autre chose renvoyer une erreur avec "405 Method Not Allowed"
+					ou "400 Bad Request" pour une requete sans methode
+					
+				*/
+
 				send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 				events[i].events = EPOLLIN | EPOLLET;// je dois utiliser CTL
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
