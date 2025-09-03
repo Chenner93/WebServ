@@ -31,12 +31,12 @@ struct ServerConfig
 	int port;								// Port d'écoute (ex: 8080)
 	std::vector<std::string> server_name;	// Noms de serveur optionnels
 	std::map<int, std::string> error_page;	// Codes d'erreurs -> Pages d'erreur
-	std::string client_max_body_size;		// Taille maximale du corps de la requête en bytes
+	size_t client_max_body_size;			// Taille maximale du corps de la requête en bytes
 	std::vector<Location> locations;		// Listes des routes
 
 	// Constructeur par défaut
 	ServerConfig()
-		: host("127.0.0.1"), port(8080), client_max_body_size("1048576") {} //1Mb par défaut
+		: host("127.0.0.1"), port(8080), client_max_body_size(1048576) {} //1Mb par défaut
 };
 
 // Classe de configuration principale
@@ -51,7 +51,7 @@ class Config
 		void parseServer(const std::string &content, size_t &pos);
 		void parseLocation(const std::string &content, size_t &pos, ServerConfig &server);
 		std::string parseValue(const std::string &content, size_t &pos);
-		std::string parseDirective(const std::string &content, size_t &pos);
+		std::vector<std::string> parseList(const std::string &content, size_t &pos);
 		void skipWhitespace(const std::string &content, size_t &pos);
 		void skipComment(const std::string &content, size_t &pos);
 
