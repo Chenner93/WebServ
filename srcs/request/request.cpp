@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 15:51:58 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/11 16:36:30 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ const std::string& Request::getBody() const
 
 
 
-void print_request(const Request& req)
+void Request::print_request(const Request& req)
 {
     std::cout << CYAN << "---- Parsed Request ----" << RESET << "\n";
     std::cout << GREEN << "Method:  " << RESET << req.getMethod() << "\n";
@@ -166,106 +166,106 @@ void printUrlParams(const Request& req)
 }
 
 
-int main()
-{
-    std::string raw1 =
-        "GET /test HTTP/1.1\r\n"
-        "Host: example.com\r\n"
-        "X-Custom: line1\r\n"
-        "  line2-continued\r\n"
-        "\r\n";
+// int main()
+// {
+//     std::string raw1 =
+//         "GET /test HTTP/1.1\r\n"
+//         "Host: example.com\r\n"
+//         "X-Custom: line1\r\n"
+//         "  line2-continued\r\n"
+//         "\r\n";
 
    
-    std::string raw2 =
-        "POST /upload HTTP/1.1\r\n"
-        "Host: example.com\r\n"
-        "Transfer-Encoding: chunked\r\n"
-        "\r\n"
-        "5\r\nHello\r\n"
-        "6\r\n World\r\n"
-        "0\r\n\r\n";
+//     std::string raw2 =
+//         "POST /upload HTTP/1.1\r\n"
+//         "Host: example.com\r\n"
+//         "Transfer-Encoding: chunked\r\n"
+//         "\r\n"
+//         "5\r\nHello\r\n"
+//         "6\r\n World\r\n"
+//         "0\r\n\r\n";
 
   
-    std::string raw3 =
-        "POST /short HTTP/1.1\r\n"
-        "Host: example.com\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 11\r\n"
-        "\r\n"
-        "Hello";
+//     std::string raw3 =
+//         "POST /short HTTP/1.1\r\n"
+//         "Host: example.com\r\n"
+//         "Content-Type: text/plain\r\n"
+//         "Content-Length: 11\r\n"
+//         "\r\n"
+//         "Hello";
 
-    try {
-        std::cout << BLUE << "[TEST 1: Header multiline]" << RESET << "\n";
-        Request r1(raw1);
-        print_request(r1);
-    } catch (std::exception& e) {
-        std::cout << RED << "Test 1 failed: " << e.what() << RESET << "\n";
-    }
+//     try {
+//         std::cout << BLUE << "[TEST 1: Header multiline]" << RESET << "\n";
+//         Request r1(raw1);
+//         print_request(r1);
+//     } catch (std::exception& e) {
+//         std::cout << RED << "Test 1 failed: " << e.what() << RESET << "\n";
+//     }
 
-    try {
-        std::cout << BLUE << "[TEST 2: Chunked Transfer-Encoding]" << RESET << "\n";
-        Request r2(raw2);
-        print_request(r2);
-    } catch (std::exception& e) {
-        std::cout << RED << "Test 2 failed: " << e.what() << RESET << "\n";
-    }
+//     try {
+//         std::cout << BLUE << "[TEST 2: Chunked Transfer-Encoding]" << RESET << "\n";
+//         Request r2(raw2);
+//         print_request(r2);
+//     } catch (std::exception& e) {
+//         std::cout << RED << "Test 2 failed: " << e.what() << RESET << "\n";
+//     }
 
-    try {
-        std::cout << BLUE << "[TEST 3: Content-Length incohérent]" << RESET << "\n";
-        Request r3(raw3);
-        print_request(r3);
-    } catch (std::exception& e) {
-        std::cout << RED << "Test 3 failed: " << e.what() << RESET << "\n";
-    }
-        std::string raw =
-        "GET /search?q=openai&lang=fr&debug=true HTTP/1.1\r\n"
-        "Host: localhost:8080\r\n"
-        "User-Agent: curl/7.81.0\r\n"
-        "\r\n";
+//     try {
+//         std::cout << BLUE << "[TEST 3: Content-Length incohérent]" << RESET << "\n";
+//         Request r3(raw3);
+//         print_request(r3);
+//     } catch (std::exception& e) {
+//         std::cout << RED << "Test 3 failed: " << e.what() << RESET << "\n";
+//     }
+//         std::string raw =
+//         "GET /search?q=openai&lang=fr&debug=true HTTP/1.1\r\n"
+//         "Host: localhost:8080\r\n"
+//         "User-Agent: curl/7.81.0\r\n"
+//         "\r\n";
 
-    Request req(raw);         // ton constructeur appelle parseRequest → qui appelle parse_url
-    printUrlParams(req);      // test d'affichage des paramètres
+//     Request req(raw);         // ton constructeur appelle parseRequest → qui appelle parse_url
+//     printUrlParams(req);      // test d'affichage des paramètres
 
-    // ----------- TESTS decode_url ------------
-    std::cout << GREEN << "\n[TESTS: decode_url]\n" << RESET;
+//     // ----------- TESTS decode_url ------------
+//     std::cout << GREEN << "\n[TESTS: decode_url]\n" << RESET;
 
-    std::vector<std::string> inputs = {
-    "Jean%20Dupont",
-    "email%3Auser%40test.com",
-    "path%2Fto%2Ffile",
-    "value+with+plus",
-    "normaltext",
-    "%2G",     // invalide
-    "%",       // invalide
-    "end%",    // invalide
-    "mixed%20text+with%2Fencoded+stuff"
-};
+//     std::vector<std::string> inputs = {
+//     "Jean%20Dupont",
+//     "email%3Auser%40test.com",
+//     "path%2Fto%2Ffile",
+//     "value+with+plus",
+//     "normaltext",
+//     "%2G",     // invalide
+//     "%",       // invalide
+//     "end%",    // invalide
+//     "mixed%20text+with%2Fencoded+stuff"
+// };
 
-for (std::size_t i = 0; i < inputs.size(); ++i)
-{
-    std::string decoded = utils_parsing::decode_url(inputs[i]);
-    std::cout << CYAN << "Test " << i + 1 << RESET << " | ";
-    std::cout << "Input: \"" << inputs[i] << "\" → ";
-    std::cout << "Decoded: \"" << decoded << "\"\n";
-}
-std::string test = "nom=Jean%20Dupont&ville=St%20Ouen&erreur=%GZ&incomplet=%5";
-std::vector<std::string> pairs = utils_parsing::split_on_substr(test, "&", false);
+// for (std::size_t i = 0; i < inputs.size(); ++i)
+// {
+//     std::string decoded = utils_parsing::decode_url(inputs[i]);
+//     std::cout << CYAN << "Test " << i + 1 << RESET << " | ";
+//     std::cout << "Input: \"" << inputs[i] << "\" → ";
+//     std::cout << "Decoded: \"" << decoded << "\"\n";
+// }
+// std::string test = "nom=Jean%20Dupont&ville=St%20Ouen&erreur=%GZ&incomplet=%5";
+// std::vector<std::string> pairs = utils_parsing::split_on_substr(test, "&", false);
 
-for (size_t i = 0; i < pairs.size(); ++i)
-{
-	std::size_t eq = pairs[i].find('=');
-	if (eq == std::string::npos)
-		continue;
+// for (size_t i = 0; i < pairs.size(); ++i)
+// {
+// 	std::size_t eq = pairs[i].find('=');
+// 	if (eq == std::string::npos)
+// 		continue;
 
-	std::string key = utils_parsing::decode_url(pairs[i].substr(0, eq));
-	std::string value = utils_parsing::decode_url(pairs[i].substr(eq + 1));
+// 	std::string key = utils_parsing::decode_url(pairs[i].substr(0, eq));
+// 	std::string value = utils_parsing::decode_url(pairs[i].substr(eq + 1));
 
-	std::cout << key << " = " << value << "\n";
-}
+// 	std::cout << key << " = " << value << "\n";
+// }
 
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 

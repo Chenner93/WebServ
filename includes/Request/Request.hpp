@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 16:22:25 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/11 16:35:56 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #define BLUE    "\033[34m"
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
-
+class Client;
 
 class Request
 {
@@ -55,6 +55,7 @@ class Request
     std::string getUrlParam(const std::string& key) const;
     void parse_url();
     void print_request(const Request& req);
+    void handleClientRequest(Client &client);
 };
 
 #endif

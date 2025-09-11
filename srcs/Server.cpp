@@ -136,7 +136,7 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 
 //  request 
 
-void Server::handleClientRequest(Client &client) {
+void Request::handleClientRequest(Client &client) {
     char buffer[4096];
     ssize_t bytes_received = recv(client.getSocket(), buffer, sizeof(buffer) - 1, 0);
     if (bytes_received <= 0) {
