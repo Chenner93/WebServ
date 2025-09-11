@@ -36,6 +36,10 @@ SRCS := \
 	$(SRC_DIR)/main.cpp \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Client.cpp \
+	srcs/request/request.cpp\
+	srcs/request/url_parsing.cpp\
+	srcs/request/utils_parsing.cpp\
+	srcs/request/decode_url.cpp
 
 
   ################################
