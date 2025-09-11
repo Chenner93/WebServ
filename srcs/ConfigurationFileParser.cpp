@@ -230,6 +230,133 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 	server.locations.push_back(location);
 }
 
+std::string Config::parseValue(const std::string& content, size_t& pos)
+{
+	std::string value;
+
+	skipWhitespace(content, pos);
+
+	while (pos < content.length() && content[pos] != ';' && content[pos] != '\n' && !std::isspace(content[pos]))
+	{
+		value += content[pos++];
+	}
+
+	// Ignorer le point-virgule optionnel
+	skipWhitespace(content, pos);
+	if (pos < content.length() && content[pos] == ';')
+		pos++;
+
+	return value;
+}
+
+std::vector<std::string> Config::parseList(const std::string& content, size_t& pos)
+{
+	std::vector<std::string> list;
+	std::string current_item;
+
+	skipWhitespace(content, pos);
+
+	while (pos < content.length() && content[pos] != ';' && content[pos] != '\n')
+	{
+		if (std::isspace(content[pos]))
+		{
+			if (!current_item.empty())
+			{
+				list.push_back(current_item);
+				current_item.clear();
+			}
+			skipWhitespace(content, pos);
+		}
+		else
+		{
+			current_item += content[pos++];
+		}
+	}
+
+	if (!current_item.empty())
+	{
+		list.push_back(current_item);
+	}
+
+	// Ignorer le point-virgule optionnel
+	skipWhitespace(content, pos);
+	if (pos < content.length() && content[pos] == ';')
+		pos++;
+
+	return list;
+}
+
+bool Config::validateConfig()
+{
+	if (servers.empty())
+	{
+		std::cerr << "Error: No server blocks defined in configuration." << std::endl;
+		return false;
+	}
+
+	for (const ServerConfig& server : servers)
+	{
+		if (!isValidPort(server.port))
+		{
+			std::cerr << "Error: Invalid port number: " << server.port << std::endl;
+			return false;
+		}
+
+		for (const Location& location : server.locations)
+		{
+			for (const std::string& method : location.allow_methods)
+			{
+				if (!isValidMethod(method))
+				{
+					std::cerr << "Error: Invalid HTTP method in location " << location.path << ": " << method << std::endl;
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+bool Config::isValidMethod(const std::string& method)
+{
+	return (method == "GET" || method == "POST" || method == "DELETE");
+}
+
+bool Config::isValidPort(int port)
+{
+	return (port > 0 && port <= 65535);
+}
+
+const std::vector<ServerConfig>& Config::getServers() const
+{
+	return servers;
+}
+
+ServerConfig *Config::findServer(const std::string &host, int port, const std::string &server_name)
+{
+	if (!server_name.empty())
+	{
+		for (ServerConfig &server : servers)
+		{
+			if (server.host == host && server.port == port)
+			{
+				for (const std::string &name : server.server_name)
+				{
+					if (name == server_name)
+						return (&server);
+				}
+			}
+		}
+	}
+
+	for (ServerConfig &server : servers)
+	{
+		if (server.host == host && server.port == port)
+			return (&server);
+	}
+	return (NULL);
+}
+
 void Config::skipWhitespace(const std::string& content, size_t& pos)
 {
 	while (pos < content.length() && std::isspace(content[pos]))
