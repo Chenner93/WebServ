@@ -42,10 +42,10 @@ bool	Config::parseConfigFile(const std::string &config_path)
 				break;
 
 			// Détecter et parser un bloc server
-			if (content.compare(pos, 6, "server") == 0)
+			if (content.substr(pos, 6) == "server")
 			{
-				parseServer(content, pos);
 				pos += 6; // Move past the "server" keyword
+				parseServer(content, pos);
 			}
 			// Ignorer les autres lignes
 			else
@@ -294,18 +294,21 @@ bool Config::validateConfig()
 		return false;
 	}
 
-	for (const ServerConfig& server : servers)
+	for (size_t i = 0; i < servers.size(); i++)
 	{
+		const ServerConfig &server = servers[i];
 		if (!isValidPort(server.port))
 		{
 			std::cerr << "Error: Invalid port number: " << server.port << std::endl;
 			return false;
 		}
 
-		for (const Location& location : server.locations)
+		for (size_t j = 0; j < server.locations.size(); j++)
 		{
-			for (const std::string& method : location.allow_methods)
+			const Location &location = server.locations[j];
+			for (size_t k = 0; k < location.allow_methods.size(); k++)
 			{
+				const std::string &method = location.allow_methods[k];
 				if (!isValidMethod(method))
 				{
 					std::cerr << "Error: Invalid HTTP method in location " << location.path << ": " << method << std::endl;
@@ -336,12 +339,14 @@ ServerConfig *Config::findServer(const std::string &host, int port, const std::s
 {
 	if (!server_name.empty())
 	{
-		for (ServerConfig &server : servers)
+		for (size_t i = 0; i < servers.size(); i++)
 		{
+			ServerConfig &server = servers[i];
 			if (server.host == host && server.port == port)
 			{
-				for (const std::string &name : server.server_name)
+				for (size_t j = 0; j < server.server_name.size(); j++)
 				{
+					const std::string &name = server.server_name[j];
 					if (name == server_name)
 						return (&server);
 				}
@@ -349,8 +354,9 @@ ServerConfig *Config::findServer(const std::string &host, int port, const std::s
 		}
 	}
 
-	for (ServerConfig &server : servers)
+	for (size_t i = 0; i < servers.size(); i++)
 	{
+		ServerConfig &server = servers[i];
 		if (server.host == host && server.port == port)
 			return (&server);
 	}

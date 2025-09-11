@@ -36,6 +36,7 @@ SRCS := \
 	$(SRC_DIR)/main.cpp \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Client.cpp \
+	$(SRC_DIR)/ConfigurationFileParser.cpp \
 
 
   ################################

@@ -1,6 +1,7 @@
 #include <webserv.hpp>
 #include <Server.hpp>
 #include <Client.hpp>
+#include <Config.hpp>
 
 #include <sys/socket.h>
 
@@ -34,6 +35,9 @@ void	tmp_config(int ac, std::vector<Server> &server) {
 int main(int ac, char **av) {
 
 	(void)av;
+
+	Config config;
+	config.parseConfigFile("./Configuration_Files/DefaultWebserv.conf");
 	signal(SIGINT, closeWebserv);
 
 	//check arguments and parse config_file, return vector of Server
