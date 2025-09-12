@@ -159,7 +159,10 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 	Location location;
 
 	skipWhitespace(content, pos);
-	if (content[pos] != '{')
+	location.path = parseValue(content, pos);
+	skipWhitespace(content, pos);
+
+	if (pos >= content.length() || content[pos] != '{')
 		throw std::runtime_error("Expected '{' after server directive");
 	pos++; // Skip '{'
 

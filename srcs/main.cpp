@@ -38,6 +38,7 @@ int main(int ac, char **av) {
 
 	Config config;
 	config.parseConfigFile("./Configuration_Files/DefaultWebserv.conf");
+	config.printConfig();
 	signal(SIGINT, closeWebserv);
 
 	//check arguments and parse config_file, return vector of Server
