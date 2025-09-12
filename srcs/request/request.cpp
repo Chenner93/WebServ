@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 16:36:30 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/12 12:46:50 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,27 @@ void printUrlParams(const Request& req)
         std::cout << "  " << it->first << " = " << it->second << "\n";
     }
 }
+
+void Request::handleClientRequest(Client &client) 
+{
+    char buffer[4096];
+    ssize_t bytes_received = recv(client.getSocket(), buffer, sizeof(buffer) - 1, 0);
+    if (bytes_received <= 0) {
+        return;
+    }
+    buffer[bytes_received] = '\0';
+    std::string rawRequest(buffer);
+
+    try {
+        Request request(rawRequest);
+        request.parse_url();
+         request.print_request(request); 
+      
+    } catch (const std::exception &e) {
+        std::cerr << "Bad Request: " << e.what() << std::endl;
+    }
+}
+
 
 
 // int main()

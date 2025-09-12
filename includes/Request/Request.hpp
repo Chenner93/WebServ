@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 16:35:56 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/12 13:14:15 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include<vector>
 #include <stdexcept>
 #include<iomanip>
+#include <netinet/in.h>
+#include"../Client.hpp"
 #include"Utils_parsing.hpp"
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
@@ -55,7 +57,9 @@ class Request
     std::string getUrlParam(const std::string& key) const;
     void parse_url();
     void print_request(const Request& req);
-    void handleClientRequest(Client &client);
+   static void handleClientRequest(Client &client);
+
+   
 };
 
 #endif

@@ -22,6 +22,7 @@
 #include <unistd.h>     // POSIX : read(), write(), close()
 #include <fcntl.h>
 #include <stdio.h>
+#include"Request/Request.hpp"
 
 class	Server {
 

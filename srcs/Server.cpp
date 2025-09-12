@@ -134,25 +134,5 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 
 
 
-//  request 
-
-void Request::handleClientRequest(Client &client) {
-    char buffer[4096];
-    ssize_t bytes_received = recv(client.getSocket(), buffer, sizeof(buffer) - 1, 0);
-    if (bytes_received <= 0) {
-        // Gestion de déconnexion
-        return;
-    }
-    buffer[bytes_received] = '\0';
-    std::string rawRequest(buffer);
-
-    try {
-        Request request(rawRequest);
-        request.parse_url();
-         request.print_request(request); 
-      
-    } catch (const std::exception &e) {
-        std::cerr << "Bad Request: " << e.what() << std::endl;
-    }
-}
+// Handle request 
 
