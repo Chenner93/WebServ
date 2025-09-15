@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/12 13:14:15 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/15 15:40:54 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,6 @@ class Request
     void parse_url();
     void print_request(const Request& req);
    static void handleClientRequest(Client &client);
-
-   
 };
 
 #endif

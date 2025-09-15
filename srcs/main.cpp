@@ -3,6 +3,7 @@
 #include <Client.hpp>
 // #include<Request.hpp>
 #include<../includes/Request/Request.hpp>
+#include<../includes/Request/Response.hpp>
 #include <sys/socket.h>
 
 bool	g_runWebserv = true;
@@ -105,8 +106,14 @@ int main(int ac, char **av) {
 
                 try {
                     Request req(rawRequest);
+                    Response response;
+                    std::string res = response.Methodes(req);
                     req.parse_url();
+                    std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
                     req.print_request(req); 
+                    response.Methodes(req);
+                    send(events[i].data.fd, res.c_str(), res.size(), 0);
+                    
                 }
                 catch (const std::exception &e) {
                     std::cerr << "Bad Request: " << e.what() << std::endl;
@@ -121,7 +128,7 @@ int main(int ac, char **av) {
             }
             else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
                 // Écriture de la réponse
-                send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+                // send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 
                 // Repasser en lecture
                 events[i].events = EPOLLIN | EPOLLET;
