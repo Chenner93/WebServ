@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/15 17:52:37 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/16 14:10:40 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,10 @@ std::string Response::Methodes(const Request &request)
     else if (request.getMethod() == "POST")
                 return handlePost(request);
     else if (request.getMethod() == "DELETE")
+    {
+        std::cout<<CYAN<<"pass in METHODE delete"<<RESET<<std::endl;
                return handleDelete(request);
+    }
     else
         return Response::sendError(405, "Method Not Allowed");
     return("");
@@ -116,14 +119,16 @@ std::string  Response::handleDelete(const  Request& request)
     std::string path  = "." +  request.getPath();
     if(remove(path.c_str()) == 0)
     {
-            std::string msg = "file  deleted sucessfully";
+        std::cout<<YELLOW<<"pass  in remove if beggin"<<RESET<<std::endl;
+            std::string msg = "file  deleted sucessfully\n";
     
-     std::ostringstream response;
-        response<<"HTTP/1.1 200 ok\r\n"
-        <<"constent-Length:" <<msg.size()<<"\r\n"
-        <<"Content-Type: text/pain\r\n"
-        <<"\r\n"
-        << msg;
+   
+        std::ostringstream response;
+        response << "HTTP/1.1 200 OK\r\n"
+                 << "Content-Length: " << msg.size() << "\r\n"
+                 << "Content-Type: text/plain\r\n" << "\r\n"
+                 << msg;
+        std::cout << CYAN << response.str() << RESET << std::endl;
         return(response.str());   
     }
     else
