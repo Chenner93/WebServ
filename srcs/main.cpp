@@ -110,10 +110,8 @@ int main(int ac, char **av) {
                     std::string res = response.Methodes(req);
                     req.parse_url();
                     std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
-                    req.print_request(req); 
-                    response.Methodes(req);
+                    // req.print_request(req); 
                     send(events[i].data.fd, res.c_str(), res.size(), 0);
-                    
                 }
                 catch (const std::exception &e) {
                     std::cerr << "Bad Request: " << e.what() << std::endl;

@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/16 14:10:40 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/17 11:05:55 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,6 @@ std::string  Response::handleDelete(const  Request& request)
                  << "Content-Length: " << msg.size() << "\r\n"
                  << "Content-Type: text/plain\r\n" << "\r\n"
                  << msg;
-        std::cout << CYAN << response.str() << RESET << std::endl;
         return(response.str());   
     }
     else

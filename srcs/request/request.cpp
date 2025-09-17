@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/15 17:20:16 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/17 15:21:47 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,8 @@ void Request::parseRequest(const std::string& raw)
     Request::parse_one_line(lines);
     Request::parse_url();
     headers.clear();
-
+    
+    
     
     for (std::size_t i = 1; i < lines.size(); ++i)
     {
@@ -103,6 +104,17 @@ void Request::parseRequest(const std::string& raw)
             headers[utils_parsing::to_lower(key)] = value;
     }
     body = body_part;
+
+    if (headers.count("transfer-encoding") &&
+    headers["transfer-encoding"] == "chunked")
+{
+    this->body = parseChunkedBody(body);
+}
+else
+{
+    this->body = body_part;
+}
+
 }
 
 
@@ -186,6 +198,8 @@ void Request::handleClientRequest(Client &client)
         std::cerr << "Bad Request: " << e.what() << std::endl;
     }
 }
+
+ 
 
 
 
