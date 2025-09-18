@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/17 13:47:44 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:40:28 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include<iomanip>
 #include <netinet/in.h>
+#include<algorithm>
 #include"../Client.hpp"
 #include"Utils_parsing.hpp"
 #define RESET   "\033[0m"
@@ -38,7 +39,10 @@ class Request
     std::string version;
     std::map<std::string, std::string>headers;
     std::string body;
+    std::string raw_body; 
     std::map<std::string, std::string> url_params;
+	
+
     
     public:
     Request(const std::string& line_request);
@@ -59,6 +63,7 @@ class Request
     void print_request(const Request& req);
    static void handleClientRequest(Client &client);
    std::string parseChunkedBody(const std::string& rawBody);
+   
 };
 
 #endif

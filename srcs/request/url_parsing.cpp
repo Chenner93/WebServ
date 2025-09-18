@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:03:43 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 14:06:01 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/18 18:20:19 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,35 @@ std::string Request::getUrlParam(const std::string& key) const
 
 
 
+void utils_parsing::clean_chunk_lines(std::vector<std::string>& lines)
+{
+	std::vector<std::string> result;
 
+	for (size_t i = 0; i < lines.size(); ++i)
+	{
+		std::string cleaned;
+		const std::string& line = lines[i];
+
+		// Retirer les séquences littérales "\r"
+		for (size_t j = 0; j < line.length(); ++j)
+		{
+			if (line[j] == '\\' && j + 1 < line.length() && line[j + 1] == 'r')
+			{
+				j++; // skip 'r'
+				continue;
+			}
+			cleaned += line[j];
+		}
+
+		// Retirer les espaces autour
+		cleaned = utils_parsing::trim(cleaned);
+
+		// Si ligne encore vide après nettoyage, on ignore
+		if (cleaned.empty())
+			continue;
+
+		result.push_back(cleaned);
+	}
+
+	lines = result; // Remplacer le vector original
+}

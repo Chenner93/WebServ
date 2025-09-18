@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/17 15:21:47 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/18 16:28:48 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,35 +67,88 @@ std::vector<std::string> Request::parse_all_lines(const std::string& head)
     return utils_parsing::split_on_substr(head, "\r\n", /*keep_empty=*/false);
 }
 
+
+
+
+// void Request::parseRequest(const std::string& raw)
+// {
+//     if (raw.empty())
+//         throw std::runtime_error("empty request");
+
+//     std::string head;
+//     if (!split_http_head_body(raw, head, raw_body))
+//         throw std::runtime_error("incomplete HTTP headers");
+
+//     std::vector<std::string> lines = Request::parse_all_lines(head);
+//     if (lines.empty())
+//         throw std::runtime_error("invalid request: empty head");
+
+ 
+//     Request::parse_one_line(lines);
+//     Request::parse_url();
+//     headers.clear();
+    
+    
+    
+//     for (std::size_t i = 1; i < lines.size(); ++i)
+//     {
+//         const std::string& line = lines[i];
+//         if (line.empty()) continue;
+
+        
+//         std::size_t pos = line.find(':');
+//         if (pos == std::string::npos)
+//             continue; 
+
+//         std::string key   = utils_parsing::trim(line.substr(0, pos));
+//         std::string value = utils_parsing::trim(line.substr(pos + 1));
+
+//         if (!key.empty())
+//             headers[utils_parsing::to_lower(key)] = value;
+//     }
+//      body = raw_body;
+//    if (headers.count("transfer-encoding") &&
+//     utils_parsing::to_lower(headers["transfer-encoding"]) == "chunked")
+// {
+//     std::cout << GREEN << "raw_body is " << raw_body << RESET << std::endl;
+//     std::cout << YELLOW << "pass in  cond if parseChunkedBody" << RESET << std::endl;
+//     this->body = parseChunkedBody(raw_body);
+// }
+// else
+// {
+//     this->body = raw_body;
+// }
+
+// }
+
+
 void Request::parseRequest(const std::string& raw)
 {
     if (raw.empty())
         throw std::runtime_error("empty request");
 
-    std::string head, body_part;
-    if (!split_http_head_body(raw, head, body_part))
+    std::string head;
+    if (!split_http_head_body(raw, head, raw_body))
         throw std::runtime_error("incomplete HTTP headers");
 
+    // Analyse ligne par ligne
     std::vector<std::string> lines = Request::parse_all_lines(head);
     if (lines.empty())
         throw std::runtime_error("invalid request: empty head");
 
- 
     Request::parse_one_line(lines);
     Request::parse_url();
+
+    // Parser les headers
     headers.clear();
-    
-    
-    
     for (std::size_t i = 1; i < lines.size(); ++i)
     {
         const std::string& line = lines[i];
         if (line.empty()) continue;
 
-        
         std::size_t pos = line.find(':');
         if (pos == std::string::npos)
-            continue; 
+            continue;
 
         std::string key   = utils_parsing::trim(line.substr(0, pos));
         std::string value = utils_parsing::trim(line.substr(pos + 1));
@@ -103,19 +156,24 @@ void Request::parseRequest(const std::string& raw)
         if (!key.empty())
             headers[utils_parsing::to_lower(key)] = value;
     }
-    body = body_part;
 
+    // Gestion du Transfer-Encoding: chunked
     if (headers.count("transfer-encoding") &&
-    headers["transfer-encoding"] == "chunked")
-{
-    this->body = parseChunkedBody(body);
-}
-else
-{
-    this->body = body_part;
+        utils_parsing::to_lower(headers["transfer-encoding"]) == "chunked")
+    {
+        std::cout << GREEN << "[DEBUG] raw_body is:\n[" << raw_body << "]" << RESET << std::endl;
+        std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is chunked" << RESET << std::endl;
+
+        this->body = parseChunkedBody(raw_body);
+    }
+    else
+    {
+        std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is NOT chunked" << RESET << std::endl;
+        this->body = raw_body;
+    }
 }
 
-}
+
 
 
 const std::string& Request::getMethod() const 

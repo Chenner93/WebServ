@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:04:26 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/11 14:09:35 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/18 18:45:38 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,16 @@
 #include<iomanip>
 #include <map>
 #include <set>
+#include <algorithm>
+#include <string>
 
-
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
 
 namespace utils_parsing
 {
@@ -34,4 +42,7 @@ namespace utils_parsing
     std::vector<std::string>
     split_on_substr(const std::string& s, const std::string& delim, bool keep_empty = true);
     std::string decode_url(const std::string& str);
+      bool is_alphabetic(const std::string& str);
+      std::string remove_all_r(const std::string& s);
+      void clean_chunk_lines(std::vector<std::string>& lines);
 };

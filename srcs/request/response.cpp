@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/17 11:05:55 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/18 19:27:40 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ std::string Response::handleGet(const Request &request)
 std::string  Response::handlePost(const Request& request)
 {
     std::string body = request.getBody();
-    
+     std::cout << MAGENTA << "[DEBUG] Body in handlePost: [" << body << "]" << RESET << std::endl;
     std::ostringstream response;
     response << "HTTP/1.1 200 OK\r\n" 
     << "Content-Type: text/plain\r\n" <<
