@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/18 16:40:28 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/19 14:19:37 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@ class Request
     void print_request(const Request& req);
    static void handleClientRequest(Client &client);
    std::string parseChunkedBody(const std::string& rawBody);
+   static std::string ParseBoundary(const std::map<std::string, std::string>& headers);
+
    
 };
 

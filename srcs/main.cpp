@@ -107,8 +107,8 @@ int main(int ac, char **av) {
                 try {
                     Request req(rawRequest);
                     Response response;
-                    std::string res = response.Methodes(req);
                     req.parse_url();
+                    std::string res = response.Methodes(req);
                     std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
                     // req.print_request(req); 
                     send(events[i].data.fd, res.c_str(), res.size(), 0);
