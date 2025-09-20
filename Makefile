@@ -41,7 +41,8 @@ SRCS := \
 	srcs/request/utils_parsing.cpp\
 	srcs/request/url_parsing.cpp\
 	srcs/request/response.cpp\
-	srcs/request/chunked.cpp
+	srcs/request/chunked.cpp\
+	srcs/request/parse_multi_part.cpp\
 
 
 define ASCII_ART

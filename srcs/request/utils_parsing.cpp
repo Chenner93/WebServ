@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:05:27 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/18 19:06:01 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/20 14:42:34 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,20 @@ std::vector<std::string> utils_parsing::ft_split(const std::string &str, char de
 	if (!current.empty())
 		result.push_back(trim(current));
 	return (result);
+}
+
+std::vector<std::string> utils_parsing::split_on_substring(const std::string& input, const std::string& delimiter)
+{
+	std::vector<std::string> result;
+	size_t pos = 0;
+	size_t prev = 0;
+
+	while ((pos = input.find(delimiter, prev)) != std::string::npos) {
+		result.push_back(input.substr(prev, pos - prev));
+		prev = pos + delimiter.length();
+	}
+	result.push_back(input.substr(prev));
+	return result;
 }
 
 std::vector<std::string> utils_parsing:: multi_split(const std::string& str, const std::string& seps)

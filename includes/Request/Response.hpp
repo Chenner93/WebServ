@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/15 17:19:11 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/20 12:15:18 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Response
      std::string  handlePost(const  Request& req);
      std::string  handleDelete(const  Request& req);
      std::string sendError(int code, const std::string& msg);
+
 };
 
 #endif

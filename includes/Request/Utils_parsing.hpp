@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:04:26 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/18 18:45:38 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/20 14:45:44 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,4 +45,5 @@ namespace utils_parsing
       bool is_alphabetic(const std::string& str);
       std::string remove_all_r(const std::string& s);
       void clean_chunk_lines(std::vector<std::string>& lines);
+      std::vector<std::string> split_on_substring(const std::string& input, const std::string& delimiter);
 };

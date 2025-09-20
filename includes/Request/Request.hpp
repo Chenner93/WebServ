@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/19 14:19:37 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/20 14:27:19 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,16 @@ class Client;
 
 class Request
 {
+    public:
+    struct FormDataPart 
+    {
+	    std::string name;
+	    std::string filename;
+	    std::string content;
+	    std::string contentType;
+	    size_t contentLength;
+    };
+    
     private:
     std::string method;
     std::string path;
@@ -41,6 +51,7 @@ class Request
     std::string body;
     std::string raw_body; 
     std::map<std::string, std::string> url_params;
+    std::vector<FormDataPart> formDataParts;
 	
 
     
@@ -61,9 +72,14 @@ class Request
     std::string getUrlParam(const std::string& key) const;
     void parse_url();
     void print_request(const Request& req);
-   static void handleClientRequest(Client &client);
-   std::string parseChunkedBody(const std::string& rawBody);
-   static std::string ParseBoundary(const std::map<std::string, std::string>& headers);
+    static void handleClientRequest(Client &client);
+    std::string parseChunkedBody(const std::string& rawBody);
+    static std::string ParseBoundary(const std::map<std::string, std::string>& headers);
+    static  std::map<std::string, std::string> parseContentDisposition(const std::string& line);
+    const std::vector<FormDataPart>& getFormDataParts() const;
+    static std::vector<FormDataPart> parseMultipartFormData(const std::string& body, const std::string& boundary);
+    
+
 
    
 };
