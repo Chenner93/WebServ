@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/18 16:28:48 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/23 10:27:37 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,10 @@ bool Request::split_http_head_body(const std::string& raw,
                                    std::string& head,
                                    std::string& body_part)
 {
+    std::cout << GREEN << "[DEBUG] ENTREE parseRequest() → RAW COMPLET ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓" << RESET << std::endl;
+std::cout << raw << std::endl;
+std::cout << GREEN << "[DEBUG] FIN RAW" << RESET << std::endl;
+
     const std::string sep = "\r\n\r\n";
     std::size_t p = raw.find(sep);
     if (p == std::string::npos) return false;
@@ -167,7 +171,7 @@ void Request::parseRequest(const std::string& raw)
         this->body = parseChunkedBody(raw_body);
     }
     else
-    {
+    { 
         std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is NOT chunked" << RESET << std::endl;
         this->body = raw_body;
     }

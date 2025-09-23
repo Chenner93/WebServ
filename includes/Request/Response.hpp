@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/20 12:15:18 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/09/22 13:59:48 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class Response
      std::string  handlePost(const  Request& req);
      std::string  handleDelete(const  Request& req);
      std::string sendError(int code, const std::string& msg);
+     void saveFormDataToDisk(const Request::FormDataPart& part);
+     std::string sendErrorAsString(int code, const std::string& message);
 
 };
 
