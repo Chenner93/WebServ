@@ -32,6 +32,7 @@ class	Client {
 		std::string			*_request;
 
 		bool				_keepAlive;
+		std::string 		_responseToSend;
 
 	public:
 		Client();

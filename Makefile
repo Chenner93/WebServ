@@ -16,7 +16,7 @@ Red=\033[0;31m
 Green=\033[0;32m
 Yellow=\033[0;33m
 Blue=\033[0;34m
-Purple=\033[0;35m
+Purple=\033[1;35m
 Cyan=\033[0;36m
 White=\033[0;37m
 
@@ -37,7 +37,26 @@ SRCS := \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Client.cpp \
 	$(SRC_DIR)/ConfigurationFileParser.cpp \
+	srcs/request/request.cpp\
+	srcs/request/url_parsing.cpp\
+	srcs/request/utils_parsing.cpp\
+	srcs/request/url_parsing.cpp\
+	srcs/request/response.cpp\
+	srcs/request/chunked.cpp\
+	srcs/request/parse_multi_part.cpp\
 
+
+define ASCII_ART
+$(Green)
+__        _______ ____    ____  _____ ______     _______ ____  
+\ \      / / ____| __ )  / ___|| ____|  _ \ \   / / ____|  _ \ 
+ \ \ /\ / /|  _| |  _ \  \___ \|  _| | |_) \ \ / /|  _| | |_) |
+  \ V  V / | |___| |_) |  ___) | |___|  _ < \ V / | |___|  _ < 
+   \_/\_/  |_____|____/  |____/|_____|_| \_\ \_/  |_____|_| \_\
+
+$(RESET)
+endef
+export ASCII_ART
 
   ################################
  #	OBJS FILES && DEPENDANCIES	#
@@ -58,6 +77,7 @@ INCLUDES := -I$(INC_DIR)
 all: $(NAME)
 
 $(NAME): $(OBJS)
+	@echo "$$ASCII_ART"
 	@$(CC) $(CXXFLAGS) $(INCLUDES) -o $@ $^
 	@echo "$(Green)$(NAME) CREATED$(White)"
 

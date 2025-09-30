@@ -1,4 +1,5 @@
 #include <Server.hpp>
+#include<../includes/Request/Request.hpp>
 
 Server::Server() {
 	std::cout << "Constructor Server Called" << std::endl;
@@ -130,4 +131,8 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 
   /********* */	
  /*	DEBUG	*/
-/********* */
+
+
+
+// Handle request 
+
