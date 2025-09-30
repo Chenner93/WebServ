@@ -37,19 +37,38 @@ void	tmp_config(int ac, std::vector<Server> &server) {
 
 
 int main(int ac, char **av) {
-    (void)av;
-    signal(SIGINT, closeWebserv);
 
-	(void)av;
+	signal(SIGINT, closeWebserv);
+
+	std::string config_file = (ac > 1) ? av[1] : "./Configuration_Files/DefaultWebserv.conf";
 
 	Config config;
-	config.parseConfigFile("./Configuration_Files/DefaultWebserv.conf");
-	config.printConfig();
+	if (!config.parseConfigFile(config_file))
+	{
+		std::cerr << RED "Error: Failed to parse configuration file" RESET << std::endl;
+		return 1;
+	}
+
 	signal(SIGINT, closeWebserv);
     std::vector<Server> servers;
     std::vector<Client> clients;
     clients.reserve(10);
-    tmp_config(ac, servers);
+
+	const std::vector<ServerConfig>& server_configs = config.getServers();
+    
+    if (server_configs.empty()) {
+        std::cerr << RED "Error: No servers defined in configuration" RESET << std::endl;
+        return 1;
+    }
+    
+    servers.reserve(server_configs.size());
+    
+    for (size_t i = 0; i < server_configs.size(); ++i) {
+        Server server;
+        server.initServer(server_configs[i]);
+        server.printServerInfo();
+        servers.push_back(server);
+    }
 
     int epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
