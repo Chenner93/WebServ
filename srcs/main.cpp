@@ -50,123 +50,130 @@ int main(int ac, char **av) {
 	}
 
 	signal(SIGINT, closeWebserv);
-    std::vector<Server> servers;
-    std::vector<Client> clients;
-    clients.reserve(10);
+	std::vector<Server> servers;
+	std::vector<Client> clients;
+	clients.reserve(10);
 
 	const std::vector<ServerConfig>& server_configs = config.getServers();
-    
-    if (server_configs.empty()) {
-        std::cerr << RED "Error: No servers defined in configuration" RESET << std::endl;
-        return 1;
-    }
-    
-    servers.reserve(server_configs.size());
-    
-    for (size_t i = 0; i < server_configs.size(); ++i) {
-        Server server;
-        server.initServer(server_configs[i]);
-        server.printServerInfo();
-        servers.push_back(server);
-    }
+	
+	if (server_configs.empty()) {
+		std::cerr << RED "Error: No servers defined in configuration" RESET << std::endl;
+		return 1;
+	}
+	
+	servers.reserve(server_configs.size());
+	
+	for (size_t i = 0; i < server_configs.size(); ++i) {
+		Server server;
+		server.initServer(server_configs[i]);
+		server.printServerInfo();
+		servers.push_back(server);
+	}
 
-    int epoll_fd = epoll_create1(0);
-    if (epoll_fd == -1) {
-        std::cerr << RED "Error: " RESET << std::strerror(errno) << std::endl;
-        exit(EXIT_FAILURE);
-    }
+	int epoll_fd = epoll_create1(0);
+	if (epoll_fd == -1) {
+		std::cerr << RED "Error: " RESET << std::strerror(errno) << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-    try {
-        for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it) {
-            it->setSocket();
-            if (it->getSocket() == -1)
-                throw "Error SetSocket: ";
+	try {
+		for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it) {
+			it->setSocket();
+			if (it->getSocket() == -1)
+				throw "Error SetSocket: ";
 
-            it->setSockAddr();
-            it->bindSocket();
-            it->listenSocket();
-            it->addEpollCtl(epoll_fd);
+			it->setSockAddr();
+			it->bindSocket();
+			it->listenSocket();
+			it->addEpollCtl(epoll_fd);
 
-           std::cout << GREEN << "[LISTENING] " << it->getName()
-          << " on port " << it->getPort()
-          << RESET << std::endl;
+		   std::cout << GREEN << "[LISTENING] " << it->getName()
+		  << " on port " << it->getPort()
+		  << RESET << std::endl;
 
-        }
-    }
-    catch (std::exception &e) {
-        close(epoll_fd);
-        std::cerr << RED << e.what() << RESET << std::strerror(errno) << std::endl;
-        exit(EXIT_FAILURE);
-    }
+		}
+	}
 
-    // Réponse par défaut
-    std::string hello =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 13\r\n"
-        "\r\n"
-        "Hello world!\n";
+	catch (const char* e) {
+		close(epoll_fd);
+		std::cerr << RED << e << RESET << std::strerror(errno) << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-    #define MAX_EVENTS 10
-    while (g_runWebserv) {
-        struct epoll_event events[MAX_EVENTS];
-        int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
-        std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
+	catch (std::exception &e) {
+		close(epoll_fd);
+		std::cerr << RED << e.what() << RESET << std::strerror(errno) << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
-        for (int i = 0; i < n; i++) {
-            if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
-                std::cout << GREEN "Creation client" RESET << std::endl;
-                Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
-            }
-            else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN)) {
-                // Lecture + parsing
-                char buffer[4096];
-                ssize_t bytes_received = recv(events[i].data.fd, buffer, sizeof(buffer) - 1, 0);
+	// Réponse par défaut
+	std::string hello =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Type: text/plain\r\n"
+		"Content-Length: 13\r\n"
+		"\r\n"
+		"Hello world!\n";
 
-                if (bytes_received <= 0) {
-                    Client::closingClient(epoll_fd, events[i].data.fd, clients);
-                    continue;
-                }
+	#define MAX_EVENTS 10
+	while (g_runWebserv) {
+		struct epoll_event events[MAX_EVENTS];
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
+		std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
 
-                buffer[bytes_received] = '\0';
-                std::string rawRequest(buffer);
+		for (int i = 0; i < n; i++) {
+			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
+				std::cout << GREEN "Creation client" RESET << std::endl;
+				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
+			}
+			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN)) {
+				// Lecture + parsing
+				char buffer[4096];
+				ssize_t bytes_received = recv(events[i].data.fd, buffer, sizeof(buffer) - 1, 0);
 
-                try {
-                    Request req(rawRequest);
-                    Response response;
-                    req.parse_url();
-                    std::string res = response.Methodes(req);
-                    std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
-                    // req.print_request(req); 
-                    send(events[i].data.fd, res.c_str(), res.size(), 0);
-                }
-                catch (const std::exception &e) {
-                    std::cerr << "Bad Request: " << e.what() << std::endl;
-                }
+				if (bytes_received <= 0) {
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+					continue;
+				}
 
-                // Passer en mode écriture
-                events[i].events = EPOLLOUT | EPOLLET;
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
-                    std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-                    Client::closingClient(epoll_fd, events[i].data.fd, clients);
-                }
-            }
-            else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
-                // Écriture de la réponse
-                // send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+				buffer[bytes_received] = '\0';
+				std::string rawRequest(buffer);
 
-                // Repasser en lecture
-                events[i].events = EPOLLIN | EPOLLET;
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
-                    std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-                    Client::closingClient(epoll_fd, events[i].data.fd, clients);
-                }
-            }
-        }
-    }
+				try {
+					Request req(rawRequest);
+					Response response;
+					req.parse_url();
+					std::string res = response.Methodes(req);
+					std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
+					// req.print_request(req); 
+					send(events[i].data.fd, res.c_str(), res.size(), 0);
+				}
+				catch (const std::exception &e) {
+					std::cerr << "Bad Request: " << e.what() << std::endl;
+				}
 
-    Server::closeAllSocket(epoll_fd, servers, clients);
-    std::cout << RED "[INFO] Server(s) Down" RESET << std::endl;
+				// Passer en mode écriture
+				events[i].events = EPOLLOUT | EPOLLET;
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
+					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+				}
+			}
+			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
+				// Écriture de la réponse
+				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+
+				// Repasser en lecture
+				events[i].events = EPOLLIN | EPOLLET;
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
+					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+				}
+			}
+		}
+	}
+
+	Server::closeAllSocket(epoll_fd, servers, clients);
+	std::cout << RED "[INFO] Server(s) Down" RESET << std::endl;
 }
 
 
