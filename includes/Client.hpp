@@ -30,6 +30,7 @@ class	Client {
 		int					_addrlen;
 
 		std::string			*_request;
+		
 
 		bool				_keepAlive;
 		std::string 		_responseToSend;
@@ -53,7 +54,7 @@ class	Client {
 		struct sockaddr_in	getAddr() const;
 		std::string			*getRequest() const;
 		bool				getKeepAlive() const;
-
+		static Client		&getClient(int fd, std::vector<Client> &clients);
 
 
 	/*	STATIC	*/

@@ -81,6 +81,17 @@ std::string	*Client::getRequest() const {
 	return _request;
 }
 
+//static
+Client	&Client::getClient(int fd, std::vector<Client> &clients){
+	
+	std::vector<Client>::iterator	it;
+	for (it = clients.begin(); it != clients.end(); ++it) {
+		if (it->getSocket() == fd)
+			return *it;
+	}
+	throw "Error getClient. Should never happens";
+}
+
   /********* */
  /*	STATIC	*/
 /********* */

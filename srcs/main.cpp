@@ -114,7 +114,7 @@ int main(int ac, char **av) {
 		"\r\n"
 		"Hello world!\n";
 
-	#define MAX_EVENTS 10
+	#define MAX_EVENTS 10//change to a real MAX
 	while (g_runWebserv) {
 		struct epoll_event events[MAX_EVENTS];
 		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
@@ -126,41 +126,28 @@ int main(int ac, char **av) {
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN)) {
-				// Lecture + parsing
-				char buffer[4096];
-				ssize_t bytes_received = recv(events[i].data.fd, buffer, sizeof(buffer) - 1, 0);
+				// Lecture
+				Client::epollinEvent(clients, events[i], epoll_fd);
+			}
+			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
+				// Écriture de la réponse
+				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+				Client	&client = Client::getClient(events[i].data.fd, clients);
 
-				if (bytes_received <= 0) {
-					Client::closingClient(epoll_fd, events[i].data.fd, clients);
-					continue;
-				}
-
-				buffer[bytes_received] = '\0';
-				std::string rawRequest(buffer);
-
+				// KAMEL PART
 				try {
-					Request req(rawRequest);
+					Request req(*client.getRequest()); //recup &Server todo
 					Response response;
 					req.parse_url();
 					std::string res = response.Methodes(req);
 					std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
-					// req.print_request(req); 
+					// req.print_request(req);
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 				}
 				catch (const std::exception &e) {
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
-
-				// Passer en mode écriture
-				events[i].events = EPOLLOUT | EPOLLET;
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
-					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-					Client::closingClient(epoll_fd, events[i].data.fd, clients);
-				}
-			}
-			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT)) {
-				// Écriture de la réponse
-				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
+				// END KAMEL PART
 
 				// Repasser en lecture
 				events[i].events = EPOLLIN | EPOLLET;
