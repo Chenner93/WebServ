@@ -146,12 +146,15 @@ int main(int ac, char **av) {
 					std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
 					// req.print_request(req);
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
+					client.freeRequest();
 				}
 				catch (const std::exception &e)
 				{
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
 				// END KAMEL PART
+
+				// Free request
 
 				// Repasser en lecture
 				events[i].events = EPOLLIN | EPOLLET;

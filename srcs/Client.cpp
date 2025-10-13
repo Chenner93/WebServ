@@ -165,7 +165,7 @@ void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	memset(buffer, 0, sizeof(buffer));
 	size_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
 
-	if (bytesread <= 0) {
+	if (bytesread <= 0) {// SEPARER == 0 && < 0
 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return ;
@@ -196,10 +196,9 @@ void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	clients[i].appendRequest(buffer);
 
 	// Vérifier si la requête est complète (présence de \r\n\r\n)
-	std::string* request = clients[i].getRequest();
-	if (request && request->find("\r\n\r\n") != std::string::npos) {
+	if (clients[i].getRequest() && clients[i].getRequest()->find("\r\n\r\n") != std::string::npos) {
 		// Requête complète ! Passer en mode écriture
-		std::cout << MAGENTA << "Request complete:\n" << *request << RESET << std::endl;
+		std::cout << MAGENTA << "Request complete:\n" << clients[i].getRequest() << RESET << std::endl;
 		
 		event.events = EPOLLOUT;
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
@@ -210,3 +209,7 @@ void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	// Sinon, on attend plus de données (reste en EPOLLIN)
 }
 
+void	Client::freeRequest() {
+	delete _request;
+	_request = 0;
+}

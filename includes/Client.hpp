@@ -63,4 +63,6 @@ class	Client {
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
 		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
 
+	/*	UTILS	*/
+		void	freeRequest();
 };
