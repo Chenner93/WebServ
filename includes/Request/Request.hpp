@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/08 17:47:05 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/10/13 15:35:39 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 class Client;
+class Server;
 
 class Request
 {
@@ -44,6 +45,7 @@ class Request
     };
     
     private:
+	Server	*_server;
     std::string method;
     std::string path;
     std::string version;
@@ -57,7 +59,7 @@ class Request
 
     
     public:
-    Request(const std::string& line_request);
+    Request(const std::string& line_request, Server *server);
     Request &operator = (const Request& other);
     std::vector<std::string> parse_all_lines(const std::string& lines); 
     void parse_one_line(const std::vector<std::string>& line);

@@ -3,19 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/23 10:27:37 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/10/13 15:37:04 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Request/Request.hpp"
 #include "../../includes/Request/Response.hpp"
 
-Request::Request(const std::string& rawRequest) 
-{ 
-    parseRequest(rawRequest); 
+Request::Request(const std::string& rawRequest, Server *server) 
+{
+	_server = server;
+    parseRequest(rawRequest);
 }
 
 Request& Request::operator=(const Request& other)
@@ -251,7 +252,7 @@ void Request::handleClientRequest(Client &client)
     std::string rawRequest(buffer);
 
     try {
-        Request request(rawRequest);
+        Request request(rawRequest, client.getPtrServer());
         Response response;
         request.parse_url();
         request.print_request(request);
