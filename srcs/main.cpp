@@ -77,7 +77,8 @@ int main(int ac, char **av) {
 	}
 
 	try {
-		for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it) {
+		for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+		{
 			it->setSocket();
 			if (it->getSocket() == -1)
 				throw "Error SetSocket: ";
@@ -87,20 +88,21 @@ int main(int ac, char **av) {
 			it->listenSocket();
 			it->addEpollCtl(epoll_fd);
 
-		   std::cout << GREEN << "[LISTENING] " << it->getName()
-		  << " on port " << it->getPort()
-		  << RESET << std::endl;
-
+			std::cout << GREEN << "[LISTENING] " << it->getName()
+			<< " on port " << it->getPort()
+			<< RESET << std::endl;
 		}
 	}
 
-	catch (const char* e) {
+	catch (const char* e)
+	{
 		close(epoll_fd);
 		std::cerr << RED << e << RESET << std::strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	catch (std::exception &e) {
+	catch (std::exception &e)
+	{
 		close(epoll_fd);
 		std::cerr << RED << e.what() << RESET << std::strerror(errno) << std::endl;
 		exit(EXIT_FAILURE);
@@ -135,7 +137,8 @@ int main(int ac, char **av) {
 				Client	&client = Client::getClient(events[i].data.fd, clients);
 
 				// KAMEL PART
-				try {
+				try
+				{
 					Request req(*client.getRequest()); //recup &Server todo
 					Response response;
 					req.parse_url();
@@ -144,7 +147,8 @@ int main(int ac, char **av) {
 					// req.print_request(req);
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 				}
-				catch (const std::exception &e) {
+				catch (const std::exception &e)
+				{
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
 				// END KAMEL PART
