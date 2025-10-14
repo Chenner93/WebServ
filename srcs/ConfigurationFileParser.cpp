@@ -77,6 +77,8 @@ void Config::parseServer(const std::string &content, size_t &pos)
 	}
 	pos++;
 
+	int	brace_count = 1;
+
 	while (pos < content.length())
 	{
 		skipWhitespace(content, pos);
@@ -87,8 +89,16 @@ void Config::parseServer(const std::string &content, size_t &pos)
 
 		if (content[pos] == '}')
 		{
-			pos++;
-			break;
+			brace_count--;
+			if (brace_count == 0)
+			{
+				pos++;
+				break;
+			}
+		}
+		else if (content[pos] == '{')
+		{
+			brace_count++;
 		}
 
 		// Parser les directives du serveur
@@ -106,6 +116,12 @@ void Config::parseServer(const std::string &content, size_t &pos)
 			if (colon_pos != std::string::npos)
 			{
 				server.host = listen_value.substr(0, colon_pos);
+				if (!isValidIP(server.host))
+				{
+					std::ostringstream err;
+					err << "Invalid IP address in listen directive: " << server.host;
+					throw std::runtime_error(err.str());
+				}
 				server.port = std::atoi(listen_value.substr(colon_pos + 1).c_str());
 			}
 			else
@@ -149,6 +165,11 @@ void Config::parseServer(const std::string &content, size_t &pos)
 			// Ignorer les directives inconnues
 			parseValue(content, pos);
 		}
+	}
+
+	if (brace_count != 0)
+	{
+		throw std::runtime_error("Mismatched braces in server block");
 	}
 
 	servers.push_back(server);
@@ -328,9 +349,104 @@ bool Config::isValidMethod(const std::string& method)
 	return (method == "GET" || method == "POST" || method == "DELETE");
 }
 
+std::vector<std::string> Config::split(const std::string &ip, char delimiter)
+{
+	std::vector<std::string> result;
+	std::string current;
+
+	for (size_t i = 0; i < ip.length(); i++)
+	{
+		if (ip[i] == delimiter)
+		{
+			if (!current.empty())
+			{
+				result.push_back(current);
+				current.clear();
+			}
+		}
+		else
+		{
+			current += ip[i];
+		}
+	}
+	if (!current.empty())
+	{
+		result.push_back(current);
+	}
+	return result;
+}
+
+bool Config::isValidIP(const std::string& ip) {
+	// Cas spéciaux
+	if (ip == "0.0.0.0" || ip == "localhost") {
+		return true;
+	}
+
+	std::vector<std::string> octets = split(ip, '.');
+
+	// Doit avoir exactement 4 octets
+	if (octets.size() != 4) {
+		std::cerr << "Error: IP address must have 4 octets, got " 
+				  << octets.size() << std::endl;
+		return false;
+	}
+
+	for (size_t i = 0; i < octets.size(); ++i) {
+		const std::string& octet = octets[i];
+
+		// Vérifier que c'est pas vide
+		if (octet.empty()) {
+			std::cerr << "Error: Empty octet in IP address" << std::endl;
+			return false;
+		}
+
+		// Vérifier que ce sont tous des chiffres
+		for (size_t j = 0; j < octet.length(); ++j) {
+			if (!std::isdigit(octet[j])) {
+				std::cerr << "Error: Invalid character '" << octet[j] 
+						  << "' in IP address octet" << std::endl;
+				return false;
+			}
+		}
+
+		// Vérifier les zéros en tête (ex: 01, 001)
+		if (octet.length() > 1 && octet[0] == '0') {
+			std::cerr << "Error: Leading zeros not allowed in IP octet: " 
+					  << octet << std::endl;
+			return false;
+		}
+
+		// Convertir en nombre
+		long value = std::atol(octet.c_str());
+
+		// Vérifier overflow et range
+		if (value < 0 || value > 255) {
+			std::cerr << "Error: IP octet " << octet << " is out of range [0-255]" 
+					  << std::endl;
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool Config::isValidPort(int port)
 {
-	return (port > 0 && port <= 65535);
+	if (port <= 0)
+	{
+		throw std::runtime_error("Port number must be positive");
+		return false;
+	}
+	if (port > 65535)
+	{
+		throw std::runtime_error("Port number must be less than 65536");
+		return false;
+	}
+	if (port < 1024)
+	{
+		std::cerr << "Warning: Using a privileged port (<1024) may require elevated permissions." << std::endl;
+	}
+	return true;
 }
 
 const std::vector<ServerConfig>& Config::getServers() const

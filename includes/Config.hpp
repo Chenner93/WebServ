@@ -58,7 +58,11 @@ class Config
 		// Validation
 		bool validateConfig();
 		bool isValidMethod(const std::string &method);
+		bool isValidIP(const std::string &ip);
 		bool isValidPort(int port);
+
+		// Utils
+		std::vector<std::string> split(const std::string &ip, char delimiter);
 
 	public:
 
@@ -73,7 +77,7 @@ class Config
 		const std::vector<ServerConfig>& getServers() const;
 		ServerConfig *findServer(const std::string &host, int port, const std::string &server_name);
 
-		// Utilitaires
+		// Utils
 		void printConfig() const; // Debugging
 		bool isEmpty() const;
 };
