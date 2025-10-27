@@ -36,12 +36,12 @@ class	Server {
 		struct sockaddr_in	_addr;
 		int					_addrlen;
 
-		// Variables de configuration copiées depuis ServerConfig
+		// tmpiables de configuration copiées depuis ServerConfig
 		std::map<int, std::string> _error_pages;		// Codes d'erreurs -> Pages d'erreur
 		size_t _client_max_body_size;					// Taille maximale du corps de la requête
 
 
-		// Variables de Location copiées directement (pour chaque location)
+		// tmpiables de Location copiées directement (pour chaque location)
 		std::vector<std::string> _location_paths;		// Chemins des locations
 		std::vector<std::vector<std::string> > _allow_methods_per_location;	// Méthodes autorisées par location
 		std::vector<std::string> _roots;				// Racines des documents par location
@@ -64,7 +64,7 @@ class	Server {
 		std::string			getIp() const;
 		int					getSocket() const;
 
-		/* GETTERS pour toutes les variables de configuration */
+		/* GETTERS pour toutes les tmpiables de configuration */
 		const std::map<int, std::string>&	getErrorPages() const;
 		size_t								getClientMaxBodySize() const;
 
@@ -85,7 +85,7 @@ class	Server {
 		void	setSocket();
 		void	setSockAddr();
 
-		/* SETTERS pour toutes les variables de configuration */
+		/* SETTERS pour toutes les tmpiables de configuration */
 		void addErrorPage(int error_code, const std::string& error_page);
 		void setClientMaxBodySize(size_t max_size);
 

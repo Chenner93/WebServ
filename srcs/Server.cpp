@@ -43,11 +43,11 @@ Server&	Server::operator = (const Server& src) {
 	_ip = src.getIp();
 	_port = src.getPort();
 
-	// Variables de configuration
+	// tmpiables de configuration
 	_error_pages = src.getErrorPages();
 	_client_max_body_size = src.getClientMaxBodySize();
 
-	// Toutes les variables de locations
+	// Toutes les tmpiables de locations
 	_location_paths = src._location_paths;
 	_allow_methods_per_location = src._allow_methods_per_location;
 	_roots = src._roots;
