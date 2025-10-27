@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGI Scripts - Webserv</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #38bdf8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+
+        .scripts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .script-card {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .script-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+        }
+
+        .script-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .script-icon {
+            font-size: 3rem;
+        }
+
+        .script-info h3 {
+            color: #38bdf8;
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .script-extension {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .script-description {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-example {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+
+        .code-example pre {
+            color: #38bdf8;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .try-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .try-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .info-section {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 3rem;
+            border: 1px solid #334155;
+        }
+
+        .info-section h2 {
+            color: #38bdf8;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .info-item h4 {
+            color: #38bdf8;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .feature-list {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid #334155;
+        }
+
+        .feature-list h3 {
+            color: #38bdf8;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-list ul {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 0.75rem 0;
+            color: #cbd5e1;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            color: #38bdf8;
+            font-size: 1.2rem;
+        }
+
+        .demo-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .demo-section h3 {
+            color: #38bdf8;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-form {
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        footer {
+            background: #1e293b;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .scripts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">⚙️ CGI Webserv</div>
+            <a href="/" class="nav-link">← Retour à l'accueil</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>CGI Scripts Interface</h1>
+            <p>Exécution de scripts PHP et Python pour vos applications dynamiques</p>
+        </div>
+
+        <div class="scripts-grid">
+            <div class="script-card">
+                <div class="script-header">
+                    <div class="script-icon">🐘</div>
+                    <div class="script-info">
+                        <h3>PHP CGI</h3>
+                        <span class="script-extension">.php</span>
+                    </div>
+                </div>
+                <p class="script-description">
+                    Exécutez des scripts PHP via l'interface CGI pour générer du contenu dynamique.
+                </p>
+                <div class="code-example">
+                    <pre>&lt;?php
+echo "Hello from PHP!";
+phpinfo();
+?&gt;</pre>
+                </div>
+                <button class="try-button">Tester un script PHP</button>
+            </div>
+
+            <div class="script-card">
+                <div class="script-header">
+                    <div class="script-icon">🐍</div>
+                    <div class="script-info">
+                        <h3>Python CGI</h3>
+                        <span class="script-extension">.py</span>
+                    </div>
+                </div>
+                <p class="script-description">
+                    Exécutez des scripts Python pour traiter des données et générer des réponses.
+                </p>
+                <div class="code-example">
+                    <pre>#!/usr/bin/python3
+print("Content-Type: text/html\n")
+print("&lt;h1&gt;Hello from Python!&lt;/h1&gt;")</pre>
+                </div>
+                <button class="try-button">Tester un script Python</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Configuration CGI</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <h4>📂 Dossier racine</h4>
+                    <p>/var/www/cgi-bin</p>
+                </div>
+                <div class="info-item">
+                    <h4>🔧 PHP CGI</h4>
+                    <p>/usr/bin/php-cgi</p>
+                </div>
+                <div class="info-item">
+                    <h4>🐍 Python</h4>
+                    <p>/usr/bin/python3</p>
+                </div>
+                <div class="info-item">
+                    <h4>📝 Méthodes</h4>
+                    <p>GET, POST</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-list">
+            <h3>✨ Fonctionnalités CGI</h3>
+            <ul>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Exécution de scripts PHP via php-cgi
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Support complet de Python 3
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Variables d'environnement CGI standard
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Gestion des paramètres GET et POST
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Timeout de sécurité pour les scripts
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Support des headers HTTP personnalisés
+                </li>
+                <li>
+                    <span class="feature-icon">✓</span>
+                    Journalisation des erreurs de script
+                </li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h3>🧪 Tester un script CGI</h3>
+            <p style="color: #94a3b8; margin-bottom: 2rem;">
+                Envoyez des données à un script CGI et voyez la réponse
+            </p>
+            
+            <form class="demo-form" id="cgiForm">
+                <div class="form-group">
+                    <label for="scriptType">Type de script :</label>
+                    <select id="scriptType" style="width: 100%; padding: 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0;">
+                        <option value="php">PHP (.php)</option>
+                        <option value="python">Python (.py)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputData">Données d'entrée :</label>
+                    <textarea id="inputData" rows="4" placeholder="Entrez vos données ici..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-button">Exécuter le script</button>
+            </form>
+
+            <div id="output" style="margin-top: 2rem; padding: 1rem; background: #0f172a; border-radius: 8px; display: none; text-align: left;">
+                <h4 style="color: #38bdf8; margin-bottom: 1rem;">Résultat :</h4>
+                <pre id="outputContent" style="color: #cbd5e1; overflow-x: auto;"></pre>
+            </div>
+        </div>
+
+        <div class="info-section" style="margin-top: 3rem;">
+            <h2>📚 Exemples de scripts</h2>
+            
+            <div style="margin-top: 1.5rem;">
+                <h4 style="color: #38bdf8; margin-bottom: 1rem;">Formulaire de contact (PHP) :</h4>
+                <div class="code-example">
+                    <pre>&lt;?php
+// contact.php
+$name = $_POST['name'];
+$email = $_POST['email'];
+$message = $_POST['message'];
+
+// Traitement du formulaire
+echo "Message reçu de: " . htmlspecialchars($name);
+?&gt;</pre>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h4 style="color: #38bdf8; margin-bottom: 1rem;">API JSON (Python) :</h4>
+                <div class="code-example">
+                    <pre>#!/usr/bin/python3
+import json
+
+data = {
+    "status": "success",
+    "message": "API response",
+    "data": [1, 2, 3, 4, 5]
+}
+
+print("Content-Type: application/json\n")
+print(json.dumps(data))</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Webserv CGI | <a href="/" style="color: #38bdf8; text-decoration: none;">Retour à l'accueil</a></p>
+    </footer>
+
+    <script>
+        document.getElementById('cgiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const scriptType = document.getElementById('scriptType').value;
+            const inputData = document.getElementById('inputData').value;
+            const output = document.getElementById('output');
+            const outputContent = document.getElementById('outputContent');
+
+            // Simulation d'exécution
+            output.style.display = 'block';
+            
+            if (scriptType === 'php') {
+                outputContent.textContent = `Script PHP exécuté avec succès!
+
+Input: ${inputData}
+
+Output:
+Content-Type: text/html
+Status: 200 OK
+
+<html>
+<body>
+<h1>Résultat PHP</h1>
+<p>Données reçues: ${inputData}</p>
+<p>Traitement effectué à: ${new Date().toLocaleString()}</p>
+</body>
+</html>`;
+            } else {
+                outputContent.textContent = `Script Python exécuté avec succès!
+
+Input: ${inputData}
+
+Output:
+Content-Type: application/json
+Status: 200 OK
+
+{
+    "status": "success",
+    "input": "${inputData}",
+    "timestamp": "${new Date().toISOString()}",
+    "processed": true
+}`;
+            }
+        });
+    </script>
+</body>
+</html>
