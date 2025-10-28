@@ -136,14 +136,17 @@ int main(int ac, char **av) {
 				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 				Client	&client = Client::getClient(events[i].data.fd, clients);
 
-				// KAMEL PART
+				
 				try
 				{
+					std::cout<<GREEN<<"PASS IN MAIN MY PART"<<RESET<<std::endl;
 					Request req(*client.getRequest()); //recup &Server todo
 					Response response;
 					req.parse_url();
-					std::string res = response.Methodes(req);
-					std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
+					// std::string res = response.Methodes(req);
+					Client &client = Client::getClient(events[i].data.fd, clients);
+					std::string res = response.Methodes(req, *client.getPtrServer());
+
 					// req.print_request(req);
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 					client.freeRequest();
@@ -152,7 +155,7 @@ int main(int ac, char **av) {
 				{
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
-				// END KAMEL PART
+			
 
 				// Free request
 

@@ -285,22 +285,38 @@ std::string Server::getErrorPage(int error_code) const {
 	return "";
 }
 
+// bool Server::isMethodAllowed(const std::string& path, const std::string& method) const {
+// 	int location_index = findLocationIndex(path);
+	
+// 	if (location_index == -1) {
+// 		return false;
+// 	}
+	
+// 	const std::vector<std::string>& allowed_methods = _allow_methods_per_location[location_index];
+// 	for (size_t i = 0; i < allowed_methods.size(); ++i) {
+// 		if (allowed_methods[i] == method) {
+// 			return true;
+// 		}
+// 	}
+	
+// 	return false;
+// }
+
 bool Server::isMethodAllowed(const std::string& path, const std::string& method) const {
-	int location_index = findLocationIndex(path);
-	
-	if (location_index == -1) {
-		return false;
-	}
-	
-	const std::vector<std::string>& allowed_methods = _allow_methods_per_location[location_index];
-	for (size_t i = 0; i < allowed_methods.size(); ++i) {
-		if (allowed_methods[i] == method) {
-			return true;
-		}
-	}
-	
-	return false;
+    int location_index = findLocationIndex(path);
+    if (location_index == -1)
+        return false;
+
+    const std::vector<std::string>& allowed = _allow_methods_per_location[location_index];
+    if (allowed.empty())  // ←  ajout
+        return true;      //  pas de restriction explicite
+
+    for (size_t i = 0; i < allowed.size(); ++i)
+        if (allowed[i] == method)
+            return true;
+    return false;
 }
+
 
   /********* */	
  /*	STATIC	*/

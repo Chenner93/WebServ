@@ -6,12 +6,13 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/23 10:27:37 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/10/28 17:54:29 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Request/Request.hpp"
 #include "../../includes/Request/Response.hpp"
+#include "../../includes/Server.hpp"
 
 Request::Request(const std::string& rawRequest) 
 { 
@@ -253,9 +254,10 @@ void Request::handleClientRequest(Client &client)
     try {
         Request request(rawRequest);
         Response response;
+        Server serv;
         request.parse_url();
         request.print_request(request);
-        response.Methodes(request);
+        response.Methodes(request, serv);
     } catch (const std::exception &e) {
         std::cerr << "Bad Request: " << e.what() << std::endl;
     }
