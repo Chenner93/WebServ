@@ -139,7 +139,7 @@ int main(int ac, char **av) {
 				try
 				{
 					std::cout<<GREEN<<"PASS IN MAIN MY PART"<<RESET<<std::endl;
-					Request req(*client.getRequest()); //recup &Server todo
+					Request req(*client.getRequest(), client.getPtrServer()); //recup &Server todo
 					Response response;
 					req.parse_url();
 					// std::string res = response.Methodes(req);
