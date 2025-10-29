@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:05:27 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/20 14:42:34 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/10/29 15:40:31 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,27 +168,6 @@ std::string utils_parsing::decode_url(const std::string& url_str)
 		}
 		return true;
 	}
-
-// std::string utils_parsing::remove_all_r(const std::string& s)
-// {
-//     std::string result;
-// 	std::cout<<GREEN"remove_all deb = "<<s<<RESET<<std::endl;
-//     for (size_t i = 0; i < s.length(); ++i)
-//     {
-//         if (s[i] == '\\')
-//         {
-//             if (i + 1 < s.length() && (s[i + 1] == 'r' || s[i + 1] == 'n'))
-//             {
-//                 i++; // skip next char (r ou n)
-//                 continue;
-//             }
-//         }
-//         if (s[i] != '\r' && s[i] != '\n' && s[i] != '\t' && s[i] != '\v' && s[i] != '\f')
-//             result += s[i];
-//     }
-// 	std::cout<<GREEN"remove_all end = "<<result<<RESET<<std::endl;
-//     return result;
-// }
 
 std::string utils_parsing::remove_all_r(const std::string& s)
 {

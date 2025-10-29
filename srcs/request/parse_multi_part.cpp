@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 12:08:53 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/22 14:01:14 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/10/29 15:34:48 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,41 +121,3 @@ std::vector<Request::FormDataPart> Request::parseMultipartFormData(const std::st
 
 	return parts;
 }
-
-
-// int main()
-// {
-//     std::map<std::string, std::string> headers;
-//     headers["content-type"] = "multipart/form-data; boundary=----WebKitFormBoundaryABC123";
-//     std::string line = "Content-Disposition: form-data; name=\"file\"; filename=\"hello.txt\"";
-//     std::map<std::string, std::string> res = Request::parseContentDisposition(line);
-//     std::string boundary = Request::ParseBoundary(headers);
-//     std::string boundary_2 = "----WebKitFormBoundaryABC123";
-//     std::string body =
-//         "------WebKitFormBoundaryABC123\r\n"
-//         "Content-Disposition: form-data; name=\"file\"; filename=\"hello.txt\"\r\n"
-//         "Content-Type: text/plain\r\n"
-//         "\r\n"
-//         "Contenu du fichier 1\r\n"
-//         "------WebKitFormBoundaryABC123\r\n"
-//         "Content-Disposition: form-data; name=\"text\"\r\n"
-//         "\r\n"
-//         "Bonjour\r\n"
-//         "------WebKitFormBoundaryABC123--\r\n";
-
-//     std::vector<Request::FormDataPart> parts = Request::parseMultipartFormData(body, boundary_2);
-//     if (!boundary.empty())
-//     {
-//         std::cout << "Boundary extraite : [" << boundary << "]" << std::endl;
-//     }
-//     else
-//     {
-//         std::cout << "Aucune boundary trouvée." << std::endl;
-//     }
-
-// 	std::cout << "Parsed Content-Disposition:" << std::endl;
-// 	for (std::map<std::string, std::string>::iterator it = res.begin(); it != res.end(); ++it)
-// 		std::cout << "  " << it->first << " = [" << it->second << "]" << std::endl;
-
-//     return 0;
-// }

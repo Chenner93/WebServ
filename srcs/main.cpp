@@ -121,7 +121,6 @@ int main(int ac, char **av) {
 		struct epoll_event events[MAX_EVENTS];
 		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
 		std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
-
 		for (int i = 0; i < n; i++) {
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
 				std::cout << GREEN "Creation client" RESET << std::endl;

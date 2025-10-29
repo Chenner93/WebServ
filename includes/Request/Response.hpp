@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/28 17:58:05 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/10/29 15:27:43 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ public:
 	std::string handleGet(const Request &request, const Server &server);
 	std::string handlePost(const Request &request, const Server &server);
 	std::string handleDelete(const Request &request, const Server &server);
+	std::string handleHead(const Request &request, const Server &server);
 
 	// Gestion d'erreur HTTP
 	std::string sendError(int code, const std::string& msg);
