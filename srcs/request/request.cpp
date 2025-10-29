@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
+/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/13 15:37:04 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/10/29 17:51:16 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Request/Request.hpp"
 #include "../../includes/Request/Response.hpp"
+#include "../../includes/Server.hpp"
 
 Request::Request(const std::string& rawRequest, Server *server) 
 {
@@ -61,6 +62,7 @@ void Request::parse_one_line(const std::vector<std::string>& line)
         throw std::runtime_error("invalid request line");
 
     method  = parts[0];
+    std::cout<<RED<<method<<std::endl;
     path    = parts[1];
     version = parts[2];
 }
@@ -71,60 +73,6 @@ std::vector<std::string> Request::parse_all_lines(const std::string& head)
     
     return utils_parsing::split_on_substr(head, "\r\n", /*keep_empty=*/false);
 }
-
-
-
-
-// void Request::parseRequest(const std::string& raw)
-// {
-//     if (raw.empty())
-//         throw std::runtime_error("empty request");
-
-//     std::string head;
-//     if (!split_http_head_body(raw, head, raw_body))
-//         throw std::runtime_error("incomplete HTTP headers");
-
-//     std::vector<std::string> lines = Request::parse_all_lines(head);
-//     if (lines.empty())
-//         throw std::runtime_error("invalid request: empty head");
-
- 
-//     Request::parse_one_line(lines);
-//     Request::parse_url();
-//     headers.clear();
-    
-    
-    
-//     for (std::size_t i = 1; i < lines.size(); ++i)
-//     {
-//         const std::string& line = lines[i];
-//         if (line.empty()) continue;
-
-        
-//         std::size_t pos = line.find(':');
-//         if (pos == std::string::npos)
-//             continue; 
-
-//         std::string key   = utils_parsing::trim(line.substr(0, pos));
-//         std::string value = utils_parsing::trim(line.substr(pos + 1));
-
-//         if (!key.empty())
-//             headers[utils_parsing::to_lower(key)] = value;
-//     }
-//      body = raw_body;
-//    if (headers.count("transfer-encoding") &&
-//     utils_parsing::to_lower(headers["transfer-encoding"]) == "chunked")
-// {
-//     std::cout << GREEN << "raw_body is " << raw_body << RESET << std::endl;
-//     std::cout << YELLOW << "pass in  cond if parseChunkedBody" << RESET << std::endl;
-//     this->body = parseChunkedBody(raw_body);
-// }
-// else
-// {
-//     this->body = raw_body;
-// }
-
-// }
 
 
 void Request::parseRequest(const std::string& raw)
@@ -254,9 +202,10 @@ void Request::handleClientRequest(Client &client)
     try {
         Request request(rawRequest, client.getPtrServer());
         Response response;
+        Server serv;
         request.parse_url();
         request.print_request(request);
-        response.Methodes(request);
+        response.Methodes(request, serv);
     } catch (const std::exception &e) {
         std::cerr << "Bad Request: " << e.what() << std::endl;
     }

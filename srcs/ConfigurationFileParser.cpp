@@ -346,7 +346,7 @@ bool Config::validateConfig()
 }
 bool Config::isValidMethod(const std::string& method)
 {
-	return (method == "GET" || method == "POST" || method == "DELETE");
+	return (method == "GET" || method == "POST" || method == "DELETE" || method == "HEAD");
 }
 
 std::vector<std::string> Config::split(const std::string &ip, char delimiter)

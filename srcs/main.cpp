@@ -121,7 +121,6 @@ int main(int ac, char **av) {
 		struct epoll_event events[MAX_EVENTS];
 		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
 		std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
-
 		for (int i = 0; i < n; i++) {
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN)) {
 				std::cout << GREEN "Creation client" RESET << std::endl;
@@ -136,14 +135,17 @@ int main(int ac, char **av) {
 				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 				Client	&client = Client::getClient(events[i].data.fd, clients);
 
-				// KAMEL PART
+				
 				try
 				{
-					Request req(*client.getRequest(), client.getPtrServer()); //recup &Server todo
+					std::cout<<GREEN<<"PASS IN MAIN MY PART"<<RESET<<std::endl;
+					Request req(*client.getRequest()); //recup &Server todo
 					Response response;
 					req.parse_url();
-					std::string res = response.Methodes(req);
-					std::cout<<GREEN<<"PASS IN MAIN"<<RESET<<std::endl;
+					// std::string res = response.Methodes(req);
+					Client &client = Client::getClient(events[i].data.fd, clients);
+					std::string res = response.Methodes(req, *client.getPtrServer());
+
 					// req.print_request(req);
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 					client.freeRequest();
@@ -152,7 +154,7 @@ int main(int ac, char **av) {
 				{
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
-				// END KAMEL PART
+			
 
 				// Free request
 
