@@ -36,5 +36,5 @@ int main(int argc, char const *argv[])
 	std::cout << patate << std::endl << *patate << std::endl;
 	delete patate;
 
-    return 0;
+	return 0;
 }
