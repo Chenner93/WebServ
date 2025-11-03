@@ -6,7 +6,7 @@
 /*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/03 09:06:57 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:30:14 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,11 @@ public:
 
 	// Type MIME
 	std::string getContentType(const std::string& path);
+
+	std::string toString(long long value);
 };
+
+std::string strip_location_prefix(const std::string& path, const std::string& loc_prefix);
+std::string join_path(const std::string& a, const std::string& b);
 
 #endif

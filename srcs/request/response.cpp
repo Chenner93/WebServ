@@ -6,15 +6,14 @@
 /*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/03 10:07:03 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/11/03 11:18:32 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
- #include "../../includes/Request/Response.hpp"
- #include "../../includes/Server.hpp"
+#include "../../includes/Request/Response.hpp"
+#include "../../includes/Server.hpp"
 
-
-static std::string strip_location_prefix(const std::string& path, const std::string& loc_prefix)
+std::string strip_location_prefix(const std::string& path, const std::string& loc_prefix)
 {
     if (loc_prefix.empty()) return path;
     if (path.compare(0, loc_prefix.size(), loc_prefix) == 0)
@@ -26,7 +25,7 @@ static std::string strip_location_prefix(const std::string& path, const std::str
     return path;
 }
 
-static std::string join_path(const std::string& a, const std::string& b)
+std::string join_path(const std::string& a, const std::string& b)
 {
     if (a.empty()) return b;
     if (b.empty()) return a;
@@ -34,9 +33,6 @@ static std::string join_path(const std::string& a, const std::string& b)
     if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
     return a + b;
 }
-
-
-
 
 // response.cpp
 std::string Response::Methodes(const Request &request, const Server &server)
@@ -59,81 +55,84 @@ std::string Response::Methodes(const Request &request, const Server &server)
 }
 
 
+// Modification dans handleGet pour intégrer l'autoindex
 std::string Response::handleGet(const Request &request, const Server &server)
 {
-    const std::string& path = request.getPath();
-    int loc = server.findLocationIndex(path);
+	const std::string& path = request.getPath();
+	int loc = server.findLocationIndex(path);
+	if (loc == -1) return sendError(404, "Not Found");
 
-    if (loc == -1)
-    {
-        return sendError(404, "Not Found");
-    }
+	// Redirection (si définie)
+	const std::string& redir = server.getRedirect(loc);
+	if (!redir.empty()) {
+		std::ostringstream r;
+		r << "HTTP/1.1 301 Moved Permanently\r\n"
+		  << "Location: " << redir << "\r\n"
+		  << "Content-Length: 0\r\n\r\n";
+		return r.str();
+	}
 
-    // Redirection (si définie)
-    const std::string& redir = server.getRedirect(loc);
-    if (!redir.empty()) {
-        std::ostringstream r;
-        r << "HTTP/1.1 301 Moved Permanently\r\n"
-          << "Location: " << redir << "\r\n"
-          << "Content-Length: 0\r\n\r\n";
-        return r.str();
-    }
+	// Résolution FS
+	std::string root   = server.getRoot(loc);
+	std::string rel    = strip_location_prefix(path, server.getLocationPath(loc));
+	std::string fsPath = join_path(root, rel);
 
-    // Résolution FS: root + (path sans préfixe de la location)
-    std::string root   = server.getRoot(loc);
-    std::string rel    = strip_location_prefix(path, server.getLocationPath(loc));
-    std::string fsPath = join_path(root, rel);
+	struct stat st;
+	
+	// Si c'est un répertoire
+	if (stat(fsPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+		const std::string& index = server.getIndexFile(loc);
+		
+		// 1. Chercher le fichier index d'abord
+		if (!index.empty()) {
+			std::string indexPath = join_path(fsPath, index);
+			struct stat indexSt;
+			
+			if (stat(indexPath.c_str(), &indexSt) == 0 && S_ISREG(indexSt.st_mode)) {
+				// Index trouvé ! Le servir (que autoindex soit on ou off)
+				fsPath = indexPath;
+				// Continue vers la section "Servir le fichier"
+			} else {
+				// 2. Pas d'index.html trouvé
+				if (server.getAutoindex(loc)) {
+					// autoindex ON → générer la liste
+					return generateAutoindex(fsPath, path);
+				} else {
+					// autoindex OFF → erreur 403
+					return sendError(403, "Forbidden");
+				}
+			}
+		} else {
+			// 3. Pas d'index configuré du tout
+			if (server.getAutoindex(loc)) {
+				// autoindex ON → générer la liste
+				return generateAutoindex(fsPath, path);
+			} else {
+				// autoindex OFF → erreur 403
+				return sendError(403, "Forbidden");
+			}
+		}
+	}
 
-    struct stat st;
+	// Servir le fichier (index.html ou fichier quelconque)
+	std::ifstream file(fsPath.c_str(), std::ios::binary);
+	if (!file.is_open()) 
+		return sendError(404, "Not Found");
 
-    if (stat(fsPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
-        const std::string& index = server.getIndexFile(loc);
+	std::ostringstream body;
+	body << file.rdbuf();
+	std::string bodyStr = body.str();
 
-        if (!index.empty()) {
-            std::string cand = join_path(fsPath, index);
-
-            if (stat(cand.c_str(), &st) == 0 && S_ISREG(st.st_mode))
-                fsPath = cand;
-            if (stat(fsPath.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
-                    return sendError(404, "Not Found");
-            else if (server.getAutoindex(loc))
-            {
-                std::cout<<RED<<"403 = 1"<<std::endl;
-                return sendError(403, "Autoindex not implemented");
-            }
-            else
-            {
-                std::cout<<RED<<"403 = 1"<<std::endl;
-                return sendError(403, "Forbidden");
-            }
-        } else if (server.getAutoindex(loc)) {
-            std::cout<<RED<<"403 = 1"<<std::endl;
-            return sendError(403, "Autoindex not implemented");
-        } else {
-            std::cout<<RED<<"403 = 1"<<std::endl;
-            return sendError(403, "Forbidden");
-        }
-    }
-
-    std::ifstream file(fsPath.c_str(), std::ios::binary);
-    if (!file.is_open()) 
-            return sendError(404, "Not Found");
-
-    std::ostringstream body; body << file.rdbuf();
-    std::string bodyStr = body.str();
-
-    std::string ctype = getContentType(fsPath);
-    std::ostringstream res;
-    res << "HTTP/1.1 200 OK\r\n"
-        << "Content-Type: "   << ctype          << "\r\n"
-        << "Content-Length: " << bodyStr.size() << "\r\n"
-        << "Connection: keep-alive\r\n"
-        << "\r\n"
-        << bodyStr;
-    return res.str();
+	std::string ctype = getContentType(fsPath);
+	std::ostringstream res;
+	res << "HTTP/1.1 200 OK\r\n"
+		<< "Content-Type: " << ctype << "\r\n"
+		<< "Content-Length: " << bodyStr.size() << "\r\n"
+		<< "Connection: keep-alive\r\n"
+		<< "\r\n"
+		<< bodyStr;
+	return res.str();
 }
-
-
 
 std::string Response::handlePost(const Request &request, const Server &server)
 {

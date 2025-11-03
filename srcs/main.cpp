@@ -129,7 +129,7 @@ int main(int ac, char **av) {
 				client.freeRequest();
 
 				// Repasser en lecture
-				events[i].events = EPOLLIN | EPOLLET;
+				events[i].events = EPOLLIN; //| EPOLLET
 				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0) {
 					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 					Client::closingClient(epoll_fd, events[i].data.fd, clients);
