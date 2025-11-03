@@ -159,49 +159,6 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 	clients.push_back(client);
 }
 
-
-// --- Client.cpp parse  complete line ---
-static bool is_request_complete(const std::string& buf) {
-    // 1) Besoin d'un bloc headers entier
-    std::size_t head_end = buf.find("\r\n\r\n");
-    if (head_end == std::string::npos) return false;
-
-    // 2) Extraire les headers
-    std::string head = buf.substr(0, head_end);
-    // Chercher Content-Length et Transfer-Encoding
-    std::string lower = head;
-    for (size_t i=0;i<lower.size();++i) lower[i] = std::tolower(static_cast<unsigned char>(lower[i]));
-
-    // 2.a) Chunked ?
-    if (lower.find("transfer-encoding: chunked") != std::string::npos) {
-        // Requête complète si on trouve la terminaison chunked minimale "0\r\n\r\n" APRES les headers
-        std::size_t body_start = head_end + 4;
-        std::size_t term = buf.find("\r\n0\r\n\r\n", body_start);
-        if (term == std::string::npos) {
-            // certains clients n'envoient pas l'extra \r\n avant "0"
-            term = buf.find("0\r\n\r\n", body_start);
-        }
-        return (term != std::string::npos);
-    }
-
-    // 2.b) Content-Length ?
-    std::size_t pos = lower.find("content-length:");
-    if (pos != std::string::npos) {
-        // récupère la valeur
-        std::size_t eol = lower.find("\r\n", pos);
-        std::string line = head.substr(pos, (eol==std::string::npos? head.size()-pos : eol-pos));
-        std::size_t colon = line.find(':');
-        size_t cl = std::strtoul(line.substr(colon+1).c_str(), 0, 10);
-
-        std::size_t body_start = head_end + 4;
-        return buf.size() >= body_start + cl;
-    }
-
-    // 2.c) Pas de body attendu (GET/HEAD sans CL/TE) → complet
-    return true;
-}
-
-
 void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd) {
 
 	char	buffer[B_READ + 1];

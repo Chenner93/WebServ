@@ -1,695 +1,695 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Webserv - Documentation</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>API Webserv - Documentation</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0e27;
-            color: #e0e7ff;
-            line-height: 1.6;
-        }
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: #0a0e27;
+			color: #e0e7ff;
+			line-height: 1.6;
+		}
 
-        .particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
+		.particles {
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			z-index: 0;
+		}
 
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #4f46e5;
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float 15s infinite ease-in-out;
-        }
+		.particle {
+			position: absolute;
+			width: 2px;
+			height: 2px;
+			background: #4f46e5;
+			border-radius: 50%;
+			opacity: 0.3;
+			animation: float 15s infinite ease-in-out;
+		}
 
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(50px, -50px); }
-            50% { transform: translate(-30px, 30px); }
-            75% { transform: translate(40px, 20px); }
-        }
+		@keyframes float {
+			0%, 100% { transform: translate(0, 0); }
+			25% { transform: translate(50px, -50px); }
+			50% { transform: translate(-30px, 30px); }
+			75% { transform: translate(40px, 20px); }
+		}
 
-        header {
-            position: relative;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            padding: 2rem 0;
-            box-shadow: 0 4px 30px rgba(79, 70, 229, 0.3);
-            z-index: 10;
-        }
+		header {
+			position: relative;
+			background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+			padding: 2rem 0;
+			box-shadow: 0 4px 30px rgba(79, 70, 229, 0.3);
+			z-index: 10;
+		}
 
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+		.header-content {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 0 2rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+		.logo-section {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
 
-        .logo-icon {
-            font-size: 3rem;
-            animation: rotate 10s linear infinite;
-        }
+		.logo-icon {
+			font-size: 3rem;
+			animation: rotate 10s linear infinite;
+		}
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+		@keyframes rotate {
+			from { transform: rotate(0deg); }
+			to { transform: rotate(360deg); }
+		}
 
-        .logo-text h1 {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+		.logo-text h1 {
+			font-size: 2rem;
+			background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
 
-        .logo-text p {
-            color: #a5b4fc;
-            font-size: 0.9rem;
-        }
+		.logo-text p {
+			color: #a5b4fc;
+			font-size: 0.9rem;
+		}
 
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(34, 197, 94, 0.1);
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            border: 2px solid #22c55e;
-        }
+		.status-badge {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			background: rgba(34, 197, 94, 0.1);
+			padding: 0.75rem 1.5rem;
+			border-radius: 25px;
+			border: 2px solid #22c55e;
+		}
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            background: #22c55e;
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
+		.status-dot {
+			width: 10px;
+			height: 10px;
+			background: #22c55e;
+			border-radius: 50%;
+			animation: pulse-dot 2s infinite;
+		}
 
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; box-shadow: 0 0 10px #22c55e; }
-            50% { opacity: 0.5; box-shadow: 0 0 20px #22c55e; }
-        }
+		@keyframes pulse-dot {
+			0%, 100% { opacity: 1; box-shadow: 0 0 10px #22c55e; }
+			50% { opacity: 0.5; box-shadow: 0 0 20px #22c55e; }
+		}
 
-        .status-text {
-            color: #22c55e;
-            font-weight: bold;
-        }
+		.status-text {
+			color: #22c55e;
+			font-weight: bold;
+		}
 
-        .container {
-            position: relative;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-            z-index: 10;
-        }
+		.container {
+			position: relative;
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 3rem 2rem;
+			z-index: 10;
+		}
 
-        .nav-link {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            color: #a5b4fc;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            z-index: 100;
-        }
+		.nav-link {
+			position: absolute;
+			top: 2rem;
+			right: 2rem;
+			color: #a5b4fc;
+			text-decoration: none;
+			font-weight: 500;
+			transition: color 0.3s ease;
+			z-index: 100;
+		}
 
-        .nav-link:hover {
-            color: #818cf8;
-        }
+		.nav-link:hover {
+			color: #818cf8;
+		}
 
-        .hero-section {
-            text-align: center;
-            padding: 3rem 0;
-            margin-bottom: 3rem;
-        }
+		.hero-section {
+			text-align: center;
+			padding: 3rem 0;
+			margin-bottom: 3rem;
+		}
 
-        .hero-section h2 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+		.hero-section h2 {
+			font-size: 3.5rem;
+			margin-bottom: 1rem;
+			background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
 
-        .hero-section p {
-            font-size: 1.3rem;
-            color: #a5b4fc;
-        }
+		.hero-section p {
+			font-size: 1.3rem;
+			color: #a5b4fc;
+		}
 
-        .section {
-            background: linear-gradient(135deg, #1e1b4b 0%, #27235c 100%);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin-bottom: 2.5rem;
-            border: 1px solid rgba(129, 140, 248, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+		.section {
+			background: linear-gradient(135deg, #1e1b4b 0%, #27235c 100%);
+			border-radius: 20px;
+			padding: 2.5rem;
+			margin-bottom: 2.5rem;
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+		}
 
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            color: #818cf8;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+		.section-title {
+			font-size: 2rem;
+			margin-bottom: 2rem;
+			color: #818cf8;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
 
-        .title-icon {
-            font-size: 2.5rem;
-        }
+		.title-icon {
+			font-size: 2.5rem;
+		}
 
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+		.info-cards {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 1.5rem;
+			margin-bottom: 2rem;
+		}
 
-        .info-card {
-            background: rgba(79, 70, 229, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(129, 140, 248, 0.3);
-            transition: all 0.3s ease;
-        }
+		.info-card {
+			background: rgba(79, 70, 229, 0.1);
+			padding: 2rem;
+			border-radius: 15px;
+			border: 1px solid rgba(129, 140, 248, 0.3);
+			transition: all 0.3s ease;
+		}
 
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
-            border-color: #818cf8;
-        }
+		.info-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+			border-color: #818cf8;
+		}
 
-        .info-card h3 {
-            color: #818cf8;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+		.info-card h3 {
+			color: #818cf8;
+			font-size: 1.3rem;
+			margin-bottom: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
 
-        .info-card p {
-            color: #c7d2fe;
-            font-size: 1.1rem;
-            font-family: 'Courier New', monospace;
-        }
+		.info-card p {
+			color: #c7d2fe;
+			font-size: 1.1rem;
+			font-family: 'Courier New', monospace;
+		}
 
-        .endpoints-container {
-            display: grid;
-            gap: 2rem;
-        }
+		.endpoints-container {
+			display: grid;
+			gap: 2rem;
+		}
 
-        .endpoint-card {
-            background: rgba(30, 27, 75, 0.5);
-            padding: 2rem;
-            border-radius: 15px;
-            border-left: 5px solid #818cf8;
-            transition: all 0.3s ease;
-        }
+		.endpoint-card {
+			background: rgba(30, 27, 75, 0.5);
+			padding: 2rem;
+			border-radius: 15px;
+			border-left: 5px solid #818cf8;
+			transition: all 0.3s ease;
+		}
 
-        .endpoint-card:hover {
-            transform: translateX(10px);
-            box-shadow: 0 5px 25px rgba(129, 140, 248, 0.3);
-        }
+		.endpoint-card:hover {
+			transform: translateX(10px);
+			box-shadow: 0 5px 25px rgba(129, 140, 248, 0.3);
+		}
 
-        .endpoint-header {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
+		.endpoint-header {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			margin-bottom: 1.5rem;
+			flex-wrap: wrap;
+		}
 
-        .method-badge {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+		.method-badge {
+			padding: 0.6rem 1.2rem;
+			border-radius: 8px;
+			font-weight: bold;
+			font-size: 0.9rem;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
 
-        .method-get {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 2px solid #22c55e;
-        }
+		.method-get {
+			background: rgba(34, 197, 94, 0.2);
+			color: #22c55e;
+			border: 2px solid #22c55e;
+		}
 
-        .method-post {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 2px solid #3b82f6;
-        }
+		.method-post {
+			background: rgba(59, 130, 246, 0.2);
+			color: #3b82f6;
+			border: 2px solid #3b82f6;
+		}
 
-        .method-delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 2px solid #ef4444;
-        }
+		.method-delete {
+			background: rgba(239, 68, 68, 0.2);
+			color: #ef4444;
+			border: 2px solid #ef4444;
+		}
 
-        .endpoint-path {
-            font-family: 'Courier New', monospace;
-            font-size: 1.3rem;
-            color: #c7d2fe;
-            font-weight: bold;
-        }
+		.endpoint-path {
+			font-family: 'Courier New', monospace;
+			font-size: 1.3rem;
+			color: #c7d2fe;
+			font-weight: bold;
+		}
 
-        .endpoint-description {
-            color: #a5b4fc;
-            margin-bottom: 1.5rem;
-            font-size: 1.05rem;
-        }
+		.endpoint-description {
+			color: #a5b4fc;
+			margin-bottom: 1.5rem;
+			font-size: 1.05rem;
+		}
 
-        .code-snippet {
-            background: #0a0e27;
-            padding: 1.5rem;
-            border-radius: 10px;
-            border: 1px solid rgba(129, 140, 248, 0.2);
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-        }
+		.code-snippet {
+			background: #0a0e27;
+			padding: 1.5rem;
+			border-radius: 10px;
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			margin-bottom: 1.5rem;
+			overflow-x: auto;
+		}
 
-        .code-snippet pre {
-            color: #818cf8;
-            font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
-        }
+		.code-snippet pre {
+			color: #818cf8;
+			font-family: 'Courier New', monospace;
+			font-size: 0.95rem;
+		}
 
-        .tags {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
+		.tags {
+			display: flex;
+			gap: 0.75rem;
+			flex-wrap: wrap;
+		}
 
-        .tag {
-            background: rgba(129, 140, 248, 0.2);
-            color: #818cf8;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(129, 140, 248, 0.3);
-        }
+		.tag {
+			background: rgba(129, 140, 248, 0.2);
+			color: #818cf8;
+			padding: 0.4rem 1rem;
+			border-radius: 20px;
+			font-size: 0.85rem;
+			border: 1px solid rgba(129, 140, 248, 0.3);
+		}
 
-        .response-codes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
+		.response-codes {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1rem;
+		}
 
-        .response-code {
-            background: rgba(79, 70, 229, 0.1);
-            padding: 1.5rem;
-            border-radius: 10px;
-            border: 1px solid rgba(129, 140, 248, 0.2);
-            text-align: center;
-        }
+		.response-code {
+			background: rgba(79, 70, 229, 0.1);
+			padding: 1.5rem;
+			border-radius: 10px;
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			text-align: center;
+		}
 
-        .response-code h4 {
-            font-size: 1.8rem;
-            color: #818cf8;
-            margin-bottom: 0.5rem;
-        }
+		.response-code h4 {
+			font-size: 1.8rem;
+			color: #818cf8;
+			margin-bottom: 0.5rem;
+		}
 
-        .response-code p {
-            color: #a5b4fc;
-        }
+		.response-code p {
+			color: #a5b4fc;
+		}
 
-        .config-block {
-            background: #0a0e27;
-            padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(129, 140, 248, 0.2);
-            font-family: 'Courier New', monospace;
-        }
+		.config-block {
+			background: #0a0e27;
+			padding: 2rem;
+			border-radius: 15px;
+			border: 1px solid rgba(129, 140, 248, 0.2);
+			font-family: 'Courier New', monospace;
+		}
 
-        .config-line {
-            color: #c7d2fe;
-            padding: 0.3rem 0;
-            font-size: 1rem;
-        }
+		.config-line {
+			color: #c7d2fe;
+			padding: 0.3rem 0;
+			font-size: 1rem;
+		}
 
-        .config-key {
-            color: #818cf8;
-            font-weight: bold;
-        }
+		.config-key {
+			color: #818cf8;
+			font-weight: bold;
+		}
 
-        .config-value {
-            color: #22c55e;
-        }
+		.config-value {
+			color: #22c55e;
+		}
 
-        footer {
-            position: relative;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-top: 4rem;
-            border-top: 1px solid rgba(129, 140, 248, 0.2);
-            z-index: 10;
-        }
+		footer {
+			position: relative;
+			background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+			padding: 3rem 2rem;
+			text-align: center;
+			margin-top: 4rem;
+			border-top: 1px solid rgba(129, 140, 248, 0.2);
+			z-index: 10;
+		}
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
+		.footer-links {
+			display: flex;
+			justify-content: center;
+			gap: 2rem;
+			margin-bottom: 1rem;
+			flex-wrap: wrap;
+		}
 
-        .footer-links a {
-            color: #a5b4fc;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+		.footer-links a {
+			color: #a5b4fc;
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
 
-        .footer-links a:hover {
-            color: #818cf8;
-        }
+		.footer-links a:hover {
+			color: #818cf8;
+		}
 
-        @media (max-width: 768px) {
-            .hero-section h2 {
-                font-size: 2.5rem;
-            }
+		@media (max-width: 768px) {
+			.hero-section h2 {
+				font-size: 2.5rem;
+			}
 
-            .header-content {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
+			.header-content {
+				flex-direction: column;
+				gap: 1.5rem;
+			}
 
-            .endpoint-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+			.endpoint-header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
 
-            .logo-section {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-    </style>
+			.logo-section {
+				flex-direction: column;
+				text-align: center;
+			}
+		}
+	</style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
+	<div class="particles" id="particles"></div>
 
-    <header>
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="logo-icon">⚡</div>
-                <div class="logo-text">
-                    <h1>Webserv API</h1>
-                    <p>RESTful API v2.0</p>
-                </div>
-            </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                <span class="status-text">API Opérationnelle</span>
-            </div>
-        </div>
-    </header>
+	<header>
+		<div class="header-content">
+			<div class="logo-section">
+				<div class="logo-icon">⚡</div>
+				<div class="logo-text">
+					<h1>Webserv API</h1>
+					<p>RESTful API v2.0</p>
+				</div>
+			</div>
+			<div class="status-badge">
+				<div class="status-dot"></div>
+				<span class="status-text">API Opérationnelle</span>
+			</div>
+		</div>
+	</header>
 
-    <div class="container">
-        <a href="/" class="nav-link">← Retour à l'accueil</a>
+	<div class="container">
+		<a href="/" class="nav-link">← Retour à l'accueil</a>
 
-        <div class="hero-section">
-            <h2>Documentation API</h2>
-            <p>Interface RESTful performante et sécurisée</p>
-        </div>
+		<div class="hero-section">
+			<h2>Documentation API</h2>
+			<p>Interface RESTful performante et sécurisée</p>
+		</div>
 
-        <div class="section">
-            <h2 class="section-title">
-                <span class="title-icon">📊</span>
-                Configuration du Serveur
-            </h2>
-            <div class="info-cards">
-                <div class="info-card">
-                    <h3>🌐 URL de Base</h3>
-                    <p>http://127.0.0.1:8081</p>
-                </div>
-                <div class="info-card">
-                    <h3>🔌 Port API</h3>
-                    <p>8081</p>
-                </div>
-                <div class="info-card">
-                    <h3>🎯 Server Name</h3>
-                    <p>api.example.com</p>
-                </div>
-                <div class="info-card">
-                    <h3>📦 Max Body Size</h3>
-                    <p>50 MB</p>
-                </div>
-                <div class="info-card">
-                    <h3>🔧 Méthodes HTTP</h3>
-                    <p>GET, POST, DELETE</p>
-                </div>
-                <div class="info-card">
-                    <h3>📁 Root Directory</h3>
-                    <p>/tmp/www/api</p>
-                </div>
-            </div>
-        </div>
+		<div class="section">
+			<h2 class="section-title">
+				<span class="title-icon">📊</span>
+				Configuration du Serveur
+			</h2>
+			<div class="info-cards">
+				<div class="info-card">
+					<h3>🌐 URL de Base</h3>
+					<p>http://127.0.0.1:8081</p>
+				</div>
+				<div class="info-card">
+					<h3>🔌 Port API</h3>
+					<p>8081</p>
+				</div>
+				<div class="info-card">
+					<h3>🎯 Server Name</h3>
+					<p>api.example.com</p>
+				</div>
+				<div class="info-card">
+					<h3>📦 Max Body Size</h3>
+					<p>50 MB</p>
+				</div>
+				<div class="info-card">
+					<h3>🔧 Méthodes HTTP</h3>
+					<p>GET, POST, DELETE</p>
+				</div>
+				<div class="info-card">
+					<h3>📁 Root Directory</h3>
+					<p>/tmp/www/api</p>
+				</div>
+			</div>
+		</div>
 
-        <div class="section">
-            <h2 class="section-title">
-                <span class="title-icon">🚀</span>
-                Endpoints Disponibles
-            </h2>
+		<div class="section">
+			<h2 class="section-title">
+				<span class="title-icon">🚀</span>
+				Endpoints Disponibles
+			</h2>
 
-            <div class="endpoints-container">
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/api/users</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Récupère la liste complète de tous les utilisateurs enregistrés dans le système.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X GET http://127.0.0.1:8081/api/users \
+			<div class="endpoints-container">
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-get">GET</span>
+						<span class="endpoint-path">/api/users</span>
+					</div>
+					<p class="endpoint-description">
+						Récupère la liste complète de tous les utilisateurs enregistrés dans le système.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X GET http://127.0.0.1:8081/api/users \
   -H "Accept: application/json"</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">🔓 Public</span>
-                        <span class="tag">⚡ Rapide</span>
-                        <span class="tag">📄 JSON</span>
-                    </div>
-                </div>
+					</div>
+					<div class="tags">
+						<span class="tag">🔓 Public</span>
+						<span class="tag">⚡ Rapide</span>
+						<span class="tag">📄 JSON</span>
+					</div>
+				</div>
 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/api/users/{id}</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Récupère les informations détaillées d'un utilisateur spécifique via son identifiant unique.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X GET http://127.0.0.1:8081/api/users/123 \
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-get">GET</span>
+						<span class="endpoint-path">/api/users/{id}</span>
+					</div>
+					<p class="endpoint-description">
+						Récupère les informations détaillées d'un utilisateur spécifique via son identifiant unique.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X GET http://127.0.0.1:8081/api/users/123 \
   -H "Accept: application/json"</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">🔓 Public</span>
-                        <span class="tag">🎯 Paramètre requis</span>
-                    </div>
-                </div>
+					</div>
+					<div class="tags">
+						<span class="tag">🔓 Public</span>
+						<span class="tag">🎯 Paramètre requis</span>
+					</div>
+				</div>
 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-post">POST</span>
-                        <span class="endpoint-path">/api/users</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Crée un nouvel utilisateur dans la base de données avec les informations fournies.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X POST http://127.0.0.1:8081/api/users \
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-post">POST</span>
+						<span class="endpoint-path">/api/users</span>
+					</div>
+					<p class="endpoint-description">
+						Crée un nouvel utilisateur dans la base de données avec les informations fournies.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X POST http://127.0.0.1:8081/api/users \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Jean Dupont",
-    "email": "jean@example.com",
-    "role": "user"
+	"name": "Jean Dupont",
+	"email": "jean@example.com",
+	"role": "user"
   }'</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">📝 JSON requis</span>
-                        <span class="tag">✨ Création</span>
-                        <span class="tag">🔐 Validation</span>
-                    </div>
-                </div>
+					</div>
+					<div class="tags">
+						<span class="tag">📝 JSON requis</span>
+						<span class="tag">✨ Création</span>
+						<span class="tag">🔐 Validation</span>
+					</div>
+				</div>
 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-delete">DELETE</span>
-                        <span class="endpoint-path">/api/users/{id}</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Supprime définitivement un utilisateur du système en utilisant son identifiant.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X DELETE http://127.0.0.1:8081/api/users/123 \
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-delete">DELETE</span>
+						<span class="endpoint-path">/api/users/{id}</span>
+					</div>
+					<p class="endpoint-description">
+						Supprime définitivement un utilisateur du système en utilisant son identifiant.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X DELETE http://127.0.0.1:8081/api/users/123 \
   -H "Accept: application/json"</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">⚠️ Suppression</span>
-                        <span class="tag">🎯 ID requis</span>
-                    </div>
-                </div>
+					</div>
+					<div class="tags">
+						<span class="tag">⚠️ Suppression</span>
+						<span class="tag">🎯 ID requis</span>
+					</div>
+				</div>
 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-get">GET</span>
-                        <span class="endpoint-path">/api/health</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Vérifie l'état de santé et la disponibilité de l'API. Retourne le statut du serveur.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X GET http://127.0.0.1:8081/api/health</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">💚 Health Check</span>
-                        <span class="tag">🔓 Public</span>
-                    </div>
-                </div>
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-get">GET</span>
+						<span class="endpoint-path">/api/health</span>
+					</div>
+					<p class="endpoint-description">
+						Vérifie l'état de santé et la disponibilité de l'API. Retourne le statut du serveur.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X GET http://127.0.0.1:8081/api/health</pre>
+					</div>
+					<div class="tags">
+						<span class="tag">💚 Health Check</span>
+						<span class="tag">🔓 Public</span>
+					</div>
+				</div>
 
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="method-badge method-post">POST</span>
-                        <span class="endpoint-path">/api/data</span>
-                    </div>
-                    <p class="endpoint-description">
-                        Envoie des données volumineuses pour traitement. Supporte jusqu'à 50MB de données.
-                    </p>
-                    <div class="code-snippet">
-                        <pre>curl -X POST http://127.0.0.1:8081/api/data \
+				<div class="endpoint-card">
+					<div class="endpoint-header">
+						<span class="method-badge method-post">POST</span>
+						<span class="endpoint-path">/api/data</span>
+					</div>
+					<p class="endpoint-description">
+						Envoie des données volumineuses pour traitement. Supporte jusqu'à 50MB de données.
+					</p>
+					<div class="code-snippet">
+						<pre>curl -X POST http://127.0.0.1:8081/api/data \
   -H "Content-Type: application/json" \
   -d '{"data": "..."}'</pre>
-                    </div>
-                    <div class="tags">
-                        <span class="tag">📦 50MB Max</span>
-                        <span class="tag">⚙️ Processing</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+					</div>
+					<div class="tags">
+						<span class="tag">📦 50MB Max</span>
+						<span class="tag">⚙️ Processing</span>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <div class="section">
-            <h2 class="section-title">
-                <span class="title-icon">📋</span>
-                Codes de Réponse HTTP
-            </h2>
-            <div class="response-codes">
-                <div class="response-code">
-                    <h4>200</h4>
-                    <p>Succès</p>
-                </div>
-                <div class="response-code">
-                    <h4>201</h4>
-                    <p>Créé</p>
-                </div>
-                <div class="response-code">
-                    <h4>204</h4>
-                    <p>Pas de contenu</p>
-                </div>
-                <div class="response-code">
-                    <h4>400</h4>
-                    <p>Requête invalide</p>
-                </div>
-                <div class="response-code">
-                    <h4>404</h4>
-                    <p>Non trouvé</p>
-                </div>
-                <div class="response-code">
-                    <h4>500</h4>
-                    <p>Erreur serveur</p>
-                </div>
-            </div>
-        </div>
+		<div class="section">
+			<h2 class="section-title">
+				<span class="title-icon">📋</span>
+				Codes de Réponse HTTP
+			</h2>
+			<div class="response-codes">
+				<div class="response-code">
+					<h4>200</h4>
+					<p>Succès</p>
+				</div>
+				<div class="response-code">
+					<h4>201</h4>
+					<p>Créé</p>
+				</div>
+				<div class="response-code">
+					<h4>204</h4>
+					<p>Pas de contenu</p>
+				</div>
+				<div class="response-code">
+					<h4>400</h4>
+					<p>Requête invalide</p>
+				</div>
+				<div class="response-code">
+					<h4>404</h4>
+					<p>Non trouvé</p>
+				</div>
+				<div class="response-code">
+					<h4>500</h4>
+					<p>Erreur serveur</p>
+				</div>
+			</div>
+		</div>
 
-        <div class="section">
-            <h2 class="section-title">
-                <span class="title-icon">⚙️</span>
-                Configuration Webserv
-            </h2>
-            <div class="config-block">
-                <div class="config-line">
-                    <span class="config-key">listen:</span> 
-                    <span class="config-value">127.0.0.1:8081</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">server_name:</span> 
-                    <span class="config-value">api.example.com</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">client_max_body_size:</span> 
-                    <span class="config-value">50M</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">error_page 404:</span> 
-                    <span class="config-value">/api_errors/404.json</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">root:</span> 
-                    <span class="config-value">/tmp/www/api</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">allow_methods:</span> 
-                    <span class="config-value">GET POST DELETE</span>
-                </div>
-                <div class="config-line">
-                    <span class="config-key">autoindex:</span> 
-                    <span class="config-value">off</span>
-                </div>
-            </div>
-        </div>
-    </div>
+		<div class="section">
+			<h2 class="section-title">
+				<span class="title-icon">⚙️</span>
+				Configuration Webserv
+			</h2>
+			<div class="config-block">
+				<div class="config-line">
+					<span class="config-key">listen:</span> 
+					<span class="config-value">127.0.0.1:8081</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">server_name:</span> 
+					<span class="config-value">api.example.com</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">client_max_body_size:</span> 
+					<span class="config-value">50M</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">error_page 404:</span> 
+					<span class="config-value">/api_errors/404.json</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">root:</span> 
+					<span class="config-value">/tmp/www/api</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">allow_methods:</span> 
+					<span class="config-value">GET POST DELETE</span>
+				</div>
+				<div class="config-line">
+					<span class="config-key">autoindex:</span> 
+					<span class="config-value">off</span>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <footer>
-        <div class="footer-links">
-            <a href="/">Accueil</a>
-            <a href="/upload">Upload</a>
-            <a href="/cgi-bin">CGI</a>
-        </div>
-        <p style="color: #a5b4fc;">&copy; 2025 Webserv API Documentation</p>
-        <p style="color: #64748b; margin-top: 0.5rem; font-size: 0.9rem;">
-            Version 2.0 | Port 8081
-        </p>
-    </footer>
+	<footer>
+		<div class="footer-links">
+			<a href="../index.html">Accueil</a>
+			<a href="../upload.html">Upload</a>
+			<a href="../cgi-bin.html">CGI</a>
+		</div>
+		<p style="color: #a5b4fc;">&copy; 2025 Webserv API Documentation</p>
+		<p style="color: #64748b; margin-top: 0.5rem; font-size: 0.9rem;">
+			Version 2.0 | Port 8081
+		</p>
+	</footer>
 
-    <script>
-        // Génération de particules
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 50; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 15 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-            particlesContainer.appendChild(particle);
-        }
-    </script>
+	<script>
+		// Génération de particules
+		const particlesContainer = document.getElementById('particles');
+		for (let i = 0; i < 50; i++) {
+			const particle = document.createElement('div');
+			particle.className = 'particle';
+			particle.style.left = Math.random() * 100 + '%';
+			particle.style.top = Math.random() * 100 + '%';
+			particle.style.animationDelay = Math.random() * 15 + 's';
+			particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+			particlesContainer.appendChild(particle);
+		}
+	</script>
 </body>
 </html>

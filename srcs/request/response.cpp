@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/29 16:42:07 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/03 10:07:03 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,12 @@ std::string Response::Methodes(const Request &request, const Server &server)
 std::string Response::handleGet(const Request &request, const Server &server)
 {
     const std::string& path = request.getPath();
-
     int loc = server.findLocationIndex(path);
-    if (loc == -1) return sendError(404, "Not Found");
+
+    if (loc == -1)
+    {
+        return sendError(404, "Not Found");
+    }
 
     // Redirection (si définie)
     const std::string& redir = server.getRedirect(loc);
@@ -82,10 +85,13 @@ std::string Response::handleGet(const Request &request, const Server &server)
     std::string fsPath = join_path(root, rel);
 
     struct stat st;
+
     if (stat(fsPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
         const std::string& index = server.getIndexFile(loc);
+
         if (!index.empty()) {
             std::string cand = join_path(fsPath, index);
+
             if (stat(cand.c_str(), &st) == 0 && S_ISREG(st.st_mode))
                 fsPath = cand;
             if (stat(fsPath.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
@@ -93,7 +99,7 @@ std::string Response::handleGet(const Request &request, const Server &server)
             else if (server.getAutoindex(loc))
             {
                 std::cout<<RED<<"403 = 1"<<std::endl;
-                return sendError(403, "Autoindex not implemented"); 
+                return sendError(403, "Autoindex not implemented");
             }
             else
             {

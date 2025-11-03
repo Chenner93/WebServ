@@ -265,7 +265,6 @@ std::string Config::parseValue(const std::string& content, size_t& pos)
 		value += content[pos++];
 	}
 
-	// Ignorer le point-virgule optionnel
 	skipWhitespace(content, pos);
 	if (pos < content.length() && content[pos] == ';')
 		pos++;
@@ -302,7 +301,6 @@ std::vector<std::string> Config::parseList(const std::string& content, size_t& p
 		list.push_back(current_item);
 	}
 
-	// Ignorer le point-virgule optionnel
 	skipWhitespace(content, pos);
 	if (pos < content.length() && content[pos] == ';')
 		pos++;

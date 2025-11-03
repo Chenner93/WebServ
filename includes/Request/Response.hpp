@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/29 15:27:43 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/03 09:06:57 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,9 @@ public:
 
 	// Gestion d'erreur HTTP
 	std::string sendError(int code, const std::string& msg);
+
+	// Génération d'autoindex
+	std::string generateAutoindex(const std::string& dirPath, const std::string& requestPath);
 
 	// Sauvegarde multipart (upload)
 	void saveFormDataToDisk(const Request::FormDataPart& part,

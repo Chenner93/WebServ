@@ -2,8 +2,6 @@
 #include <Server.hpp>
 #include <Client.hpp>
 #include <Config.hpp>
-
-// #include<Request.hpp>
 #include<../includes/Request/Request.hpp>
 #include<../includes/Request/Response.hpp>
 #include <sys/socket.h>
@@ -15,26 +13,6 @@ void	closeWebserv(int sig) {
 	g_runWebserv = false;
 	std::cout << std::endl << RED "[INFO] Shutting Down Server(s)..." RESET << std::endl;
 }
-
-void	tmp_config(int ac, std::vector<Server> &server) {
-	if (ac != 2)
-		std::cerr << "_.conf file only, but we continue because it's just a test" << std::endl;
-
-	Server	s1, s2, s3;
-
-	s1.setServer("Alpha", "127.0.0.1", 8081);
-	s2.setServer("Beta", "127.0.0.1", 8082);
-	s3.setServer("Gamma", "127.0.0.1", 8083);
-
-	server.reserve(3);
-
-	server.push_back(s1);
-	server.push_back(s2);
-	server.push_back(s3);
-
-	// return server;
-}
-
 
 int main(int ac, char **av) {
 
@@ -108,14 +86,6 @@ int main(int ac, char **av) {
 		exit(EXIT_FAILURE);
 	}
 
-	// Réponse par défaut
-	std::string hello =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Type: text/plain\r\n"
-		"Content-Length: 13\r\n"
-		"\r\n"
-		"Hello world!\n";
-
 	#define MAX_EVENTS 10//change to a real MAX
 	while (g_runWebserv) {
 		struct epoll_event events[MAX_EVENTS];
@@ -135,7 +105,7 @@ int main(int ac, char **av) {
 				// send(events[i].data.fd, hello.c_str(), hello.size(), 0);
 				Client	&client = Client::getClient(events[i].data.fd, clients);
 
-				
+				// Traitement de la requête
 				try
 				{
 					std::cout<<GREEN<<"PASS IN MAIN MY PART"<<RESET<<std::endl;
@@ -154,9 +124,9 @@ int main(int ac, char **av) {
 				{
 					std::cerr << "Bad Request: " << e.what() << std::endl;
 				}
-			
 
 				// Free request
+				client.freeRequest();
 
 				// Repasser en lecture
 				events[i].events = EPOLLIN | EPOLLET;
@@ -171,7 +141,6 @@ int main(int ac, char **av) {
 	Server::closeAllSocket(epoll_fd, servers, clients);
 	std::cout << RED "[INFO] Server(s) Down" RESET << std::endl;
 }
-
 
 // int main(int ac, char **av) {
 
