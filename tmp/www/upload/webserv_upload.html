@@ -431,20 +431,31 @@
 			displayFiles();
 		}
 
-		// Simulation d'upload
-		uploadButton.addEventListener('click', function() {
+// Upload réel avec POST
+		uploadButton.addEventListener('click', async function() {
 			if (selectedFiles.length === 0) return;
 
 			progressBar.classList.add('active');
 			uploadButton.disabled = true;
-			let progress = 0;
 
-			const interval = setInterval(() => {
-				progress += 10;
-				progressFill.style.width = progress + '%';
+			// Créer un FormData pour envoyer les fichiers
+			const formData = new FormData();
+			selectedFiles.forEach((file, index) => {
+				formData.append('files', file);
+			});
 
-				if (progress >= 100) {
-					clearInterval(interval);
+			try {
+				// Envoyer la requête POST
+				const response = await fetch('/upload', {
+					method: 'POST',
+					body: formData
+				});
+
+				// Simuler la progression (car fetch ne donne pas de progression native facilement)
+				progressFill.style.width = '100%';
+
+				if (response.ok) {
+					const result = await response.text();
 					setTimeout(() => {
 						alert('✅ Fichiers téléversés avec succès !');
 						selectedFiles = [];
@@ -452,9 +463,17 @@
 						progressBar.classList.remove('active');
 						progressFill.style.width = '0%';
 						uploadButton.disabled = false;
+						fileInput.value = '';
 					}, 500);
+				} else {
+					throw new Error(`Erreur HTTP: ${response.status}`);
 				}
-			}, 300);
+			} catch (error) {
+				alert('❌ Erreur lors du téléversement : ' + error.message);
+				progressBar.classList.remove('active');
+				progressFill.style.width = '0%';
+				uploadButton.disabled = false;
+			}
 		});
 	</script>
 </body>
