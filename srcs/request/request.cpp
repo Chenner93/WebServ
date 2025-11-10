@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/29 17:51:16 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/11/06 10:52:10 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,11 @@ const std::string& Request::getBody() const
 }
 
 
+// const std::string& Request::get_filename() const 
+// { 
+//     return filename; 
+// }
+
 
 void Request::print_request(const Request& req)
 {
@@ -188,6 +193,44 @@ void printUrlParams(const Request& req)
         std::cout << "  " << it->first << " = " << it->second << "\n";
     }
 }
+
+void Request::printFormDataParts(const std::vector<FormDataPart>& parts)
+{
+	std::cout << CYAN << "---- Parsed Multipart Form Data ----" << RESET << std::endl;
+
+	if (parts.empty()) {
+		std::cout << RED << "Aucune partie trouvée dans la requête." << RESET << std::endl;
+		return;
+	}
+
+	for (size_t i = 0; i < parts.size(); ++i) {
+		std::cout << YELLOW << "[Part " << i << "]" << RESET << std::endl;
+
+		std::cout << GREEN << "  name: " << RESET << parts[i].name << std::endl;
+		std::cout << GREEN << "  filename: " << RESET
+		          << (parts[i].filename.empty() ? "(vide)" : parts[i].filename) << std::endl;
+        std::cout << "[DEBUG] Content length: " << parts[i].content.size() << " bytes" << std::endl;
+
+		// std::cout << GREEN << "  content_type: " << RESET
+		//           << (parts[i].content_type.empty() ? "(non spécifié)" : parts[i].content_type) << std::endl;
+         std::cout << GREEN << "  contentType: " << RESET
+          << (parts[i].contentType.empty() ? "(non spécifié)" : parts[i].contentType) << std::endl;
+        std::cout << BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
+
+		// Afficher les 200 premiers caractères du contenu max pour éviter le flood
+		std::string preview = parts[i].content.substr(0, 200);
+		std::cout << BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
+		std::cout << preview;
+		if (parts[i].content.size() > 200)
+			std::cout << "..." << std::endl;
+		else
+			std::cout << std::endl;
+
+		std::cout << CYAN << "-----------------------------------" << RESET << std::endl;
+	}
+	std::cout << std::endl;
+}
+
 
 void Request::handleClientRequest(Client &client) 
 {
