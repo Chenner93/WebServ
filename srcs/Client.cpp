@@ -157,58 +157,140 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 		return ;
 	}
 	clients.push_back(client);
-}
+ }
 
-void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd) {
+// void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd) {
 
-	char	buffer[B_READ + 1];
-	memset(buffer, 0, sizeof(buffer));
-	size_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
+// 	char	buffer[B_READ + 1];
+// 	memset(buffer, 0, sizeof(buffer));
+// 	size_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
 
-	if (bytesread <= 0) {// SEPARER == 0 && < 0
-		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
-		Client::closingClient(epoll_fd, event.data.fd, clients);
-		return ;
-	}
+// 	if (bytesread <= 0) {// SEPARER == 0 && < 0
+// 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
+// 		Client::closingClient(epoll_fd, event.data.fd, clients);
+// 		return ;
+// 	}
 
-	size_t	i;
-	//Trouver la bon socket/Client
-	for (i = 0; i < clients.size(); i++) {
-		if (clients[i].getSocket() == event.data.fd)
-			break ;
+// 	size_t	i;
+// 	//Trouver la bon socket/Client
+// 	for (i = 0; i < clients.size(); i++) {
+// 		if (clients[i].getSocket() == event.data.fd)
+// 			break ;
 
-		// --- Client.cpp test debug ---
-// 		clients[i].appendRequest(buffer);
+// 		// --- Client.cpp test debug ---
+// // 		clients[i].appendRequest(buffer);
 
-// // Nouveau test : la requête est-elle complète test debug ?
-// 		if (clients[i].getRequest() && is_request_complete(*clients[i].getRequest())) {
-//     		std::cout << MAGENTA << "Request complete ✓" << RESET << std::endl;
-//     		event.events = EPOLLOUT;
-//     		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-//         		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-//         		Client::closingClient(epoll_fd, event.data.fd, clients);
-// 			}
-// 		}
-	}
+// // // Nouveau test : la requête est-elle complète test debug ?
+// // 		if (clients[i].getRequest() && is_request_complete(*clients[i].getRequest())) {
+// //     		std::cout << MAGENTA << "Request complete ✓" << RESET << std::endl;
+// //     		event.events = EPOLLOUT;
+// //     		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
+// //         		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+// //         		Client::closingClient(epoll_fd, event.data.fd, clients);
+// // 			}
+// // 		}
+// 	}
 
-	// Ajouter les données reçues
-	clients[i].appendRequest(buffer);
+// 	// Ajouter les données reçues
+// 	clients[i].appendRequest(buffer);
 
-	// Vérifier si la requête est complète (présence de \r\n\r\n)
-	if (clients[i].getRequest() && clients[i].getRequest()->find("\r\n\r\n") != std::string::npos) {
-		// Requête complète ! Passer en mode écriture
-		std::cout << MAGENTA << "Request complete:\n" << clients[i].getRequest() << RESET << std::endl;
+// 	// Vérifier si la requête est complète (présence de \r\n\r\n)
+// 	if (clients[i].getRequest() && clients[i].getRequest()->find("\r\n\r\n") != std::string::npos) {
+// 		// Requête complète ! Passer en mode écriture
+// 		std::cout << MAGENTA << "Request complete:\n" << clients[i].getRequest() << RESET << std::endl;
 		
-		event.events = EPOLLOUT;
-		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-			Client::closingClient(epoll_fd, event.data.fd, clients);
-		}
-	}
-	// Sinon, on attend plus de données (reste en EPOLLIN)
-}
+// 		event.events = EPOLLOUT;
+// 		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
+// 			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+// 			Client::closingClient(epoll_fd, event.data.fd, clients);
+// 		}
+// 	}
+// 	// Sinon, on attend plus de données (reste en EPOLLIN)
+// }
 
 void	Client::freeRequest() {
 	delete _request;
 	_request = 0;
+}
+
+
+void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd)
+{
+	char buffer[B_READ + 1];
+	memset(buffer, 0, sizeof(buffer));
+
+	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
+	if (bytesread <= 0)
+	{
+		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+		return;
+	}
+
+	// Trouver le bon client
+	size_t i;
+	for (i = 0; i < clients.size(); i++)
+	{
+		if (clients[i].getSocket() == event.data.fd)
+			break;
+	}
+
+	// Ajouter les données reçues à la requête en cours
+	clients[i].appendRequest(buffer);
+	std::string &req = *clients[i].getRequest();
+
+	// Chercher la fin des headers
+	size_t header_end = req.find("\r\n\r\n");
+
+	if (header_end != std::string::npos)
+	{
+		// Vérifier s’il y a un Content-Length
+		size_t pos = req.find("Content-Length:");
+		size_t content_length = 0;
+
+		if (pos != std::string::npos)
+		{
+			pos += 15; // longueur de "Content-Length:"
+			while (pos < req.size() && (req[pos] == ' ' || req[pos] == '\t'))
+				++pos;
+			content_length = std::atoi(req.c_str() + pos);
+		}
+
+		size_t total_needed = header_end + 4 + content_length;
+
+		if (content_length == 0)
+		{
+			std::cout << YELLOW << "[DEBUG] No Content-Length found — treating as complete" << RESET << std::endl;
+			event.events = EPOLLOUT;
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+			{
+				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+				Client::closingClient(epoll_fd, event.data.fd, clients);
+			}
+			return;
+		}
+
+		// Si tout le corps a été reçu
+		if (req.size() >= total_needed)
+		{
+			std::cout << MAGENTA << "[DEBUG] Request complete (" << req.size()
+					  << "/" << total_needed << " bytes)" << RESET << std::endl;
+
+			event.events = EPOLLOUT;
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+			{
+				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+				Client::closingClient(epoll_fd, event.data.fd, clients);
+			}
+		}
+		else
+		{
+			std::cout << CYAN << "[DEBUG] Partial body received (" << req.size()
+					  << "/" << total_needed << " bytes)" << RESET << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
+	}
 }

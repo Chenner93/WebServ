@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/13 15:35:39 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/11/05 15:20:49 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class Request
     const std::string& getMethod() const;
     const std::string& getPath() const;
     const std::string& getVersion() const;
+    const std::string& get_filename() const;
     const std::map<std::string, std::string>& getHeaders() const;
     const std::string& getBody() const;
     void parseRequest(const std::string&  line_request);
@@ -75,6 +76,7 @@ class Request
     std::string getUrlParam(const std::string& key) const;
     void parse_url();
     void print_request(const Request& req);
+    void printFormDataParts(const std::vector<FormDataPart>& parts);
     static void handleClientRequest(Client &client);
     std::string parseChunkedBody(const std::string& rawBody);
     static std::string ParseBoundary(const std::map<std::string, std::string>& headers);
