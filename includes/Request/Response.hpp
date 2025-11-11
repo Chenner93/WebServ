@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/06 10:51:10 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/11 18:50:36 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,10 @@
 		std::string handleHead(const Request &request, const Server &server);
 		
 		// Gestion d'erreur HTTP
-		std::string sendError(int code, const std::string& msg);
-		
+		// std::string sendError(int code, const std::string& msg);
+		std::string sendError(int code, const std::string& msg, const Server &server);
 		// Génération d'autoindex
-		std::string generateAutoindex(const std::string& dirPath, const std::string& requestPath);
+		std::string generateAutoindex(const std::string& dirPath, const std::string& requestPath, const Server &server);
 		
 		// Sauvegarde multipart (upload)
 		void saveFormDataToDisk(const Request::FormDataPart& part,

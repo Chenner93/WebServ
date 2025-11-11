@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/11 16:59:12 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/11 18:56:49 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ std::string Response::Methodes(const Request &request, const Server &server)
     debug_headers(request.getHeaders());
     // 405 si méthode non autorisée par la location
     if (!server.isMethodAllowed(request.getPath(), request.getMethod()))
-        return sendError(405, "Method Not Allowed");
+        return sendError(405, "Method Not Allowed", server);
 
     if (request.getMethod() == "GET")
         return handleGet(request, server);
@@ -71,7 +71,7 @@ std::string Response::Methodes(const Request &request, const Server &server)
     // else if (request.getMethod() == "HEAD")
     //     return handleHead(request,server);
     
-    return sendError(501, "Not Implemented");
+    return sendError(501, "Not Implemented", server);
 }
 
 
@@ -82,7 +82,8 @@ std::string Response::handleGet(const Request &request, const Server &server)
 {
 	const std::string& path = request.getPath();
 	int loc = server.findLocationIndex(path);
-	if (loc == -1) return sendError(404, "Not Found");
+	if (loc == -1) 
+    return sendError(404, "Not Found", server);
 
 	// Redirection (si définie)
 	const std::string& redir = server.getRedirect(loc);
@@ -118,20 +119,20 @@ std::string Response::handleGet(const Request &request, const Server &server)
 				// 2. Pas d'index.html trouvé
 				if (server.getAutoindex(loc)) {
 					// autoindex ON → générer la liste
-					return generateAutoindex(fsPath, path);
+					return generateAutoindex(fsPath, path, server);
 				} else {
 					// autoindex OFF → erreur 403
-					return sendError(403, "Forbidden");
+					return sendError(403, "Forbidden", server);
 				}
 			}
 		} else {
 			// 3. Pas d'index configuré du tout
 			if (server.getAutoindex(loc)) {
 				// autoindex ON → générer la liste
-				return generateAutoindex(fsPath, path);
+				return generateAutoindex(fsPath, path, server);
 			} else {
 				// autoindex OFF → erreur 403
-				return sendError(403, "Forbidden");
+				return sendError(403, "Forbidden", server);
 			}
 		}
 	}
@@ -139,7 +140,7 @@ std::string Response::handleGet(const Request &request, const Server &server)
 	// Servir le fichier (index.html ou fichier quelconque)
 	std::ifstream file(fsPath.c_str(), std::ios::binary);
 	if (!file.is_open()) 
-		return sendError(404, "Not Found");
+		return sendError(404, "Not Found", server);
 
 	std::ostringstream body;
 	body << file.rdbuf();
@@ -300,11 +301,11 @@ std::string Response::handlePost(const Request &request, const Server &server)
     const std::string& path = request.getPath();
     int loc = server.findLocationIndex(path);
     if (loc == -1)
-        return sendError(404, "Not Found");
+        return sendError(404, "Not Found", server);
 
     const std::vector<std::string>& methods = server.getAllowMethods(loc);
     if (std::find(methods.begin(), methods.end(), "POST") == methods.end())
-        return sendError(405, "Method Not Allowed");
+        return sendError(405, "Method Not Allowed", server);
 
     const std::map<std::string, std::string>& headers = request.getHeaders();
     std::map<std::string, std::string>::const_iterator it = headers.find("content-length");
@@ -312,11 +313,11 @@ std::string Response::handlePost(const Request &request, const Server &server)
     {
         size_t cl = std::strtoul(it->second.c_str(), 0, 10);
         if (cl > server.getClientMaxBodySize())
-            return sendError(413, "Payload Too Large");
+            return sendError(413, "Payload Too Large", server);
     }
 
     if (!server.getUploadEnabled(loc))
-        return sendError(403, "Uploads not allowed");
+        return sendError(403, "Uploads not allowed", server);
 
     const std::string& root = server.getRoot(loc);
     const std::string& uploadDir = server.getUploadPath(loc);
@@ -342,7 +343,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
         std::string boundary = clean_boundary(raw_ct);
 
         if (boundary.empty())
-            return sendError(400, "Bad Request: Missing boundary");
+            return sendError(400, "Bad Request: Missing boundary", server);
 
         std::cout << YELLOW << "[DEBUG] Boundary nettoyé: [" << boundary << "]" << RESET << std::endl;
 
@@ -350,7 +351,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
             Request::parseMultipartFormData(request.getBody(), boundary);
 
         if (parts.empty())
-            return sendError(400, "Bad Request: No multipart data found");
+            return sendError(400, "Bad Request: No multipart data found", server);
 
         size_t saved = 0;
         for (size_t i = 0; i < parts.size(); ++i)
@@ -364,7 +365,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
             catch (const std::exception& e)
             {
                 std::cerr << RED << "[ERROR] Upload failed: " << e.what() << RESET << std::endl;
-                return sendError(500, e.what());
+                return sendError(500, e.what(), server);
             }
         }
 
@@ -385,7 +386,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
         std::string dest = join_path(fullDir, "form_data.txt");
         std::ofstream file(dest.c_str(), std::ios::app);
         if (!file.is_open())
-            return sendError(500, "Cannot open upload target");
+            return sendError(500, "Cannot open upload target", server);
 
         file << request.getBody() << "\n";
         file.close();
@@ -400,7 +401,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
         return r.str();
     }
 
-    return sendError(400, "Bad Request: Unsupported POST format");
+    return sendError(400, "Bad Request: Unsupported POST format", server);
 }
 
 
@@ -410,7 +411,7 @@ std::string Response::handleDelete(const Request &request, const Server &server)
 {
     const std::string& path = request.getPath();
     int loc = server.findLocationIndex(path);
-    if (loc == -1) return sendError(404, "Not Found");
+    if (loc == -1) return sendError(404, "Not Found", server);
 
     std::string root   = server.getRoot(loc);
     std::string rel    = strip_location_prefix(path, server.getLocationPath(loc));
@@ -418,10 +419,10 @@ std::string Response::handleDelete(const Request &request, const Server &server)
 
     struct stat st;
     if (stat(target.c_str(), &st) == -1 || !S_ISREG(st.st_mode))
-        return sendError(404, "File Not Found");
+        return sendError(404, "File Not Found", server);
 
     if (remove(target.c_str()) != 0)
-        return sendError(500, "Internal Server Error");
+        return sendError(500, "Internal Server Error", server);
 
     std::ostringstream r;
     r << "HTTP/1.1 200 OK\r\n"
@@ -435,7 +436,7 @@ std::string Response::handleHead(const Request &request, const Server &server)
     const std::string& path = request.getPath();
     int loc = server.findLocationIndex(path);
     if (loc == -1)
-        return sendError(404, "Not Found");
+        return sendError(404, "Not Found", server);
 
     std::string root   = server.getRoot(loc);
     std::string rel    = strip_location_prefix(path, server.getLocationPath(loc));
@@ -447,7 +448,7 @@ std::string Response::handleHead(const Request &request, const Server &server)
 
     struct stat st;
     if (stat(fsPath.c_str(), &st) != 0 || !S_ISREG(st.st_mode))
-        return sendError(404, "Not Found");
+        return sendError(404, "Not Found", server);
 
     std::string ctype = getContentType(fsPath);
 
@@ -507,21 +508,63 @@ void Response::saveFormDataToDisk(const Request::FormDataPart& part,
 
 
 
-std::string Response::sendError(int code, const std::string& msg)
+// std::string Response::sendError(int code, const std::string& msg)
+// {
+// 	std::ostringstream response;
+//     std::string error_path;
+//     switch (code)
+// 	{
+// 		case 404: error_path = "tmp/www/error_pages/404.html"; break;
+// 		// case 403: error_path = "tmp/www/error_pages/403.html"; break;
+// 		// case 500: error_path = "tmp/www/error_pages/500.html"; break;
+// 		default:  error_path = ""; break;
+// 	}
+
+//     std::string body;
+// 	std::string ctype = "text/plain";
+//     if (!error_path.empty())
+// 	{
+// 		std::ifstream file(error_path.c_str(), std::ios::binary);
+// 		if (file.is_open())
+// 		{
+// 			std::ostringstream buf;
+// 			buf << file.rdbuf();
+// 			body = buf.str();
+// 			file.close();
+// 			ctype = "text/html";
+// 		}
+// 	}
+//     if (body.empty())
+//     {
+//         std::ostringstream oss;
+//         oss << code;
+//         body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+
+//     }
+//     response << "HTTP/1.1 " << code << " " << msg << "\r\n"
+// 			 << "Content-Type: " << ctype << "\r\n"
+// 			 << "Content-Length: " << body.size() << "\r\n"
+// 			 << "Connection: close\r\n\r\n"
+// 			 << body;
+//     std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;       
+// 	return response.str();
+// }
+
+
+std::string Response::sendError(int code, const std::string& msg, const Server &server)
 {
 	std::ostringstream response;
-    std::string error_path;
-    switch (code)
-	{
-		case 404: error_path = "tmp/www/error_pages/404.html"; break;
-		// case 403: error_path = "tmp/www/error_pages/403.html"; break;
-		// case 500: error_path = "tmp/www/error_pages/500.html"; break;
-		default:  error_path = ""; break;
-	}
+	std::string body;
+	std::string ctype = "text/html";
 
-    std::string body;
-	std::string ctype = "text/plain";
-    if (!error_path.empty())
+	std::map<int, std::string> const &error_map = server.getErrorPages();
+	std::map<int, std::string>::const_iterator it = error_map.find(code);
+	std::string error_path;
+
+	if (it != error_map.end())
+		error_path = it->second; 
+
+	if (!error_path.empty())
 	{
 		std::ifstream file(error_path.c_str(), std::ios::binary);
 		if (file.is_open())
@@ -533,22 +576,22 @@ std::string Response::sendError(int code, const std::string& msg)
 			ctype = "text/html";
 		}
 	}
-    if (body.empty())
-    {
-        std::ostringstream oss;
-        oss << code;
-        body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
-
-    }
-    response << "HTTP/1.1 " << code << " " << msg << "\r\n"
+	if (body.empty())
+	{
+		std::ostringstream oss;
+		oss << code;
+		body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+	}
+    
+	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
 			 << "Content-Type: " << ctype << "\r\n"
 			 << "Content-Length: " << body.size() << "\r\n"
 			 << "Connection: close\r\n\r\n"
 			 << body;
-    std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;       
+
+	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
-
 
 std::string Response::getContentType(const std::string& path)
 {

@@ -60,10 +60,10 @@ std::string formatDateTime(time_t timestamp) {
 }
 
 // Fonction principale pour générer l'autoindex
-std::string Response::generateAutoindex(const std::string& dirPath, const std::string& requestPath) {
+std::string Response::generateAutoindex(const std::string& dirPath, const std::string& requestPath, const Server  &server) {
 	DIR* dir = opendir(dirPath.c_str());
 	if (!dir) {
-		return sendError(500, "Internal Server Error");
+		return sendError(500, "Internal Server Error", server);
 	}
 
 	std::vector<FileInfo> files;
