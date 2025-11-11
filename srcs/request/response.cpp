@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/10 17:14:17 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/11 16:59:12 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -510,12 +510,42 @@ void Response::saveFormDataToDisk(const Request::FormDataPart& part,
 std::string Response::sendError(int code, const std::string& msg)
 {
 	std::ostringstream response;
-	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
+    std::string error_path;
+    switch (code)
+	{
+		case 404: error_path = "tmp/www/error_pages/404.html"; break;
+		// case 403: error_path = "tmp/www/error_pages/403.html"; break;
+		// case 500: error_path = "tmp/www/error_pages/500.html"; break;
+		default:  error_path = ""; break;
+	}
 
-	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
-			 << "Content-Type: text/plain\r\n"
-			 << "Content-Length: " << msg.size() << "\r\n\r\n"
-			 << msg;
+    std::string body;
+	std::string ctype = "text/plain";
+    if (!error_path.empty())
+	{
+		std::ifstream file(error_path.c_str(), std::ios::binary);
+		if (file.is_open())
+		{
+			std::ostringstream buf;
+			buf << file.rdbuf();
+			body = buf.str();
+			file.close();
+			ctype = "text/html";
+		}
+	}
+    if (body.empty())
+    {
+        std::ostringstream oss;
+        oss << code;
+        body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+
+    }
+    response << "HTTP/1.1 " << code << " " << msg << "\r\n"
+			 << "Content-Type: " << ctype << "\r\n"
+			 << "Content-Length: " << body.size() << "\r\n"
+			 << "Connection: close\r\n\r\n"
+			 << body;
+    std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;       
 	return response.str();
 }
 
