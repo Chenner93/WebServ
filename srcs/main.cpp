@@ -226,8 +226,8 @@ int main(int ac, char **av)
 	while (g_runWebserv)
 	{
 		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
-		std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
+		// std::cout << CYAN << "nb of Events: " << n << RESET << std::endl;
 
 		for (int i = 0; i < n; i++)
 		{
