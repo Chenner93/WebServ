@@ -1,5 +1,6 @@
 #include <Client.hpp>
 #include <Server.hpp>
+#include <CGI.hpp>
 
 
 Client::Client() {

@@ -19,6 +19,7 @@
 #include <unistd.h>     // POSIX : read(), write(), close()
 #include <stdlib.h>		// exit
 
+class	CGI;
 class	Server;
 class	Client {
 

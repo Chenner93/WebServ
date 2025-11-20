@@ -9,13 +9,17 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <iostream>
+#include <cstring>
+
 class CGI {
 	private:
 		std::string _cgi_path;      // /usr/bin/php-cgi
 		std::string _script_path;   // /var/www/cgi-bin/script.php
 		pid_t _pid;
-		int _pipe_in[2];
-		int _pipe_out[2];
+		int _socketVector[2];
 
 
 	public:
@@ -24,6 +28,7 @@ class CGI {
 		~CGI();
 
 		// bool execute(const HTTPRequest& request);
-		std::string getOutput();
-		void setTimeout(int seconds);
+		// std::string getOutput();
+		// void setTimeout(int seconds);
+		void	setSocketVector();
 };
