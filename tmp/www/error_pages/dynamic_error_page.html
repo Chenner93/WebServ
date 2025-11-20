@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Erreur - Webserv</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden;
+			position: relative;
+		}
+
+		/* Couleurs selon le type d'erreur */
+		body.error-4xx {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		}
+
+		body.error-5xx {
+			background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+		}
+
+		body.error-3xx {
+			background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+		}
+
+		.stars {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		.star {
+			position: absolute;
+			width: 2px;
+			height: 2px;
+			background: white;
+			border-radius: 50%;
+			animation: twinkle 3s infinite;
+		}
+
+		@keyframes twinkle {
+			0%, 100% { opacity: 0.3; }
+			50% { opacity: 1; }
+		}
+
+		.container {
+			text-align: center;
+			color: white;
+			z-index: 10;
+			padding: 20px;
+			max-width: 800px;
+		}
+
+		.error-icon {
+			font-size: 120px;
+			margin-bottom: 20px;
+			animation: bounce 2s ease-in-out infinite;
+		}
+
+		@keyframes bounce {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-20px); }
+		}
+
+		.error-code {
+			font-size: 150px;
+			font-weight: bold;
+			line-height: 1;
+			margin-bottom: 20px;
+			text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+			animation: fadeIn 0.8s ease-in;
+		}
+
+		.error-title {
+			font-size: 42px;
+			margin-bottom: 15px;
+			animation: fadeIn 1s ease-in;
+		}
+
+		.error-message {
+			font-size: 20px;
+			margin-bottom: 15px;
+			opacity: 0.95;
+			animation: fadeIn 1.2s ease-in;
+			line-height: 1.6;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.error-details {
+			background: rgba(0, 0, 0, 0.3);
+			backdrop-filter: blur(10px);
+			padding: 20px;
+			border-radius: 15px;
+			margin: 30px 0;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			animation: fadeIn 1.5s ease-in;
+		}
+
+		.detail-item {
+			padding: 10px;
+			margin: 5px 0;
+			text-align: left;
+			display: flex;
+			justify-content: space-between;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.detail-item:last-child {
+			border-bottom: none;
+		}
+
+		.detail-label {
+			font-weight: bold;
+			opacity: 0.9;
+		}
+
+		.detail-value {
+			font-family: 'Courier New', monospace;
+			opacity: 0.8;
+		}
+
+		.btn-container {
+			display: flex;
+			gap: 1rem;
+			justify-content: center;
+			flex-wrap: wrap;
+			margin-top: 30px;
+			animation: fadeIn 1.8s ease-in;
+		}
+
+		.btn {
+			display: inline-block;
+			padding: 15px 40px;
+			background: white;
+			color: #333;
+			text-decoration: none;
+			border-radius: 50px;
+			font-weight: bold;
+			font-size: 16px;
+			transition: all 0.3s ease;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		}
+
+		.btn:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+			background: #f5f5f5;
+		}
+
+		.btn-secondary {
+			background: transparent;
+			color: white;
+			border: 2px solid white;
+		}
+
+		.btn-secondary:hover {
+			background: white;
+			color: #333;
+		}
+
+		.suggestions {
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(10px);
+			padding: 20px;
+			border-radius: 15px;
+			margin-top: 30px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			text-align: left;
+		}
+
+		.suggestions h3 {
+			margin-bottom: 15px;
+			font-size: 20px;
+		}
+
+		.suggestions ul {
+			list-style: none;
+			padding-left: 0;
+		}
+
+		.suggestions li {
+			padding: 8px 0;
+			padding-left: 25px;
+			position: relative;
+		}
+
+		.suggestions li:before {
+			content: "→";
+			position: absolute;
+			left: 0;
+			color: white;
+		}
+
+		@media (max-width: 768px) {
+			.error-code {
+				font-size: 100px;
+			}
+			.error-title {
+				font-size: 32px;
+			}
+			.error-message {
+				font-size: 16px;
+			}
+			.error-icon {
+				font-size: 80px;
+			}
+			.detail-item {
+				flex-direction: column;
+				gap: 5px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="stars" id="stars"></div>
+
+	<div class="container">
+		<div class="error-icon" id="errorIcon">⚠️</div>
+		<div class="error-code" id="errorCode">Error</div>
+		<h1 class="error-title" id="errorTitle">Erreur</h1>
+		<p class="error-message" id="errorMessage">Une erreur s'est produite</p>
+
+		<div class="error-details">
+			<div class="detail-item">
+				<span class="detail-label">Code d'erreur:</span>
+				<span class="detail-value" id="detailCode">-</span>
+			</div>
+			<div class="detail-item">
+				<span class="detail-label">Serveur:</span>
+				<span class="detail-value">Webserv</span>
+			</div>
+			<div class="detail-item">
+				<span class="detail-label">Hôte:</span>
+				<span class="detail-value" id="detailHost">example.com</span>
+			</div>
+			<div class="detail-item">
+				<span class="detail-label">Timestamp:</span>
+				<span class="detail-value" id="timestamp">-</span>
+			</div>
+		</div>
+
+		<div class="suggestions" id="suggestions">
+			<h3>💡 Suggestions:</h3>
+			<ul id="suggestionsList"></ul>
+		</div>
+
+		<div class="btn-container">
+			<a href="/" class="btn">Retour à l'accueil</a>
+			<a href="javascript:history.back()" class="btn btn-secondary">Page précédente</a>
+		</div>
+	</div>
+
+	<script>
+		// Dictionnaire des erreurs HTTP
+		const errorData = {
+			// Erreurs 4xx - Client
+			400: {
+				icon: '⚠️',
+				title: 'Requête Incorrecte',
+				message: 'La requête envoyée au serveur est invalide ou malformée.',
+				suggestions: [
+					'Vérifiez la syntaxe de votre requête',
+					'Assurez-vous que tous les paramètres requis sont présents',
+					'Vérifiez le format des données envoyées'
+				],
+				category: '4xx'
+			},
+			401: {
+				icon: '🔒',
+				title: 'Non Autorisé',
+				message: 'Vous devez vous authentifier pour accéder à cette ressource.',
+				suggestions: [
+					'Vérifiez vos identifiants de connexion',
+					'Assurez-vous d\'être connecté',
+					'Contactez l\'administrateur si le problème persiste'
+				],
+				category: '4xx'
+			},
+			403: {
+				icon: '🚫',
+				title: 'Accès Interdit',
+				message: 'Vous n\'avez pas les permissions nécessaires pour accéder à cette ressource.',
+				suggestions: [
+					'Vérifiez vos droits d\'accès',
+					'Contactez l\'administrateur pour obtenir les permissions',
+					'Assurez-vous d\'accéder à la bonne ressource'
+				],
+				category: '4xx'
+			},
+			404: {
+				icon: '🔍',
+				title: 'Page Non Trouvée',
+				message: 'La page que vous recherchez n\'existe pas ou a été déplacée.',
+				suggestions: [
+					'Vérifiez l\'URL saisie',
+					'Utilisez le menu de navigation',
+					'Retournez à la page d\'accueil'
+				],
+				category: '4xx'
+			},
+			405: {
+				icon: '🚷',
+				title: 'Méthode Non Autorisée',
+				message: 'La méthode HTTP utilisée n\'est pas autorisée pour cette ressource.',
+				suggestions: [
+					'Vérifiez la méthode HTTP (GET, POST, DELETE)',
+					'Consultez la documentation de l\'API',
+					'Utilisez la méthode appropriée'
+				],
+				category: '4xx'
+			},
+			408: {
+				icon: '⏱️',
+				title: 'Délai d\'Attente Dépassé',
+				message: 'Le serveur a expiré en attendant la requête.',
+				suggestions: [
+					'Vérifiez votre connexion internet',
+					'Réessayez la requête',
+					'Contactez le support si le problème persiste'
+				],
+				category: '4xx'
+			},
+			413: {
+				icon: '📦',
+				title: 'Contenu Trop Volumineux',
+				message: 'La taille de la requête dépasse la limite autorisée par le serveur.',
+				suggestions: [
+					'Réduisez la taille des données envoyées',
+					'Vérifiez la limite maximale (10MB ou 50MB)',
+					'Divisez votre envoi en plusieurs requêtes'
+				],
+				category: '4xx'
+			},
+			429: {
+				icon: '🚦',
+				title: 'Trop de Requêtes',
+				message: 'Vous avez envoyé trop de requêtes dans un laps de temps donné.',
+				suggestions: [
+					'Attendez quelques instants avant de réessayer',
+					'Réduisez la fréquence de vos requêtes',
+					'Consultez les limites de taux de l\'API'
+				],
+				category: '4xx'
+			},
+			// Erreurs 5xx - Serveur
+			500: {
+				icon: '💥',
+				title: 'Erreur Interne du Serveur',
+				message: 'Le serveur a rencontré une erreur inattendue lors du traitement de la requête.',
+				suggestions: [
+					'Réessayez dans quelques instants',
+					'Vérifiez l\'état du serveur',
+					'Contactez l\'administrateur si le problème persiste'
+				],
+				category: '5xx'
+			},
+			502: {
+				icon: '🔗',
+				title: 'Bad Gateway',
+				message: 'Le serveur a reçu une réponse invalide d\'un serveur en amont.',
+				suggestions: [
+					'Attendez quelques minutes et réessayez',
+					'Le problème est probablement temporaire',
+					'Contactez le support si l\'erreur persiste'
+				],
+				category: '5xx'
+			},
+			503: {
+				icon: '🔧',
+				title: 'Service Indisponible',
+				message: 'Le serveur est temporairement indisponible, généralement en maintenance.',
+				suggestions: [
+					'Réessayez dans quelques minutes',
+					'Le serveur est peut-être en maintenance',
+					'Consultez la page de statut du service'
+				],
+				category: '5xx'
+			},
+			504: {
+				icon: '⏰',
+				title: 'Gateway Timeout',
+				message: 'Le serveur n\'a pas reçu de réponse à temps d\'un serveur en amont.',
+				suggestions: [
+					'Réessayez la requête',
+					'Vérifiez votre connexion internet',
+					'Le serveur distant peut être surchargé'
+				],
+				category: '5xx'
+			},
+			// Erreurs 3xx - Redirection
+			301: {
+				icon: '➡️',
+				title: 'Déplacé Définitivement',
+				message: 'La ressource a été déplacée de manière permanente vers une nouvelle URL.',
+				suggestions: [
+					'Mettez à jour vos liens',
+					'Utilisez la nouvelle URL',
+					'Les redirections automatiques devraient fonctionner'
+				],
+				category: '3xx'
+			},
+			302: {
+				icon: '🔄',
+				title: 'Déplacé Temporairement',
+				message: 'La ressource est temporairement disponible à une autre adresse.',
+				suggestions: [
+					'Suivez la redirection automatique',
+					'L\'URL originale reste valide',
+					'Pas besoin de mettre à jour vos liens'
+				],
+				category: '3xx'
+			}
+		};
+
+		// Fonction pour obtenir le code d'erreur depuis l'URL
+		function getErrorCode() {
+			const urlParams = new URLSearchParams(window.location.search);
+			const codeFromParam = urlParams.get('code');
+
+			// Si le code est dans les paramètres
+			if (codeFromParam) {
+				return codeFromParam;
+			}
+
+			// Si le code est dans le path (ex: /error/404)
+			const pathMatch = window.location.pathname.match(/\/error\/(\d+)/);
+			if (pathMatch) {
+				return pathMatch[1];
+			}
+
+			// Si le code est dans le hash (ex: #404)
+			const hashMatch = window.location.hash.match(/#(\d+)/);
+			if (hashMatch) {
+				return hashMatch[1];
+			}
+			
+			// Par défaut, retourner 404
+			return '404';
+		}
+
+		// Fonction pour afficher l'erreur
+		function displayError() {
+			const code = getErrorCode();
+			const error = errorData[code] || errorData[404];
+
+			// Appliquer la classe de couleur au body
+			document.body.className = `error-${error.category}`;
+
+			// Mettre à jour le contenu
+			document.getElementById('errorIcon').textContent = error.icon;
+			document.getElementById('errorCode').textContent = code;
+			document.getElementById('errorTitle').textContent = error.title;
+			document.getElementById('errorMessage').textContent = error.message;
+			document.getElementById('detailCode').textContent = `${code} ${error.title}`;
+			document.getElementById('detailHost').textContent = window.location.host || 'example.com';
+
+			// Timestamp
+			const now = new Date();
+			document.getElementById('timestamp').textContent = now.toLocaleString('fr-FR');
+
+			// Suggestions
+			const suggestionsList = document.getElementById('suggestionsList');
+			suggestionsList.innerHTML = '';
+			error.suggestions.forEach(suggestion => {
+				const li = document.createElement('li');
+				li.textContent = suggestion;
+				suggestionsList.appendChild(li);
+			});
+			
+			// Mettre à jour le titre de la page
+			document.title = `Erreur ${code} - ${error.title}`;
+		}
+
+		// Générer les étoiles
+		const starsContainer = document.getElementById('stars');
+		for (let i = 0; i < 100; i++) {
+			const star = document.createElement('div');
+			star.className = 'star';
+			star.style.left = Math.random() * 100 + '%';
+			star.style.top = Math.random() * 100 + '%';
+			star.style.animationDelay = Math.random() * 3 + 's';
+			starsContainer.appendChild(star);
+		}
+
+		// Afficher l'erreur au chargement
+		displayError();
+	</script>
+</body>
+</html>
