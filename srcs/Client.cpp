@@ -9,6 +9,7 @@ Client::Client() {
 	_addrlen = sizeof(_addr);
 	_request = 0;
 	_keepAlive = true;
+	_CGI = 0;
 }
 
 Client::~Client() {

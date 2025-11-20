@@ -25,6 +25,7 @@ class	Client {
 	private:
 		int					_socket;
 		Server				*_server;
+		CGI					*_CGI;
 		
 		struct sockaddr_in	_addr;
 		int					_addrlen;
