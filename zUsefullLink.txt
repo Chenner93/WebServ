@@ -15,3 +15,12 @@ https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-buil
 https://www.codequoi.com/envoyer-et-intercepter-un-signal-en-c/
 https://www.codequoi.com/programmation-reseau-via-socket-en-c/ (fr)
 https://www.codequoi.com/en/sockets-and-network-programming-in-c/ (eng)
+
+
+To-Do list :
+
+	Add class CGI
+	add boolean CGI
+	bien recup la valeur de retour execve
+	regarder les codes d'erreurs adapter aux pages d'erreurs
+	
