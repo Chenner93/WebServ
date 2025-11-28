@@ -20,6 +20,7 @@
 #include <stdlib.h>		// exit
 
 class	CGI;
+class	Request;
 class	Server;
 class	Client {
 
@@ -30,18 +31,20 @@ class	Client {
 		
 		struct sockaddr_in	_addr;
 		int					_addrlen;
-
+		
 		std::string			*_request;
 		
-
+		
 		bool				_keepAlive;
 		std::string 		_responseToSend;
-
-	public:
+		
+		public:
 		Client();
 		~Client();
 		Client(const Client& copy);
 		Client &operator = (const Client& src);
+		
+		Request				*_requestParser;
 
 	/*	SETTER	*/
 		void	setSocket(int fd);

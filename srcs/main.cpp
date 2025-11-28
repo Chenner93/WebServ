@@ -126,14 +126,14 @@ int main(int ac, char **av)
 				{
 					std::cout << GREEN << "PASS IN MAIN MY PART" << RESET << std::endl;
 
-					Request req(*client.getRequest(), client.getPtrServer());
+					client._requestParser = new Request(*client.getRequest(), client.getPtrServer());
 					Response response;
 
-					req.parse_url();
-					req.print_request(req);
+					client._requestParser->parse_url();
+					client._requestParser->print_request(*client._requestParser);
 
 					// --- DEBUG MULTIPART ---
-					const std::map<std::string, std::string> &headers = req.getHeaders();
+					const std::map<std::string, std::string> &headers = client._requestParser->getHeaders();
 					std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
 
 					if (it != headers.end() &&
@@ -148,9 +148,9 @@ int main(int ac, char **av)
 									  << boundary << RESET << std::endl;
 
 							std::vector<Request::FormDataPart> parts =
-								req.parseMultipartFormData(req.getBody(), boundary);
+								client._requestParser->parseMultipartFormData(client._requestParser->getBody(), boundary);
 
-							req.printFormDataParts(parts);
+							client._requestParser->printFormDataParts(parts);
 						}
 					}
 					else
@@ -159,7 +159,7 @@ int main(int ac, char **av)
 					}
 
 					// --- génération de la réponse ---
-					std::string res = response.Methodes(req, *client.getPtrServer());
+					std::string res = response.Methodes(*client._requestParser, *client.getPtrServer());
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 					client.freeRequest();
 				}

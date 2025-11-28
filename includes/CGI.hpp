@@ -13,13 +13,15 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 
 class CGI {
 	private:
 		std::string _cgi_path;      // /usr/bin/php-cgi
 		std::string _script_path;   // /var/www/cgi-bin/script.php
 		pid_t _pid;
-		int _socketVector[2];
+		int _socketIn[2];
+		int _socketOut[2];
 
 
 	public:
@@ -32,3 +34,18 @@ class CGI {
 		// void setTimeout(int seconds);
 		void	setSocketVector();
 };
+
+
+// socketpair(stdin_pipe)
+// socketpair(stdout_pipe)
+// fork()
+
+// dans le fils == 0 :
+//     dup2(stdin_pipe[1], STDIN_FILENO)
+//     dup2(stdout_pipe[1], STDOUT_FILENO)
+//     close tout
+//     execve(script)
+
+// dans le parent > 0 :
+//     close(stdin_pipe[1])        // on écrit sur stdin_pipe[0]
+//     close(stdout_pipe[1])       // on lit sur stdout_pipe[0]

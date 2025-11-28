@@ -19,8 +19,13 @@ CGI::~CGI() {
 void	CGI::setSocketVector() {
 //Mettre un catch a ce throw
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, _socketVector) == -1)
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, _socketIn) == -1)
 	{
-		throw "Error: socketpair CGI";
+		throw "Error: socketpair 'IN' CGI";
+	}
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, _socketOut) == -1)
+	{
+		close(_socketIn[0]), close(_socketIn[1]);
+		throw "Error: socketpair 'OUT' CGI";
 	}
 }

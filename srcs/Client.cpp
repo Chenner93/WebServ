@@ -11,6 +11,7 @@ Client::Client() {
 	_request = 0;
 	_keepAlive = true;
 	_CGI = 0;
+	_requestParser = 0;
 }
 
 Client::~Client() {
@@ -159,56 +160,7 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 		return ;
 	}
 	clients.push_back(client);
- }
-
-// void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd) {
-
-// 	char	buffer[B_READ + 1];
-// 	memset(buffer, 0, sizeof(buffer));
-// 	size_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-
-// 	if (bytesread <= 0) {// SEPARER == 0 && < 0
-// 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
-// 		Client::closingClient(epoll_fd, event.data.fd, clients);
-// 		return ;
-// 	}
-
-// 	size_t	i;
-// 	//Trouver la bon socket/Client
-// 	for (i = 0; i < clients.size(); i++) {
-// 		if (clients[i].getSocket() == event.data.fd)
-// 			break ;
-
-// 		// --- Client.cpp test debug ---
-// // 		clients[i].appendRequest(buffer);
-
-// // // Nouveau test : la requête est-elle complète test debug ?
-// // 		if (clients[i].getRequest() && is_request_complete(*clients[i].getRequest())) {
-// //     		std::cout << MAGENTA << "Request complete ✓" << RESET << std::endl;
-// //     		event.events = EPOLLOUT;
-// //     		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-// //         		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-// //         		Client::closingClient(epoll_fd, event.data.fd, clients);
-// // 			}
-// // 		}
-// 	}
-
-// 	// Ajouter les données reçues
-// 	clients[i].appendRequest(buffer);
-
-// 	// Vérifier si la requête est complète (présence de \r\n\r\n)
-// 	if (clients[i].getRequest() && clients[i].getRequest()->find("\r\n\r\n") != std::string::npos) {
-// 		// Requête complète ! Passer en mode écriture
-// 		std::cout << MAGENTA << "Request complete:\n" << clients[i].getRequest() << RESET << std::endl;
-		
-// 		event.events = EPOLLOUT;
-// 		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-// 			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-// 			Client::closingClient(epoll_fd, event.data.fd, clients);
-// 		}
-// 	}
-// 	// Sinon, on attend plus de données (reste en EPOLLIN)
-// }
+}
 
 void	Client::freeRequest() {
 	delete _request;
@@ -296,3 +248,9 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 		std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
 	}
 }
+
+// void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd)
+// {
+// 	Client &client = Client::getClient(events[i].data.fd, clients);
+
+// }
