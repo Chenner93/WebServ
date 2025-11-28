@@ -2,14 +2,16 @@
 
 CGI::CGI () {
 	std::cout << "Constructor CGI Called" << std::endl;
-	_pid = -1;	
+	_pid = -2;
+	child = false;
 }
 
 CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	std::cout << "Constructor CGI Called + Data" << std::endl;
 	_cgi_path = cgi_path;
 	_script_path = script_path;
-	_pid = -1;
+	_pid = -2;
+	child = false;
 }
 
 CGI::~CGI() {

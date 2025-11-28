@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/11 18:50:36 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:40:17 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,66 +22,46 @@
 # include <string>
 # include <sys/stat.h>
 # include <unistd.h>
-#include <ctime>
-#include<sstream>
+# include <ctime>
+# include <sstream>
 
-// class Response
-// {
-	//   public:
-	// 	//  Response();
-	// 	//  ~Response();
-	
-	// 	//  static void Methodes(const Request &req, int client_fd);
-	// 	//  std::string Methodes(const Request &request);
-	// 	std::string Methodes(const Request &request, const Server &server);
-	// 	//  static  handleGet(const  Request& request, int client_fd);
-	// 	// std::string handleGet(const Request &request);
-	// 	//  std::string  handlePost(const  Request& req);
-	// 	//  std::string  handleDelete(const  Request& req);
-	// 	std::string handleGet(const Request &request, const Server &server);
-	// 	std::string handlePost(const Request &request, const Server &server);
-	// 	std::string handleDelete(const Request &request, const Server &server);
-	
-	// 	std::string sendError(int code, const std::string &msg);
-	// 	// void saveFormDataToDisk(const Request::FormDataPart &part);
-	//     void saveFormDataToDisk(const Request::FormDataPart& part,
-	//                                   const std::string& upload_dir)
-	// 	std::string sendErrorAsString(int code, const std::string &message);
-	// };
-	
-	class Response {
-		
-		public:
-		// Response();
-		// ~Response();
-		
-		// Méthode principale appelée depuis main / Client
-		std::string Methodes(const Request &request, const Server &server);
-		
-		// Méthodes HTTP
-		std::string handleGet(const Request &request, const Server &server);
-		std::string handlePost(const Request &request, const Server &server);
-		std::string handleDelete(const Request &request, const Server &server);
-		std::string handleHead(const Request &request, const Server &server);
-		
-		// Gestion d'erreur HTTP
-		// std::string sendError(int code, const std::string& msg);
-		std::string sendError(int code, const std::string& msg, const Server &server);
-		// Génération d'autoindex
-		std::string generateAutoindex(const std::string& dirPath, const std::string& requestPath, const Server &server);
-		
-		// Sauvegarde multipart (upload)
-		void saveFormDataToDisk(const Request::FormDataPart& part,
-			const std::string& upload_dir);
-			
-			// Type MIME
-			std::string getContentType(const std::string& path);
-			std::string resolveUploadPath(const Server &server, int loc, const std::string &filename) const;
+class Server;
+class Request;
+struct FormDataPart;
 
-		};
+class Response {
+	
+	public:
+	// Response();
+	// ~Response();
+	
+	// Méthode principale appelée depuis main / Client
+	std::string Methodes(const Request &request, const Server &server);
+	
+	// Méthodes HTTP
+	std::string handleGet(const Request &request, const Server &server);
+	std::string handlePost(const Request &request, const Server &server);
+	std::string handleDelete(const Request &request, const Server &server);
+	std::string handleHead(const Request &request, const Server &server);
+	
+	// Gestion d'erreur HTTP
+	// std::string sendError(int code, const std::string& msg);
+	std::string sendError(int code, const std::string& msg, const Server &server);
+	// Génération d'autoindex
+	std::string generateAutoindex(const std::string& dirPath, const std::string& requestPath, const Server &server);
+	
+	// Sauvegarde multipart (upload)
+	void saveFormDataToDisk(const FormDataPart& part,
+		const std::string& upload_dir);
 		
-		std::string strip_location_prefix(const std::string& path, const std::string& loc_prefix);
-		std::string join_path(const std::string& a, const std::string& b);
-		
-		#endif
+	// Type MIME
+	std::string getContentType(const std::string& path);
+	std::string resolveUploadPath(const Server &server, int loc, const std::string &filename) const;
+
+};
+
+std::string strip_location_prefix(const std::string& path, const std::string& loc_prefix);
+std::string join_path(const std::string& a, const std::string& b);
+	
+#endif
 		

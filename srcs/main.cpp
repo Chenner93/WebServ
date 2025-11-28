@@ -127,7 +127,6 @@ int main(int ac, char **av)
 					std::cout << GREEN << "PASS IN MAIN MY PART" << RESET << std::endl;
 
 					client._requestParser = new Request(*client.getRequest(), client.getPtrServer());
-					Response response;
 
 					client._requestParser->parse_url();
 					client._requestParser->print_request(*client._requestParser);
@@ -147,7 +146,7 @@ int main(int ac, char **av)
 							std::cout << YELLOW << "[DEBUG] Boundary détectée : "
 									  << boundary << RESET << std::endl;
 
-							std::vector<Request::FormDataPart> parts =
+							std::vector<FormDataPart> parts =
 								client._requestParser->parseMultipartFormData(client._requestParser->getBody(), boundary);
 
 							client._requestParser->printFormDataParts(parts);
@@ -159,9 +158,13 @@ int main(int ac, char **av)
 					}
 
 					// --- génération de la réponse ---
+					
+					Response response;
+
 					std::string res = response.Methodes(*client._requestParser, *client.getPtrServer());
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 					client.freeRequest();
+					delete client._requestParser;
 				}
 				catch (const std::exception &e)
 				{

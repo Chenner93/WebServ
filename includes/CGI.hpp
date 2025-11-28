@@ -19,9 +19,10 @@ class CGI {
 	private:
 		std::string _cgi_path;      // /usr/bin/php-cgi
 		std::string _script_path;   // /var/www/cgi-bin/script.php
-		pid_t _pid;
-		int _socketIn[2];
-		int _socketOut[2];
+		pid_t 		_pid;
+		int 		_socketIn[2];
+		int 		_socketOut[2];
+		bool		child;
 
 
 	public:

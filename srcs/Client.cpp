@@ -174,7 +174,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	memset(buffer, 0, sizeof(buffer));
 
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	if (bytesread <= 0)
+	if (bytesread <= 0)//Attention gerer si ==0 ou < 0
 	{
 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
@@ -243,14 +243,66 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 					  << "/" << total_needed << " bytes)" << RESET << std::endl;
 		}
 	}
-	else
-	{
-		std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
-	}
+	// else
+	// {
+	// 	std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
+	// }
 }
 
-// void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd)
-// {
-// 	Client &client = Client::getClient(events[i].data.fd, clients);
+void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd)
+{
+	Client &client = Client::getClient(event.data.fd, clients);
+	//request parsing
+	if (client._requestParser != 0)
+	{
+		client._requestParser = new Request(*client.getRequest(), client.getPtrServer());
+		client._requestParser->parse_url();
+		client._requestParser->print_request(*client._requestParser);
+	
 
-// }
+		// --- DEBUG MULTIPART ---
+		const std::map<std::string, std::string> &headers = client._requestParser->getHeaders();
+		std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
+
+		if (it != headers.end() &&
+			it->second.find("multipart/form-data") != std::string::npos)
+		{
+			std::string boundary = Request::ParseBoundary(headers);
+			if (boundary.empty())
+				std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
+			else
+			{
+				std::cout << YELLOW << "[DEBUG] Boundary détectée : "
+				<< boundary << RESET << std::endl;
+
+				std::vector<FormDataPart> parts =
+				client._requestParser->parseMultipartFormData(client._requestParser->getBody(), boundary);
+
+				client._requestParser->printFormDataParts(parts);
+			}
+		}
+		else
+		{
+			std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
+		}
+		
+	}
+	// --- RESPONSE ---
+	//envoie de la reponse step by step et si tout est envoyer reset
+	Response response;
+
+	std::string res = response.Methodes(*client._requestParser, *client.getPtrServer());
+	send(event.data.fd, res.c_str(), res.size(), 0);
+	client.freeRequest();
+	delete client._requestParser;
+	client._requestParser = 0;
+
+	//Repasser en mode lecture IF tout est envoyer
+	event.events = EPOLLIN;
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+	{
+		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+	}
+
+}

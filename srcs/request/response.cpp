@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/11 18:56:49 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:40:41 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,7 +347,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
 
         std::cout << YELLOW << "[DEBUG] Boundary nettoyé: [" << boundary << "]" << RESET << std::endl;
 
-        std::vector<Request::FormDataPart> parts =
+        std::vector<FormDataPart> parts =
             Request::parseMultipartFormData(request.getBody(), boundary);
 
         if (parts.empty())
@@ -478,7 +478,7 @@ std::string Response::handleHead(const Request &request, const Server &server)
 // }
 
 
-void Response::saveFormDataToDisk(const Request::FormDataPart& part,
+void Response::saveFormDataToDisk(const FormDataPart& part,
                                   const std::string& base_dir)
 {
     std::string safe = part.filename;

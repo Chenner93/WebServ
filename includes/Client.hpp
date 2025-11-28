@@ -18,6 +18,8 @@
 #include <netinet/in.h>
 #include <unistd.h>     // POSIX : read(), write(), close()
 #include <stdlib.h>		// exit
+#include <Request/Response.hpp>
+#include <Request/Request.hpp>
 
 class	CGI;
 class	Request;
@@ -67,6 +69,7 @@ class	Client {
 		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
 		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
+		static void epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
 
 	/*	UTILS	*/
 		void	freeRequest();
