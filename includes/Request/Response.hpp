@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/11 18:50:36 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/29 13:44:05 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,10 @@
 			// Type MIME
 			std::string getContentType(const std::string& path);
 			std::string resolveUploadPath(const Server &server, int loc, const std::string &filename) const;
+			//check_cgi_path
+			bool check_path_cgi(const std::string &path, const std::string &suffix);
+			bool Python_Or_Php(const std::string &path);
+			 
 
 		};
 		
