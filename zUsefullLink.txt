@@ -43,4 +43,4 @@ struct CGIRequest {
 
 
 Ptin jvoulais stream, pas stocker moi :(
-
+Pas oublier le time OUT
