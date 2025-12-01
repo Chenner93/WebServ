@@ -165,6 +165,7 @@ int main(int ac, char **av)
 					send(events[i].data.fd, res.c_str(), res.size(), 0);
 					client.freeRequest();
 					delete client._requestParser;
+					client._requestParser = 0;
 				}
 				catch (const std::exception &e)
 				{

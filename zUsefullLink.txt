@@ -19,10 +19,28 @@ https://www.codequoi.com/en/sockets-and-network-programming-in-c/ (eng)
 
 To-Do list :
 
-	Add class CGI
-	add boolean CGI
 	bien recup la valeur de retour execve
 	regarder les codes d'erreurs adapter aux pages d'erreurs
+	rentre la reponse non bloquante
+	utiliser EPOLLHUB pour les CGIs
+	EPOLLERR   // Erreur sur le fd
+	struct CGIrequest en plus
 	
 
+enum CGIState {
+    PARSING_HEADERS,
+    SENDING_BODY
+};
+
+struct CGIRequest {
+    int cgi_fd;
+    int client_fd;
+    CGIState state;
+    std::string header_buffer;  // Bufferiser jusqu'à \r\n\r\n, avec NEW
+    int status_code;			// Pour le waitpid
+    std::map<string, string> cgi_headers;	// Gerer le lenght 
+};
+
+
+Ptin jvoulais stream, pas stocker moi :(
 
