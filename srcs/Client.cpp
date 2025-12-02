@@ -13,6 +13,7 @@ Client::Client() {
 	_CGI = 0;
 	_requestParser = 0;
 	_response = 0;
+	_bytesSend = 0;
 }
 
 Client::~Client() {
@@ -27,7 +28,7 @@ Client::Client(const Client& copy) {
 	_keepAlive = copy.getKeepAlive();
 	_requestParser = copy._requestParser;
 	_response = copy._response;
-
+	_bytesSend = copy._bytesSend;
 }
 
 Client&	Client::operator = (const Client& src) {
@@ -39,6 +40,7 @@ Client&	Client::operator = (const Client& src) {
 		_keepAlive = src.getKeepAlive();
 		_requestParser = src._requestParser;
 		_response = src._response;
+		_bytesSend = src._bytesSend;
 
 	}
 	return *this;
@@ -179,8 +181,9 @@ void	Client::resetAll() {
 		delete _response;
 
 	_response = 0;
-	request = 0;
-	requestParser = 0;
+	_request = 0;
+	_requestParser = 0;
+	_bytesSend = 0;
 }
 
 
@@ -308,6 +311,39 @@ void	Client::ParseResponse() {
 	this->_responseToSend = this->_response->Methodes(*(this->_requestParser), *(this->getPtrServer()));
 }
 
+void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd) {
+
+	size_t	bytesToSend = B_SEND;
+	if (_bytesSend + B_SEND > this->_responseToSend.size())
+		bytesToSend = this->_responseToSend.size() - _bytesSend;
+
+	ssize_t	bSend = 0;
+	bSend = send(event.data.fd, this->_responseToSend.c_str() + _bytesSend,
+		bytesToSend, 0);
+
+	if (bSend < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+			// Erreur douce, on retente apres
+			return ;
+		}
+		std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
+		//close le client, erreur grave;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+	}
+
+	_bytesSend += bSend;
+
+	if (_bytesSend == this->_responseToSend.size()) {
+		this->resetAll();
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+		{
+			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+			Client::closingClient(epoll_fd, event.data.fd, clients);
+		}
+	}
+}
+
 void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)
 {
 	Client &client = Client::getClient(event.data.fd, clients);
@@ -316,15 +352,6 @@ void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &eve
 	client.ParseResponse(); //Prep response
 
 	//envoie de la reponse step by step et si tout est envoyer reset
-	send(event.data.fd, client._responseToSend.c_str(), client._responseToSend.size(), 0);
-	client.resetAll();
-
-	//Repasser en mode lecture IF tout est envoyer
-	event.events = EPOLLIN;
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
-	{
-		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-		Client::closingClient(epoll_fd, event.data.fd, clients);
-	}
+	client.sendResponse(clients, event, epoll_fd);	
 
 }

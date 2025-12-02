@@ -9,7 +9,8 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
-#define B_READ	10
+#define B_READ	30
+#define B_SEND	30
 
 #include <iostream>
 #include <vector>
@@ -50,6 +51,7 @@ class	Client {
 		
 		Request				*_requestParser;
 		Response			*_response;
+		size_t				_bytesSend;
 
 	/*	SETTER	*/
 		void	setSocket(int fd);
@@ -75,6 +77,7 @@ class	Client {
 		static void epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 
 	/*	UTILS	*/
+		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 		void	ParseRequest();
 		void	ParseResponse();
 		void	resetAll();
