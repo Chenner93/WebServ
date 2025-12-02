@@ -120,64 +120,11 @@ int main(int ac, char **av)
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))
 			{
-				Client &client = Client::getClient(events[i].data.fd, clients);
-
-				try
-				{
-					std::cout << GREEN << "PASS IN MAIN MY PART" << RESET << std::endl;
-
-					client._requestParser = new Request(*client.getRequest(), client.getPtrServer());
-
-					client._requestParser->parse_url();
-					client._requestParser->print_request(*client._requestParser);
-
-					// --- DEBUG MULTIPART ---
-					const std::map<std::string, std::string> &headers = client._requestParser->getHeaders();
-					std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
-
-					if (it != headers.end() &&
-						it->second.find("multipart/form-data") != std::string::npos)
-					{
-						std::string boundary = Request::ParseBoundary(headers);
-						if (boundary.empty())
-							std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
-						else
-						{
-							std::cout << YELLOW << "[DEBUG] Boundary détectée : "
-									  << boundary << RESET << std::endl;
-
-							std::vector<FormDataPart> parts =
-								client._requestParser->parseMultipartFormData(client._requestParser->getBody(), boundary);
-
-							client._requestParser->printFormDataParts(parts);
-						}
-					}
-					else
-					{
-						std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
-					}
-
-					// --- génération de la réponse ---
-					
-					Response response;
-
-					std::string res = response.Methodes(*client._requestParser, *client.getPtrServer());
-					send(events[i].data.fd, res.c_str(), res.size(), 0);
-					client.freeRequest();
-					delete client._requestParser;
-					client._requestParser = 0;
+				try {
+					Client::epolloutEvent(clients, events[i], epoll_fd);
 				}
-				catch (const std::exception &e)
-				{
+				catch (const std::exception &e) {
 					std::cerr << RED << "Bad Request: " << e.what() << RESET << std::endl;
-				}
-
-				// repasser le client en lecture
-				events[i].events = EPOLLIN;
-				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]) < 0)
-				{
-					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-					Client::closingClient(epoll_fd, events[i].data.fd, clients);
 				}
 			}
 		}

@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/28 18:40:41 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/02 15:51:10 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ static void debug_headers(const std::map<std::string, std::string>& headers)
 {
 	std::cout << CYAN << "[DEBUG] Request Headers:" << RESET << std::endl;
 
+	std::cout << RED "BLOOOOOOOOOOOOOOOOOOOPS" RESET << std::endl;
 	if (headers.empty())
 	{
 		std::cout << "  (aucun header)" << std::endl;

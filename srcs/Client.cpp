@@ -12,6 +12,7 @@ Client::Client() {
 	_keepAlive = true;
 	_CGI = 0;
 	_requestParser = 0;
+	_response = 0;
 }
 
 Client::~Client() {
@@ -24,6 +25,9 @@ Client::Client(const Client& copy) {
 	_server = copy.getPtrServer();
 	_request = copy._request;
 	_keepAlive = copy.getKeepAlive();
+	_requestParser = copy._requestParser;
+	_response = copy._response;
+
 }
 
 Client&	Client::operator = (const Client& src) {
@@ -33,6 +37,9 @@ Client&	Client::operator = (const Client& src) {
 		_server = src.getPtrServer();
 		_request = src._request;
 		_keepAlive = src.getKeepAlive();
+		_requestParser = src._requestParser;
+		_response = src._response;
+
 	}
 	return *this;
 }
@@ -125,8 +132,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(fd);
-	if (it->_request)
-		delete it->_request;
+	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
 }
@@ -162,9 +168,19 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 	clients.push_back(client);
 }
 
-void	Client::freeRequest() {
-	delete _request;
-	_request = 0;
+void	Client::resetAll() {
+	if (_request)
+		delete _request;
+	
+	if (_requestParser)
+		delete _requestParser;
+
+	if (_response)
+		delete _response;
+
+	_response = 0;
+	request = 0;
+	requestParser = 0;
 }
 
 
@@ -249,53 +265,59 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	// }
 }
 
-void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd)
-{
-	Client &client = Client::getClient(event.data.fd, clients);
-	//request parsing
-	if (client._requestParser != 0)
-	{
-		client._requestParser = new Request(*client.getRequest(), client.getPtrServer());
-		client._requestParser->parse_url();
-		client._requestParser->print_request(*client._requestParser);
+void	Client::ParseRequest() {
+	if (this->_requestParser != 0)
+		return ;
+
+	this->_requestParser = new Request(*this->getRequest(), this->getPtrServer());
+	this->_requestParser->parse_url();
+	this->_requestParser->print_request(*this->_requestParser);
 	
+	// --- DEBUG MULTIPART ---
+	const std::map<std::string, std::string> &headers = this->_requestParser->getHeaders();
+	std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
 
-		// --- DEBUG MULTIPART ---
-		const std::map<std::string, std::string> &headers = client._requestParser->getHeaders();
-		std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
-
-		if (it != headers.end() &&
-			it->second.find("multipart/form-data") != std::string::npos)
-		{
-			std::string boundary = Request::ParseBoundary(headers);
-			if (boundary.empty())
-				std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
-			else
-			{
-				std::cout << YELLOW << "[DEBUG] Boundary détectée : "
-				<< boundary << RESET << std::endl;
-
-				std::vector<FormDataPart> parts =
-				client._requestParser->parseMultipartFormData(client._requestParser->getBody(), boundary);
-
-				client._requestParser->printFormDataParts(parts);
-			}
-		}
+	if (it != headers.end() &&
+		it->second.find("multipart/form-data") != std::string::npos)
+	{
+		std::string boundary = Request::ParseBoundary(headers);
+		if (boundary.empty())
+			std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
 		else
 		{
-			std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
-		}
-		
-	}
-	// --- RESPONSE ---
-	//envoie de la reponse step by step et si tout est envoyer reset
-	Response response;
+			std::cout << YELLOW << "[DEBUG] Boundary détectée : "
+			<< boundary << RESET << std::endl;
 
-	std::string res = response.Methodes(*client._requestParser, *client.getPtrServer());
-	send(event.data.fd, res.c_str(), res.size(), 0);
-	client.freeRequest();
-	delete client._requestParser;
-	client._requestParser = 0;
+			std::vector<FormDataPart> parts =
+				this->_requestParser->parseMultipartFormData(this->_requestParser->getBody(), boundary);
+
+			this->_requestParser->printFormDataParts(parts);
+		}
+	}
+	else
+	{
+		std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
+	}
+}
+
+void	Client::ParseResponse() {
+	if (this->_response != 0)
+		return ; //already set
+
+	this->_response = new Response();
+	this->_responseToSend = this->_response->Methodes(*(this->_requestParser), *(this->getPtrServer()));
+}
+
+void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)
+{
+	Client &client = Client::getClient(event.data.fd, clients);
+
+	client.ParseRequest(); 	//request parsing
+	client.ParseResponse(); //Prep response
+
+	//envoie de la reponse step by step et si tout est envoyer reset
+	send(event.data.fd, client._responseToSend.c_str(), client._responseToSend.size(), 0);
+	client.resetAll();
 
 	//Repasser en mode lecture IF tout est envoyer
 	event.events = EPOLLIN;
