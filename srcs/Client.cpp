@@ -1,5 +1,6 @@
 #include <Client.hpp>
 #include <Server.hpp>
+#include <CGI.hpp>
 
 
 Client::Client() {
@@ -9,6 +10,10 @@ Client::Client() {
 	_addrlen = sizeof(_addr);
 	_request = 0;
 	_keepAlive = true;
+	_CGI = 0;
+	_requestParser = 0;
+	_response = 0;
+	_bytesSend = 0;
 }
 
 Client::~Client() {
@@ -21,6 +26,9 @@ Client::Client(const Client& copy) {
 	_server = copy.getPtrServer();
 	_request = copy._request;
 	_keepAlive = copy.getKeepAlive();
+	_requestParser = copy._requestParser;
+	_response = copy._response;
+	_bytesSend = copy._bytesSend;
 }
 
 Client&	Client::operator = (const Client& src) {
@@ -30,6 +38,10 @@ Client&	Client::operator = (const Client& src) {
 		_server = src.getPtrServer();
 		_request = src._request;
 		_keepAlive = src.getKeepAlive();
+		_requestParser = src._requestParser;
+		_response = src._response;
+		_bytesSend = src._bytesSend;
+
 	}
 	return *this;
 }
@@ -122,8 +134,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(fd);
-	if (it->_request)
-		delete it->_request;
+	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
 }
@@ -157,60 +168,22 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 		return ;
 	}
 	clients.push_back(client);
- }
+}
 
-// void	Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd) {
+void	Client::resetAll() {
+	if (_request)
+		delete _request;
+	
+	if (_requestParser)
+		delete _requestParser;
 
-// 	char	buffer[B_READ + 1];
-// 	memset(buffer, 0, sizeof(buffer));
-// 	size_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
+	if (_response)
+		delete _response;
 
-// 	if (bytesread <= 0) {// SEPARER == 0 && < 0
-// 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
-// 		Client::closingClient(epoll_fd, event.data.fd, clients);
-// 		return ;
-// 	}
-
-// 	size_t	i;
-// 	//Trouver la bon socket/Client
-// 	for (i = 0; i < clients.size(); i++) {
-// 		if (clients[i].getSocket() == event.data.fd)
-// 			break ;
-
-// 		// --- Client.cpp test debug ---
-// // 		clients[i].appendRequest(buffer);
-
-// // // Nouveau test : la requête est-elle complète test debug ?
-// // 		if (clients[i].getRequest() && is_request_complete(*clients[i].getRequest())) {
-// //     		std::cout << MAGENTA << "Request complete ✓" << RESET << std::endl;
-// //     		event.events = EPOLLOUT;
-// //     		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-// //         		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-// //         		Client::closingClient(epoll_fd, event.data.fd, clients);
-// // 			}
-// // 		}
-// 	}
-
-// 	// Ajouter les données reçues
-// 	clients[i].appendRequest(buffer);
-
-// 	// Vérifier si la requête est complète (présence de \r\n\r\n)
-// 	if (clients[i].getRequest() && clients[i].getRequest()->find("\r\n\r\n") != std::string::npos) {
-// 		// Requête complète ! Passer en mode écriture
-// 		std::cout << MAGENTA << "Request complete:\n" << clients[i].getRequest() << RESET << std::endl;
-		
-// 		event.events = EPOLLOUT;
-// 		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-// 			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-// 			Client::closingClient(epoll_fd, event.data.fd, clients);
-// 		}
-// 	}
-// 	// Sinon, on attend plus de données (reste en EPOLLIN)
-// }
-
-void	Client::freeRequest() {
-	delete _request;
+	_response = 0;
 	_request = 0;
+	_requestParser = 0;
+	_bytesSend = 0;
 }
 
 
@@ -220,7 +193,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	memset(buffer, 0, sizeof(buffer));
 
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	if (bytesread <= 0)
+	if (bytesread <= 0)//Attention gerer si ==0 ou < 0
 	{
 		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
@@ -289,8 +262,96 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 					  << "/" << total_needed << " bytes)" << RESET << std::endl;
 		}
 	}
+	// else
+	// {
+	// 	std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
+	// }
+}
+
+void	Client::ParseRequest() {
+	if (this->_requestParser != 0)
+		return ;
+
+	this->_requestParser = new Request(*this->getRequest(), this->getPtrServer());
+	this->_requestParser->parse_url();
+	this->_requestParser->print_request(*this->_requestParser);
+	
+	// --- DEBUG MULTIPART ---
+	const std::map<std::string, std::string> &headers = this->_requestParser->getHeaders();
+	std::map<std::string, std::string>::const_iterator it = headers.find("content-type");
+
+	if (it != headers.end() &&
+		it->second.find("multipart/form-data") != std::string::npos)
+	{
+		std::string boundary = Request::ParseBoundary(headers);
+		if (boundary.empty())
+			std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
+		else
+		{
+			std::cout << YELLOW << "[DEBUG] Boundary détectée : "
+			<< boundary << RESET << std::endl;
+
+			std::vector<FormDataPart> parts =
+				this->_requestParser->parseMultipartFormData(this->_requestParser->getBody(), boundary);
+
+			this->_requestParser->printFormDataParts(parts);
+		}
+	}
 	else
 	{
-		std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
+		std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
 	}
+}
+
+void	Client::ParseResponse() {
+	if (this->_response != 0)
+		return ; //already set
+
+	this->_response = new Response();
+	this->_responseToSend = this->_response->Methodes(*(this->_requestParser), *(this->getPtrServer()));
+}
+
+void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd) {
+
+	size_t	bytesToSend = B_SEND;
+	if (_bytesSend + B_SEND > this->_responseToSend.size())
+		bytesToSend = this->_responseToSend.size() - _bytesSend;
+
+	ssize_t	bSend = 0;
+	bSend = send(event.data.fd, this->_responseToSend.c_str() + _bytesSend,
+		bytesToSend, 0);
+
+	if (bSend < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+			// Erreur douce, on retente apres
+			return ;
+		}
+		std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
+		//close le client, erreur grave;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+	}
+
+	_bytesSend += bSend;
+
+	if (_bytesSend == this->_responseToSend.size()) {
+		this->resetAll();
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+		{
+			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+			Client::closingClient(epoll_fd, event.data.fd, clients);
+		}
+	}
+}
+
+void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)
+{
+	Client &client = Client::getClient(event.data.fd, clients);
+
+	client.ParseRequest(); 	//request parsing
+	client.ParseResponse(); //Prep response
+
+	//envoie de la reponse step by step et si tout est envoyer reset
+	client.sendResponse(clients, event, epoll_fd);	
+
 }

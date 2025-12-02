@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/05 15:20:49 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:37:48 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,19 @@
 class Client;
 class Server;
 
+struct FormDataPart 
+{
+	std::string name;
+	std::string filename;
+	std::string content;
+	std::string contentType;
+	size_t contentLength;
+};
+
 class Request
 {
     public:
-    struct FormDataPart 
-    {
-	    std::string name;
-	    std::string filename;
-	    std::string content;
-	    std::string contentType;
-	    size_t contentLength;
-    };
+	
     
     private:
 	Server	*_server;

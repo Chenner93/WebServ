@@ -45,6 +45,8 @@ SRCS := \
 	srcs/request/chunked.cpp\
 	srcs/request/parse_multi_part.cpp\
 	srcs/request/Autoindex.cpp\
+	\
+	$(SRC_DIR)/CGI.cpp\
 
 
 define ASCII_ART

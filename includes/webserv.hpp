@@ -13,6 +13,8 @@
 #define WHITE   "\033[37m"
 
 
+#include <CGI.hpp>
+#define MAX_EVENTS 100
 
 
 

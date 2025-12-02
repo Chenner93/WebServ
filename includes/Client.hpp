@@ -9,7 +9,8 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
-#define B_READ	10
+#define B_READ	30
+#define B_SEND	30
 
 #include <iostream>
 #include <vector>
@@ -18,28 +19,39 @@
 #include <netinet/in.h>
 #include <unistd.h>     // POSIX : read(), write(), close()
 #include <stdlib.h>		// exit
+#include <Request/Response.hpp>
+#include <Request/Request.hpp>
 
+
+class	CGI;
+class	Request;
+class	Response;
 class	Server;
 class	Client {
 
 	private:
 		int					_socket;
 		Server				*_server;
+		CGI					*_CGI;
 		
 		struct sockaddr_in	_addr;
 		int					_addrlen;
-
+		
 		std::string			*_request;
 		
-
+		
 		bool				_keepAlive;
 		std::string 		_responseToSend;
-
-	public:
+		
+		public:
 		Client();
 		~Client();
 		Client(const Client& copy);
 		Client &operator = (const Client& src);
+		
+		Request				*_requestParser;
+		Response			*_response;
+		size_t				_bytesSend;
 
 	/*	SETTER	*/
 		void	setSocket(int fd);
@@ -62,7 +74,11 @@ class	Client {
 		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
 		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
+		static void epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 
 	/*	UTILS	*/
-		void	freeRequest();
+		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
+		void	ParseRequest();
+		void	ParseResponse();
+		void	resetAll();
 };

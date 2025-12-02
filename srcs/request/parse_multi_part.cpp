@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_multi_part.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 12:08:53 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/07 13:54:50 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:40:51 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ std::map<std::string, std::string> Request::parseContentDisposition(const std::s
 
 
 
-std::vector<Request::FormDataPart>
+std::vector<FormDataPart>
 Request::parseMultipartFormData(const std::string& body, const std::string& boundary)
 {
 	std::vector<FormDataPart> parts;
