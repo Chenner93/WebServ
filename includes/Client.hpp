@@ -79,6 +79,7 @@ class	Client {
 	/*	UTILS	*/
 		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 		void	ParseRequest();
+		bool	isCGI();
 		void	ParseResponse();
 		void	resetAll();
 };

@@ -109,6 +109,8 @@ int main(int ac, char **av)
 
 		for (int i = 0; i < n; i++)
 		{
+			Client &client = Client::getClient(events[i].data.fd, clients);
+
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN))
 			{
 				std::cout << GREEN "Creation client" RESET << std::endl;
@@ -120,6 +122,10 @@ int main(int ac, char **av)
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))
 			{
+				if (client.isCGI()) {
+					//call CGI
+					continue ;
+				}
 				try {
 					Client::epolloutEvent(clients, events[i], epoll_fd);
 				}

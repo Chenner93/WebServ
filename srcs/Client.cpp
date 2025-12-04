@@ -7,10 +7,16 @@ Client::Client() {
 	std::cout << "Constructor Client Called" << std::endl;
 	_socket = -1;
 	_server = 0;
-	_addrlen = sizeof(_addr);
-	_request = 0;
-	_keepAlive = true;
 	_CGI = 0;
+
+	// _addr
+	_addrlen = sizeof(_addr);
+
+	_request = 0;
+
+	_keepAlive = true;
+	// _responseToSend
+
 	_requestParser = 0;
 	_response = 0;
 	_bytesSend = 0;
@@ -22,10 +28,19 @@ Client::~Client() {
 
 Client::Client(const Client& copy) {
 	std::cout << CYAN "Copy Client Called" RESET << std::endl;
+
 	_socket = copy.getSocket();
 	_server = copy.getPtrServer();
+	_CGI = copy._CGI;
+
+	_addr = copy._addr;
+	_addrlen = copy._addrlen;
+
 	_request = copy._request;
+	
 	_keepAlive = copy.getKeepAlive();
+	_responseToSend = copy._responseToSend;
+
 	_requestParser = copy._requestParser;
 	_response = copy._response;
 	_bytesSend = copy._bytesSend;
@@ -36,8 +51,16 @@ Client&	Client::operator = (const Client& src) {
 	if (this != &src) {
 		_socket = src.getSocket();
 		_server = src.getPtrServer();
+		_CGI = src._CGI;
+	
+		_addr = src._addr;
+		_addrlen = src._addrlen;
+
 		_request = src._request;
+
 		_keepAlive = src.getKeepAlive();
+		_responseToSend = src._responseToSend;
+
 		_requestParser = src._requestParser;
 		_response = src._response;
 		_bytesSend = src._bytesSend;
@@ -180,9 +203,13 @@ void	Client::resetAll() {
 	if (_response)
 		delete _response;
 
+	if (_CGI)
+		delete _CGI;
+
 	_response = 0;
 	_request = 0;
 	_requestParser = 0;
+	_CGI = 0;
 	_bytesSend = 0;
 }
 
@@ -262,10 +289,6 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 					  << "/" << total_needed << " bytes)" << RESET << std::endl;
 		}
 	}
-	// else
-	// {
-	// 	std::cout << CYAN << "[DEBUG] Waiting for headers..." << RESET << std::endl;
-	// }
 }
 
 void	Client::ParseRequest() {
@@ -344,14 +367,24 @@ void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &even
 	}
 }
 
+bool	Client::isCGI() {
+	if (_CGI)
+		return true;
+	return false;
+}
+
 void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)
 {
 	Client &client = Client::getClient(event.data.fd, clients);
 
 	client.ParseRequest(); 	//request parsing
+	if (client._requestParser->Python_Or_Php() == true && client._CGI == 0) {
+		client._CGI = new CGI();
+		return ;
+	}
 	client.ParseResponse(); //Prep response
 
 	//envoie de la reponse step by step et si tout est envoyer reset
-	client.sendResponse(clients, event, epoll_fd);	
+	client.sendResponse(clients, event, epoll_fd);
 
 }

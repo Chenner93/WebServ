@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/28 18:37:48 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/04 16:48:36 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,12 @@ class Request
     static  std::map<std::string, std::string> parseContentDisposition(const std::string& line);
     const std::vector<FormDataPart>& getFormDataParts() const;
     static std::vector<FormDataPart> parseMultipartFormData(const std::string& body, const std::string& boundary);
-    
+
+	std::string	getPath();
+	bool 		check_path_cgi(const std::string &path, const std::string &suffix);
+	bool		isPython();
+	bool		isPhp();
+	bool		Python_Or_Php();
 
 
    
