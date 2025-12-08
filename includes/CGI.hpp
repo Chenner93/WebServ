@@ -34,6 +34,11 @@ class CGI {
 		// std::string getOutput();
 		// void setTimeout(int seconds);
 		void	setSocketVector();
+		void	execCGI();
+
+		//UTILS
+		std::string	getScriptPath();
+		std::string	getCgiPath();
 };
 
 

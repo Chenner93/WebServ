@@ -373,28 +373,26 @@ bool	Client::isCGI() {
 	return false;
 }
 
-// bool	Client::CheckCGI() {
+bool	Client::CheckCGI() {
 
-// 	if (this->_requestParser->isPython()) {
-// 		this->_CGI = new CGI();// ajouter le chemin de python ou php en fonction du truc
-// 		//check si on a beosin du root pour choper le chemin du script
-// 	}
+	if (this->_requestParser->isPython()) {
+		this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
+		//check si on a beosin du root pour choper le chemin du script
+	}
+	else if (this->_requestParser->isPhp()) {
+		this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
+	}
 
-
-// 	return this->isCGI();
-// }
+	return this->isCGI();
+}
 
 void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)
 {
 	Client &client = Client::getClient(event.data.fd, clients);
 
 	client.ParseRequest(); 	//request parsing
-	// if (client.CheckCGI() == true)
-	// 	return ;
-	if (client._requestParser->Python_Or_Php() == true && client._CGI == 0) {
-		client._CGI = new CGI();
+	if (client.CheckCGI() == true)
 		return ;
-	}
 	client.ParseResponse(); //Prep response
 
 	//envoie de la reponse step by step et si tout est envoyer reset

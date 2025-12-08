@@ -31,3 +31,29 @@ void	CGI::setSocketVector() {
 		throw "Error: socketpair 'OUT' CGI";
 	}
 }
+
+
+/*	GETTER	*/
+
+std::string	CGI::getScriptPath() {
+	return this->_script_path;
+}
+
+
+std::string	CGI::getCgiPath() {
+	//creer socketpair
+	//add dans epoll_ctl celui qui nous envoie les infos ! Car quand le fd se ferme = envoyer la reponse (epollHUB);
+	return this->_cgi_path;
+}
+
+
+void	CGI::execCGI() {
+
+
+
+
+
+	
+	//si ca echoue, clear ici
+
+}

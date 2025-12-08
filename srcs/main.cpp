@@ -2,6 +2,7 @@
 #include <Server.hpp>
 #include <Client.hpp>
 #include <Config.hpp>
+#include <CGI.hpp>
 #include<../includes/Request/Request.hpp>
 #include<../includes/Request/Response.hpp>
 #include <sys/socket.h>
@@ -104,12 +105,14 @@ int main(int ac, char **av)
 
 	while (g_runWebserv)
 	{
+	
+		//check if TimeOut a un moment donner;
+	
 		struct epoll_event events[MAX_EVENTS];
 		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
-
+	
 		for (int i = 0; i < n; i++)
 		{
-			Client &client = Client::getClient(events[i].data.fd, clients);
 
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN))
 			{
@@ -122,8 +125,14 @@ int main(int ac, char **av)
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))
 			{
+				Client &client = Client::getClient(events[i].data.fd, clients);
 				if (client.isCGI()) {
-					//call CGI
+					std::cout << RED;
+					std::cout << client._CGI->getScriptPath() << std::endl;
+					std::cout << client._CGI->getCgiPath() << std::endl;
+					std::cout << RESET;
+					Client::closingClient(epoll_fd, events[i].data.fd,clients);
+					client._CGI->execCGI();
 					continue ;
 				}
 				try {
