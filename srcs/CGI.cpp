@@ -41,16 +41,16 @@ std::string	CGI::getScriptPath() {
 
 
 std::string	CGI::getCgiPath() {
-	//creer socketpair
-	//add dans epoll_ctl celui qui nous envoie les infos ! Car quand le fd se ferme = envoyer la reponse (epollHUB);
+	
 	return this->_cgi_path;
 }
 
 
 void	CGI::execCGI() {
 
-
-
+	this->setSocketVector();
+	//creer socketpair
+	//add dans epoll_ctl celui qui nous envoie les infos ! Car quand le fd se ferme = envoyer la reponse (epollHUB);	
 
 
 	
