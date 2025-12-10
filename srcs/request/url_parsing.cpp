@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 16:03:43 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/20 14:42:26 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/12/10 13:31:18 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 void Request::parse_url()
 {   
      std::size_t pos = this->path.find('?');
+    extract_path_after_sign(this->path, '?');
+    //Test after sign
+    std::cout<<GREEN<<"PATH PART AFTER SIGN"<<RESET<<std::endl;
+    std::cout<<GREEN<<"after sign = "<<getPathAfterSign()<<RESET<<std::endl;
     if(pos == std::string::npos)
             return;
     std::string  request_str = this->path.substr(pos + 1);

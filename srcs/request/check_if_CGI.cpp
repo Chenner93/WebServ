@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_if_CGI.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 14:16:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/04 16:48:05 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/10 13:26:00 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,16 @@ bool	Request::isPhp() {
 bool Request::Python_Or_Php() 
 {
     return check_path_cgi(this->getPath(), ".py") || check_path_cgi(this->getPath(), ".php");
+}
+
+void Request::extract_path_after_sign(const std::string &path, char sign)
+{
+    std::string::size_type pos = path.find(sign);
+
+    if (pos == std::string::npos)
+    {
+        path_after_sign = "";
+        return;
+    }
+    path_after_sign = path.substr(pos + 1);
 }
