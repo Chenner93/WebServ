@@ -299,7 +299,7 @@ void	Client::ParseRequest() {
 		return ;
 
 	this->_requestParser = new Request(*this->getRequest(), this->getPtrServer());
-	this->_requestParser->parse_url();
+	// this->_requestParser->parse_url();
 	this->_requestParser->print_request(*this->_requestParser);
 	
 	// --- DEBUG MULTIPART ---

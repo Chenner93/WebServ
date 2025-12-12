@@ -127,6 +127,9 @@ void	CGI::execCGI(Request *httpRequest) {
 	std::string	scriptPath_str = this->getScriptPath();
 	const char	*path = path_str.c_str();
 	const char	*scriptPath = scriptPath_str.c_str();
+	setenv("REQUEST_METHOD", httpRequest->getMethod().c_str(), 1);
+    setenv("QUERY_STRING", httpRequest->getPathAfterSign().c_str(), 1);
+    setenv("SCRIPT_FILENAME", scriptPath, 1);
 	char	*av[] = {
 		(char *)path,
 		(char *)scriptPath,
@@ -155,7 +158,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		else {
 			this->setEpoll(epoll_fd, clients, event, client.getSocket());
 			close(this->getSocketChild());
-			shutdown(this->getSocketParent(), SHUT_WR);
+			shutdown(this->getSocketParent(), SHUT_WR);//ATTENTION CA BLOQUE LES POSTs
 		}
 		return ;
 	}
