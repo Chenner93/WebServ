@@ -330,7 +330,7 @@ void	Client::ParseRequest() {
 }
 
 void	Client::ParseResponse() {
-	if (this->_response != 0)
+	if (this->_response != 0 || this->CheckCGI() == true)
 		return ; //already set
 
 	this->_response = new Response();
@@ -378,16 +378,17 @@ bool	Client::isCGI() {
 
 bool	Client::CheckCGI() {
 
+	if (this->isCGI())
+		return true;
 	if (this->_requestParser->isPython()) {
-		this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
+		this->_CGI = new CGI("/bin/python3", this->_server->getPathCgi(".py") + this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
 		//check si on a beosin du root pour choper le chemin du script
-
 	}
 	else if (this->_requestParser->isPhp()) {
-		this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
+		this->_CGI = new CGI("/bin/php-cgi", this->_server->getPathCgi(".php") + this->_requestParser->getPath());
 	}
-
-	return this->isCGI();
+	std::cout << RED << "WHYYYYYYYYYYYYYY" << RESET << std::endl;
+	return true;
 }
 
 void Client::epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd)

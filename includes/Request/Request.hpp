@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/12 02:04:16 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/12 07:20:54 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ class Request
     std::string method;
     std::string path;
     std::string version;
-    std::map<std::string, std::string>headers;
+    std::map<std::string, std::string> headers;
     std::string body;
     std::string raw_body;
     std::map<std::string, std::string> url_params;

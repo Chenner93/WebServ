@@ -32,6 +32,8 @@ class CGI {
 		std::string _script_path;   // /var/www/cgi-bin/script.php
 		pid_t 		_pid;
 		int 		_socket[2];
+		std::string	_bodyCgi;
+		size_t		bytesSend;
 
 
 	public:
@@ -60,6 +62,7 @@ class CGI {
 		int			getPid() const;
 		int			getSocketParent() const;
 		int			getSocketChild() const;
+		int			getState() const;
 };
 
 
