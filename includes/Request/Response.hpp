@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:45:45 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/02 17:36:10 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/12 10:50:46 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ class Response {
 	std::string getContentType(const std::string& path);
 	std::string resolveUploadPath(const Server &server, int loc, const std::string &filename) const;
 	//check_cgi_path
-	bool check_path_cgi(const std::string &path, const std::string &suffix);
-	bool Python_Or_Php(const std::string &path);
+	// bool check_path_cgi(const std::string &path, const std::string &suffix);
+	// bool Python_Or_Php(const std::string &path);
 
 };
 

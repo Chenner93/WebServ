@@ -342,7 +342,8 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 		std::vector<Client>::iterator	it;
 		for (it = clients.begin(); it != clients.end(); ++it) {
 			close(it->getSocket());
-			delete it->getRequest();
+			it->resetAll();
+			//if CGI close all socket and destroy child
 		}
 	}
 	close(epfd);
@@ -399,3 +400,13 @@ void Server::printServerInfo() const {
 
 // Handle request 
 
+std::string			Server::getPathCgi(std::string typeCgi) {
+
+	for (size_t i = 0; i < _cgi_configs.size(); ++i) {
+		std::map<std::string, std::string>::iterator it = _cgi_configs[i].find(typeCgi);
+		if (it != _cgi_configs[i].end()) {
+			return it->second;
+		}
+	}
+	return "NONE";
+}

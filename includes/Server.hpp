@@ -79,6 +79,7 @@ class	Server {
 		const std::string&	getUploadPath(size_t index) const;
 		bool				getUploadEnabled(size_t index) const;
 		const std::map<std::string, std::string>&	getCgiConfig(size_t index) const;
+		std::string			getPathCgi(std::string typeCgi);
 
 		/*	SETTER	*/
 		void	setServer(std::string name, std::string ip, int port);

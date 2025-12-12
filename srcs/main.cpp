@@ -2,6 +2,7 @@
 #include <Server.hpp>
 #include <Client.hpp>
 #include <Config.hpp>
+#include <CGI.hpp>
 #include<../includes/Request/Request.hpp>
 #include<../includes/Request/Response.hpp>
 #include <sys/socket.h>
@@ -87,34 +88,32 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 
-	/*		GIGA TEST CGI	*/
-
-	// try
-	// {
-	// 	CGI	cgi;
-
-	// 	cgi.setSocketVector();
-	// }
-	// catch (const char *e)
-	// {
-	// 	std::cerr << RED << e << std::strerror(errno) << RESET << std::endl;
-	// }
-	/*		END TEST CGI	*/
-
-
 	while (g_runWebserv)
 	{
+	
+		//check if TimeOut a un moment donner;
+	
 		struct epoll_event events[MAX_EVENTS];
 		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
-
+	
 		for (int i = 0; i < n; i++)
 		{
+
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN))
 			{
 				std::cout << GREEN "Creation client" RESET << std::endl;
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
+				continue;
 			}
-			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
+
+			Client &client = Client::getClient(events[i].data.fd, clients);
+
+			if (client.isCGI() == true) {
+				client._CGI->CGIEvent(epoll_fd, clients, events[i]);
+				continue ;
+			}
+
+			if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
 			{
 				Client::epollinEvent(clients, events[i], epoll_fd);
 			}

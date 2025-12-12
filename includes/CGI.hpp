@@ -10,19 +10,33 @@
 #define WHITE   "\033[37m"
 
 #include <sys/types.h>
+#include <stdlib.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <Request/Request.hpp>
+
+enum CGIState {
+	CGI_NEW_EPOLL,
+	CGI_WRITING_BODY,    // only POST: J'envoie le body au CGI -> EPOLLOUT sur stdin
+	CGI_READING_OUTPUT,  // Je recupere la reponse du CGI -> EPOLLIN sur stdout
+	CGI_DONE,             // Peut renvoyer la reponse
+	CGI_SEND,
+	CGI_END
+};
 
 class CGI {
 	private:
+
+		CGIState state;
 		std::string _cgi_path;      // /usr/bin/php-cgi
 		std::string _script_path;   // /var/www/cgi-bin/script.php
 		pid_t 		_pid;
-		int 		_socketIn[2];
-		int 		_socketOut[2];
-		bool		child;
+		int 		_socket[2];
+		std::string	_bodyCgi;
+		size_t		bytesSend;
 
 
 	public:
@@ -33,7 +47,26 @@ class CGI {
 		// bool execute(const HTTPRequest& request);
 		// std::string getOutput();
 		// void setTimeout(int seconds);
+		bool	checkSocket(int fd);
+
+		void	CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event);
+		void	execCGI(Request *httpRequest);
+
+		//SETTER
 		void	setSocketVector();
+		void	setStateMethod(std::string method);
+		void	setState(CGIState step);
+		void	setFork();
+		void	setDup2();
+		void	setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event, int socketClient);
+
+		//GETTER
+		std::string	getScriptPath();
+		std::string	getCgiPath();
+		int			getPid() const;
+		int			getSocketParent() const;
+		int			getSocketChild() const;
+		int			getState() const;
 };
 
 

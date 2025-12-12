@@ -4,8 +4,8 @@
 
 NAME := webserv
 CC := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -MMD -g3
-# CXXFLAGS := -std=c++98 -MMD -g3
+# CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -MMD -g3
+CXXFLAGS := -std=c++98 -MMD -g3
 
   ############
  #	COLOR	#
@@ -45,6 +45,7 @@ SRCS := \
 	srcs/request/chunked.cpp\
 	srcs/request/parse_multi_part.cpp\
 	srcs/request/Autoindex.cpp\
+	srcs/request/check_if_CGI.cpp\
 	\
 	$(SRC_DIR)/CGI.cpp\
 
@@ -55,7 +56,7 @@ __        _______ ____    ____  _____ ______     _______ ____
 \ \      / / ____| __ )  / ___|| ____|  _ \ \   / / ____|  _ \ 
  \ \ /\ / /|  _| |  _ \  \___ \|  _| | |_) \ \ / /|  _| | |_) |
   \ V  V / | |___| |_) |  ___) | |___|  _ < \ V / | |___|  _ < 
-   \_/\_/  |_____|____/  |____/|_____|_| \_\ \_/  |_____|_| \_\
+   \_/\_/  |_____|____/  |____/|_____|_| \_\ \_/  |_____|_| \_\\
 
 $(RESET)
 endef

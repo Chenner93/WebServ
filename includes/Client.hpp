@@ -32,7 +32,6 @@ class	Client {
 	private:
 		int					_socket;
 		Server				*_server;
-		CGI					*_CGI;
 		
 		struct sockaddr_in	_addr;
 		int					_addrlen;
@@ -43,7 +42,7 @@ class	Client {
 		bool				_keepAlive;
 		std::string 		_responseToSend;
 		
-		public:
+	public:
 		Client();
 		~Client();
 		Client(const Client& copy);
@@ -52,6 +51,8 @@ class	Client {
 		Request				*_requestParser;
 		Response			*_response;
 		size_t				_bytesSend;
+		CGI					*_CGI;
+
 
 	/*	SETTER	*/
 		void	setSocket(int fd);
@@ -79,6 +80,8 @@ class	Client {
 	/*	UTILS	*/
 		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 		void	ParseRequest();
+		bool	isCGI();
+		bool	CheckCGI();
 		void	ParseResponse();
 		void	resetAll();
 };

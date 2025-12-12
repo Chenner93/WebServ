@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/20 15:17:05 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/12/10 13:33:10 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,11 @@ const std::map<std::string, std::string>& Request::getHeaders() const
 const std::string& Request::getBody() const
 {
 	return body;
+}
+
+const std::string Request::getPathAfterSign() const 
+{
+    return  path_after_sign;
 }
 
 void Request::print_request(const Request& req)

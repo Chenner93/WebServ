@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/28 18:37:48 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/12 07:20:54 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,15 +51,13 @@ class Request
     std::string method;
     std::string path;
     std::string version;
-    std::map<std::string, std::string>headers;
+    std::map<std::string, std::string> headers;
     std::string body;
-    std::string raw_body; 
+    std::string raw_body;
     std::map<std::string, std::string> url_params;
     std::vector<FormDataPart> formDataParts;
-	
-	
-
-    
+	std::string path_after_sign;
+	 
     public:
     Request(const std::string& line_request, Server *server);
     Request &operator = (const Request& other);
@@ -69,6 +67,7 @@ class Request
     const std::string& getPath() const;
     const std::string& getVersion() const;
     const std::string& get_filename() const;
+    const  std::string getPathAfterSign() const;
     const std::map<std::string, std::string>& getHeaders() const;
     const std::string& getBody() const;
     void parseRequest(const std::string&  line_request);
@@ -85,7 +84,12 @@ class Request
     static  std::map<std::string, std::string> parseContentDisposition(const std::string& line);
     const std::vector<FormDataPart>& getFormDataParts() const;
     static std::vector<FormDataPart> parseMultipartFormData(const std::string& body, const std::string& boundary);
-    
+	std::string	getPath();
+	bool 		check_path_cgi(const std::string &path, const std::string &suffix);
+    void        extract_path_after_sign(const std::string &path, char sign);
+	bool		isPython();
+	bool		isPhp();
+	bool		Python_Or_Php();
 
 
    
