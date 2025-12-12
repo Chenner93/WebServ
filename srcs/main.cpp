@@ -118,23 +118,22 @@ int main(int ac, char **av)
 			{
 				std::cout << GREEN "Creation client" RESET << std::endl;
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
+				continue;
 			}
-			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
+
+			Client &client = Client::getClient(events[i].data.fd, clients);
+
+			if (client.isCGI() == true) {
+				client._CGI->CGIEvent(epoll_fd, clients, events[i]);
+				continue ;
+			}
+
+			if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
 			{
 				Client::epollinEvent(clients, events[i], epoll_fd);
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))
 			{
-				Client &client = Client::getClient(events[i].data.fd, clients);
-				if (client.isCGI()) {
-					std::cout << RED;
-					std::cout << client._CGI->getScriptPath() << std::endl;
-					std::cout << client._CGI->getCgiPath() << std::endl;
-					std::cout << RESET;
-					Client::closingClient(epoll_fd, events[i].data.fd,clients);
-					client._CGI->execCGI();
-					continue ;
-				}
 				try {
 					Client::epolloutEvent(clients, events[i], epoll_fd);
 				}

@@ -123,6 +123,9 @@ Client	&Client::getClient(int fd, std::vector<Client> &clients){
 	for (it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getSocket() == fd)
 			return *it;
+		//check fd CGI
+		if (it->_CGI && it->_CGI->checkSocket(fd))
+			return *it;
 	}
 	throw "Error getClient. Should never happens";
 }
@@ -146,7 +149,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 	std::vector<Client>::iterator	it;
 
 	for (it = clients.begin(); it != clients.end(); ++it) {
-		if (it->getSocket() == fd)
+		if (it->getSocket() == fd || (it->_CGI && it->_CGI->checkSocket(fd) == true))
 			break;
 	}
 	if (it == clients.end()) {
@@ -378,6 +381,7 @@ bool	Client::CheckCGI() {
 	if (this->_requestParser->isPython()) {
 		this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
 		//check si on a beosin du root pour choper le chemin du script
+
 	}
 	else if (this->_requestParser->isPhp()) {
 		this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
