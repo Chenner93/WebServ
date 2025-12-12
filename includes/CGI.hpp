@@ -19,9 +19,12 @@
 #include <Request/Request.hpp>
 
 enum CGIState {
+	CGI_NEW_EPOLL,
 	CGI_WRITING_BODY,    // only POST: J'envoie le body au CGI -> EPOLLOUT sur stdin
 	CGI_READING_OUTPUT,  // Je recupere la reponse du CGI -> EPOLLIN sur stdout
-	CGI_DONE             // Peut renvoyer la reponse
+	CGI_DONE,             // Peut renvoyer la reponse
+	CGI_SEND,
+	CGI_END
 };
 
 class CGI {
@@ -51,10 +54,11 @@ class CGI {
 
 		//SETTER
 		void	setSocketVector();
-		void	setState(std::string method);
+		void	setStateMethod(std::string method);
+		void	setState(CGIState step);
 		void	setFork();
 		void	setDup2();
-		void	setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event);
+		void	setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event, int socketClient);
 
 		//GETTER
 		std::string	getScriptPath();

@@ -88,21 +88,6 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 
-	/*		GIGA TEST CGI	*/
-
-	// try
-	// {
-	// 	CGI	cgi;
-
-	// 	cgi.setSocketVector();
-	// }
-	// catch (const char *e)
-	// {
-	// 	std::cerr << RED << e << std::strerror(errno) << RESET << std::endl;
-	// }
-	/*		END TEST CGI	*/
-
-
 	while (g_runWebserv)
 	{
 	
