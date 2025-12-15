@@ -66,6 +66,7 @@ void	CGI::setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_even
 	
 	if (state == CGI_READING_OUTPUT) {
 		event.events = EPOLLIN;
+		shutdown(this->getSocketParent(), SHUT_WR);
 	}
 	else if (state == CGI_WRITING_BODY) {
 		event.events = EPOLLOUT;
@@ -158,7 +159,6 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		else {
 			this->setEpoll(epoll_fd, clients, event, client.getSocket());
 			close(this->getSocketChild());
-			shutdown(this->getSocketParent(), SHUT_WR);//ATTENTION CA BLOQUE LES POSTs
 		}
 		return ;
 	}
@@ -188,6 +188,19 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_WRITING_BODY) {
 		//Send body to CGI then change to EPOLLIN
+		size_t	bSend = 0;
+		//maybe check et not all the body is send ?
+		bSend = send(event.data.fd, client._requestParser->getBody().c_str(), client._requestParser->getBody().size(), 0);
+
+		shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
+
+		this->setState(CGI_READING_OUTPUT);
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
+			std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
+			//send error message
+		}
+
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_DONE) {
 		
