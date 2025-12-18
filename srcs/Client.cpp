@@ -46,6 +46,7 @@ Client::Client(const Client& copy) {
 	_requestParser = copy._requestParser;
 	_response = copy._response;
 	_bytesSend = copy._bytesSend;
+
 	_lastActivity = copy._lastActivity;
 }
 
@@ -67,6 +68,7 @@ Client&	Client::operator = (const Client& src) {
 		_requestParser = src._requestParser;
 		_response = src._response;
 		_bytesSend = src._bytesSend;
+		
 		_lastActivity = src._lastActivity;
 	}
 	return *this;
@@ -176,6 +178,10 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(fd);
+	if (it->isCGI()) {
+		//close CGI socket in parent
+		close(it->_CGI->getSocketParent());
+	}
 	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
@@ -221,14 +227,14 @@ void	Client::checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd) {
 					<< ", inactive for " << difftime(time(NULL), it->getLastActivity())
 					<< " seconds)" RESET << std::endl;
 		
-		int socketToClose = it->getSocket();
+			int socketToClose = it->getSocket();
 
-		if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketToClose, 0) < 0) {
-			std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
-		}
-		close(socketToClose);
-		it->resetAll();
-		it = clients.erase(it);
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketToClose, 0) < 0) {
+				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+			}
+			close(socketToClose);
+			it->resetAll();
+			it = clients.erase(it);
 		} else {
 		it++;
 		}
@@ -397,6 +403,7 @@ void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &even
 		std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
 		//close le client, erreur grave;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
+		return ;
 	}
 
 	_bytesSend += bSend;

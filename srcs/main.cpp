@@ -125,7 +125,7 @@ int main(int ac, char **av)
 			Client &client = Client::getClient(events[i].data.fd, clients);
 
 			if (client.isCGI() == true) {
-				client._CGI->CGIEvent(epoll_fd, clients, events[i]);
+				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
 				continue ;
 			}
 
