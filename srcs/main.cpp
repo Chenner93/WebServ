@@ -88,13 +88,29 @@ int main(int ac, char **av)
 		exit(EXIT_FAILURE);
 	}
 
+	time_t		lastTimeoutCheck = time(NULL);
+	const int	TIMEOUT_CHECK_INTERVAL = 5; // secondes
+
 	while (g_runWebserv)
 	{
 	
 		//check if TimeOut a un moment donner;
-	
+		time_t	currentTime = time(NULL);
+		if (difftime(currentTime, lastTimeoutCheck) >= TIMEOUT_CHECK_INTERVAL) {
+			Client::checkTimeoutClients(clients, epoll_fd);
+			lastTimeoutCheck = currentTime;
+		}
+
 		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
+
+		if (n < 0)
+		{
+			if (errno == EINTR)
+				continue; // Interrupted by signal, retry
+			std::cerr << RED "Error epoll_wait: " RESET << std::strerror(errno) << std::endl;
+			break;
+		}
 	
 		for (int i = 0; i < n; i++)
 		{

@@ -11,6 +11,7 @@
 
 #define B_READ	30
 #define B_SEND	30
+#define TIMEOUT_CLIENT 60 // secondes
 
 #include <iostream>
 #include <vector>
@@ -37,11 +38,11 @@ class	Client {
 		int					_addrlen;
 		
 		std::string			*_request;
-		
-		
+
 		bool				_keepAlive;
 		std::string 		_responseToSend;
-		
+
+		time_t				_lastActivity;
 	public:
 		Client();
 		~Client();
@@ -60,6 +61,8 @@ class	Client {
 
 		void	appendRequest(char buffer[B_READ + 1]);
 
+		void	updateLastActivity();
+
 	/*	GETTER	*/
 		int					getSocket() const;
 		Server				*getPtrServer() const;
@@ -69,6 +72,8 @@ class	Client {
 		bool				getKeepAlive() const;
 		static Client		&getClient(int fd, std::vector<Client> &clients);
 
+		time_t				getLastActivity() const;
+		bool				isTimeOut() const;
 
 	/*	STATIC	*/
 		static bool	isClientSocket(int fd, std::vector<Client> &clients);
@@ -76,6 +81,7 @@ class	Client {
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
 		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
 		static void epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
+		static void checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd);
 
 	/*	UTILS	*/
 		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
