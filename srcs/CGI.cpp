@@ -190,7 +190,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		memset(buffer, 0, sizeof(buffer));
 		ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
 
-		if (bytesread == 0)	//Attention gerer si ==0 ou < 0
+		if (bytesread == 0 || bytesread < 0)	//Attention gerer si ==0 ou < 0
 		{
 			std::cout << BLUE << this->_bodyCgi << RESET << std::endl;
 			close(this->getSocketParent());
@@ -267,6 +267,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 		bytesSend += bSend;
 		if (bytesSend >= _bodyCgi.size()) {
+			//wait pid here et setvalueErr
 			this->setState(CGI_END);
 			event.data.fd = client.getSocket();
 			event.events = EPOLLIN;
