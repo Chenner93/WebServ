@@ -102,7 +102,7 @@ int main(int ac, char **av)
 		}
 
 		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
 
 		if (n < 0)
 		{
