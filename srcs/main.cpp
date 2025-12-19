@@ -94,7 +94,7 @@ int main(int ac, char **av)
 	size_t patate = 0;
 	while (g_runWebserv)
 	{
-		//check if TimeOut a un moment donner;
+		//check if TimeOut
 		time_t	currentTime = time(NULL);
 		if (difftime(currentTime, lastTimeoutCheck) >= TIMEOUT_CHECK_INTERVAL) {
 			Client::checkTimeoutClients(clients, epoll_fd);
@@ -102,9 +102,7 @@ int main(int ac, char **av)
 		}
 
 		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-		// std::cout << RED << patate++ << RESET << std::endl;
-
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 1000);
 
 		if (n < 0)
 		{
@@ -127,8 +125,23 @@ int main(int ac, char **av)
 			Client &client = Client::getClient(events[i].data.fd, clients);
 
 			if (client.isCGI() == true) {
-				std::cout << "CGI DETECT" << std::endl;
 				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
+				
+				CGI	&Cgi = *client._CGI;
+				if (Cgi.getState() == CGI_END || Cgi.getState() == CGI_ERR) {
+					if (Cgi.getState() == CGI_ERR) {
+						kill(Cgi.getPid(), SIGKILL);
+					}
+					waitpid(Cgi.getPid(), Cgi.getErrCgi(), 0);
+					if (Cgi.hasError() == true) {
+						// FOR THOMAAAAAAAAAAAAAAAAAAAAAS
+						std::cout << MAGENTA "Thomas the best" RESET << std::endl;
+						Client::closingClient(epoll_fd, events[i].data.fd, clients);
+					}
+					else {
+						client.resetAll();
+					}
+				}
 				continue ;
 			}
 

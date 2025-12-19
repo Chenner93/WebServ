@@ -25,7 +25,8 @@ enum CGIState {
 	CGI_READING_OUTPUT,	// Je recupere la reponse du CGI -> EPOLLIN sur stdout
 	CGI_DONE,			// Peut renvoyer la reponse
 	CGI_SEND,
-	CGI_END
+	CGI_END,
+	CGI_ERR
 };
 
 class CGI {
@@ -38,7 +39,7 @@ class CGI {
 		int 		_socket[2];
 		std::string	_bodyCgi;
 		size_t		bytesSend;
-		int			errCgi;
+		int			*errCgi;
 
 
 	public:
@@ -66,6 +67,9 @@ class CGI {
 		int			getSocketParent() const;
 		int			getSocketChild() const;
 		int			getState() const;
+		int			*getErrCgi() const;
+
+		bool		hasError();
 
 		//CHILD
 		static void		ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
