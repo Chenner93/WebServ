@@ -94,6 +94,14 @@ void	Client::appendRequest(char buffer[B_READ + 1]) {
 	updateLastActivity();
 }
 
+void	Client::appendRequest(char buffer[B_READ + 1], ssize_t bytesread) {
+	// std::string buff = buffer;
+	if (getRequest() == 0)
+		_request = new std::string;
+	_request->append(buffer, bytesread);
+	updateLastActivity();
+}
+
 void	Client::updateLastActivity() {
 	_lastActivity = time(NULL);
 }
@@ -267,12 +275,25 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	char buffer[B_READ + 1];
 	memset(buffer, 0, sizeof(buffer));
 
+	static ssize_t bytesreading = 0;
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	if (bytesread <= 0)//Attention gerer si ==0 ou < 0
+	bytesreading += bytesread;
+	std::cout << RED << bytesreading << std::endl;
+	if (bytesread == 0)//Attention gerer si == 0 ou < 0
 	{
-		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
+		std::cout << CYAN "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return;
+	}
+	else if (bytesread < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+			if (errno == EAGAIN)	
+				std::cout << CYAN "EAGAAAAAAAAAAAAIN" RESET << std::endl;
+				return ;
+		}
+		std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+		return ;
 	}
 
 	// Trouver le bon client
@@ -284,7 +305,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	}
 
 	// Ajouter les données reçues à la requête en cours
-	clients[i].appendRequest(buffer);
+	clients[i].appendRequest(buffer, bytesread);
 	std::string &req = *clients[i].getRequest();
 
 	// Chercher la fin des headers

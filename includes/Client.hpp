@@ -60,6 +60,8 @@ class	Client {
 		void	setServer(Server &server);
 
 		void	appendRequest(char buffer[B_READ + 1]);
+		void	appendRequest(char buffer[B_READ + 1], ssize_t bytesread);
+
 
 		void	updateLastActivity();
 

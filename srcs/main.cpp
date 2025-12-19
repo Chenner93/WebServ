@@ -91,9 +91,9 @@ int main(int ac, char **av)
 	time_t		lastTimeoutCheck = time(NULL);
 	const int	TIMEOUT_CHECK_INTERVAL = 5; // secondes
 
+	size_t patate = 0;
 	while (g_runWebserv)
 	{
-	
 		//check if TimeOut a un moment donner;
 		time_t	currentTime = time(NULL);
 		if (difftime(currentTime, lastTimeoutCheck) >= TIMEOUT_CHECK_INTERVAL) {
@@ -102,7 +102,9 @@ int main(int ac, char **av)
 		}
 
 		struct epoll_event events[MAX_EVENTS];
-		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, 0);
+		int n = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+		// std::cout << RED << patate++ << RESET << std::endl;
+
 
 		if (n < 0)
 		{
@@ -125,6 +127,7 @@ int main(int ac, char **av)
 			Client &client = Client::getClient(events[i].data.fd, clients);
 
 			if (client.isCGI() == true) {
+				std::cout << "CGI DETECT" << std::endl;
 				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
 				continue ;
 			}
