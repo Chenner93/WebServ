@@ -6,6 +6,7 @@ CGI::CGI () {
 
 	_socket[0] = -2;
 	_socket[1] = -2;
+	*errCgi = 0;
 }
 
 CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
@@ -17,6 +18,7 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	_socket[0] = -2;
 	_socket[1] = -2;
 	bytesSend = 0;
+	*errCgi = 0;
 }
 
 CGI::~CGI() {
