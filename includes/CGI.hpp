@@ -16,27 +16,30 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <Server.hpp>
 #include <Request/Request.hpp>
 
 enum CGIState {
 	CGI_NEW_EPOLL,
-	CGI_WRITING_BODY,    // only POST: J'envoie le body au CGI -> EPOLLOUT sur stdin
-	CGI_READING_OUTPUT,  // Je recupere la reponse du CGI -> EPOLLIN sur stdout
-	CGI_DONE,             // Peut renvoyer la reponse
+	CGI_WRITING_BODY,	// only POST: J'envoie le body au CGI -> EPOLLOUT sur stdin
+	CGI_READING_OUTPUT,	// Je recupere la reponse du CGI -> EPOLLIN sur stdout
+	CGI_DONE,			// Peut renvoyer la reponse
 	CGI_SEND,
-	CGI_END
+	CGI_END,
+	CGI_ERR
 };
 
 class CGI {
 	private:
 
 		CGIState state;
-		std::string _cgi_path;      // /usr/bin/php-cgi
-		std::string _script_path;   // /var/www/cgi-bin/script.php
+		std::string _cgi_path;		// /usr/bin/php-cgi
+		std::string _script_path;	// /var/www/cgi-bin/script.php
 		pid_t 		_pid;
 		int 		_socket[2];
 		std::string	_bodyCgi;
 		size_t		bytesSend;
+		int			*errCgi;
 
 
 	public:
@@ -44,12 +47,9 @@ class CGI {
 		CGI(const std::string& cgi_path, const std::string& script_path);
 		~CGI();
 
-		// bool execute(const HTTPRequest& request);
-		// std::string getOutput();
-		// void setTimeout(int seconds);
 		bool	checkSocket(int fd);
 
-		void	CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event);
+		void	CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event, std::vector<Server> &servers);
 		void	execCGI(Request *httpRequest);
 
 		//SETTER
@@ -67,19 +67,10 @@ class CGI {
 		int			getSocketParent() const;
 		int			getSocketChild() const;
 		int			getState() const;
+		int			*getErrCgi() const;
+
+		bool		hasError();
+
+		//CHILD
+		static void		ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
 };
-
-
-// socketpair(stdin_pipe)
-// socketpair(stdout_pipe)
-// fork()
-
-// dans le fils == 0 :
-//     dup2(stdin_pipe[1], STDIN_FILENO)
-//     dup2(stdout_pipe[1], STDOUT_FILENO)
-//     close tout
-//     execve(script)
-
-// dans le parent > 0 :
-//     close(stdin_pipe[1])        // on écrit sur stdin_pipe[0]
-//     close(stdout_pipe[1])       // on lit sur stdout_pipe[0]

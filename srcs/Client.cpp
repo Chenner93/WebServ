@@ -20,6 +20,8 @@ Client::Client() {
 	_requestParser = 0;
 	_response = 0;
 	_bytesSend = 0;
+
+	_lastActivity = time(NULL);
 }
 
 Client::~Client() {
@@ -44,6 +46,8 @@ Client::Client(const Client& copy) {
 	_requestParser = copy._requestParser;
 	_response = copy._response;
 	_bytesSend = copy._bytesSend;
+
+	_lastActivity = copy._lastActivity;
 }
 
 Client&	Client::operator = (const Client& src) {
@@ -64,7 +68,8 @@ Client&	Client::operator = (const Client& src) {
 		_requestParser = src._requestParser;
 		_response = src._response;
 		_bytesSend = src._bytesSend;
-
+		
+		_lastActivity = src._lastActivity;
 	}
 	return *this;
 }
@@ -86,6 +91,19 @@ void	Client::appendRequest(char buffer[B_READ + 1]) {
 	if (getRequest() == 0)
 		_request = new std::string;
 	_request->append(buff);
+	updateLastActivity();
+}
+
+void	Client::appendRequest(char buffer[B_READ + 1], ssize_t bytesread) {
+	// std::string buff = buffer;
+	if (getRequest() == 0)
+		_request = new std::string;
+	_request->append(buffer, bytesread);
+	updateLastActivity();
+}
+
+void	Client::updateLastActivity() {
+	_lastActivity = time(NULL);
 }
 
   /********* */
@@ -116,7 +134,19 @@ std::string	*Client::getRequest() const {
 	return _request;
 }
 
-//static
+time_t	Client::getLastActivity() const {
+	return _lastActivity;
+}
+
+bool	Client::isTimeOut() const {
+	time_t	currentTime = time(NULL);
+	return (difftime(currentTime, _lastActivity) > TIMEOUT_CLIENT);
+}
+
+  /********* */
+ /*	STATIC	*/
+/********* */
+
 Client	&Client::getClient(int fd, std::vector<Client> &clients){
 	
 	std::vector<Client>::iterator	it;
@@ -129,10 +159,6 @@ Client	&Client::getClient(int fd, std::vector<Client> &clients){
 	}
 	throw "Error getClient. Should never happens";
 }
-
-  /********* */
- /*	STATIC	*/
-/********* */
 
 bool	Client::isClientSocket(int fd, std::vector<Client> &clients) {
 
@@ -160,6 +186,10 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(fd);
+	if (it->isCGI()) {
+		//close CGI socket in parent
+		close(it->_CGI->getSocketParent());
+	}
 	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
@@ -196,6 +226,29 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 	clients.push_back(client);
 }
 
+void	Client::checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd) {
+	std::vector<Client>::iterator	it = clients.begin();
+	
+	while (it != clients.end()) {
+		if (it->isTimeOut() == true) {
+			std::cout << BLUE "Client timed out (socket:" << it->getSocket()
+					<< ", inactive for " << difftime(time(NULL), it->getLastActivity())
+					<< " seconds)" RESET << std::endl;
+		
+			int socketToClose = it->getSocket();
+
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketToClose, 0) < 0) {
+				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+			}
+			close(socketToClose);
+			it->resetAll();
+			it = clients.erase(it);
+		} else {
+		it++;
+		}
+	}
+}			
+
 void	Client::resetAll() {
 	if (_request)
 		delete _request;
@@ -222,12 +275,25 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	char buffer[B_READ + 1];
 	memset(buffer, 0, sizeof(buffer));
 
+	static ssize_t bytesreading = 0;
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	if (bytesread <= 0)//Attention gerer si ==0 ou < 0
+	bytesreading += bytesread;
+	std::cout << RED << bytesreading << std::endl;
+	if (bytesread == 0)//Attention gerer si == 0 ou < 0
 	{
-		std::cout << BLUE "CLOSING CLIENT" RESET << std::endl;
+		std::cout << CYAN "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return;
+	}
+	else if (bytesread < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+			if (errno == EAGAIN)	
+				std::cout << CYAN "EAGAAAAAAAAAAAAIN" RESET << std::endl;
+				return ;
+		}
+		std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
+		Client::closingClient(epoll_fd, event.data.fd, clients);
+		return ;
 	}
 
 	// Trouver le bon client
@@ -239,7 +305,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	}
 
 	// Ajouter les données reçues à la requête en cours
-	clients[i].appendRequest(buffer);
+	clients[i].appendRequest(buffer, bytesread);
 	std::string &req = *clients[i].getRequest();
 
 	// Chercher la fin des headers
@@ -299,7 +365,7 @@ void	Client::ParseRequest() {
 		return ;
 
 	this->_requestParser = new Request(*this->getRequest(), this->getPtrServer());
-	this->_requestParser->parse_url();
+	// this->_requestParser->parse_url();
 	this->_requestParser->print_request(*this->_requestParser);
 	
 	// --- DEBUG MULTIPART ---
@@ -327,6 +393,8 @@ void	Client::ParseRequest() {
 	{
 		std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
 	}
+
+	updateLastActivity();
 }
 
 void	Client::ParseResponse() {
@@ -335,6 +403,7 @@ void	Client::ParseResponse() {
 
 	this->_response = new Response();
 	this->_responseToSend = this->_response->Methodes(*(this->_requestParser), *(this->getPtrServer()));
+	updateLastActivity();
 }
 
 void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd) {
@@ -355,9 +424,11 @@ void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &even
 		std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
 		//close le client, erreur grave;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
+		return ;
 	}
 
 	_bytesSend += bSend;
+	updateLastActivity();
 
 	if (_bytesSend == this->_responseToSend.size()) {
 		this->resetAll();
