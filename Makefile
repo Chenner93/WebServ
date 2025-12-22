@@ -36,6 +36,7 @@ SRCS := \
 	$(SRC_DIR)/main.cpp \
 	$(SRC_DIR)/Server.cpp \
 	$(SRC_DIR)/Client.cpp \
+	$(SRC_DIR)/Client_epollEvent.cpp \
 	$(SRC_DIR)/ConfigurationFileParser.cpp \
 	srcs/request/request.cpp\
 	srcs/request/url_parsing.cpp\
@@ -48,6 +49,8 @@ SRCS := \
 	srcs/request/check_if_CGI.cpp\
 	\
 	$(SRC_DIR)/CGI.cpp\
+	$(SRC_DIR)/CGI_child.cpp\
+	$(SRC_DIR)/CGI_events.cpp\
 
 
 define ASCII_ART

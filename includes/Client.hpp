@@ -62,6 +62,7 @@ class	Client {
 		void	appendRequest(char buffer[B_READ + 1]);
 		void	appendRequest(char buffer[B_READ + 1], ssize_t bytesread);
 
+		void	setCgi(Server &server);
 
 		void	updateLastActivity();
 
@@ -73,6 +74,7 @@ class	Client {
 		std::string			*getRequest() const;
 		bool				getKeepAlive() const;
 		static Client		&getClient(int fd, std::vector<Client> &clients);
+		ssize_t	getLocationIndex() const;
 
 		time_t				getLastActivity() const;
 		bool				isTimeOut() const;

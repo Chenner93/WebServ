@@ -1,7 +1,7 @@
 #include <CGI.hpp>
 
 CGI::CGI () {
-	std::cout << "Constructor CGI Called" << std::endl;
+	// std::cout << "Constructor CGI Called" << std::endl;
 	_pid = -2;
 
 	_socket[0] = -2;
@@ -10,7 +10,7 @@ CGI::CGI () {
 }
 
 CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
-	std::cout << CYAN "Constructor CGI Called + Data" RESET << std::endl;
+	// std::cout << CYAN "Constructor CGI Called + Data" RESET << std::endl;
 	_cgi_path = cgi_path;
 	_script_path = script_path;
 	_pid = -2;
@@ -22,7 +22,7 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 }
 
 CGI::CGI(const CGI& copy) {
-	std::cout << CYAN "Copy CGI Called" RESET << std::endl;
+	// std::cout << CYAN "Copy CGI Called" RESET << std::endl;
 	state = copy.state;
 	_cgi_path = copy._cgi_path;
 	_script_path = copy._script_path;
@@ -35,7 +35,7 @@ CGI::CGI(const CGI& copy) {
 }
 
 CGI&	CGI::operator = (const CGI& src) {
-	std::cout << CYAN "Ope = CGI Called" RESET << std::endl;
+	// std::cout << CYAN "Ope = CGI Called" RESET << std::endl;
 	if (this != &src) {
 		state = src.state;
 		_cgi_path = src._cgi_path;
@@ -51,7 +51,7 @@ CGI&	CGI::operator = (const CGI& src) {
 }
 
 CGI::~CGI() {
-	std::cout << "Destructor CGI Called" << std::endl;
+	// std::cout << "Destructor CGI Called" << std::endl;
 }
 
 /*	SETTER	*/
@@ -84,13 +84,6 @@ void	CGI::setFork() {
 	if (this->_pid == -1) {
 		throw "Error: fork";
 	}
-}
-
-void	CGI::setDup2() {
-	dup2(getSocketChild(), STDIN_FILENO);
-	dup2(getSocketChild(), STDOUT_FILENO);
-	close(getSocketParent());
-	close(getSocketChild());
 }
 
 void	CGI::setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event, int socketClient) {
@@ -162,159 +155,4 @@ bool	CGI::checkSocket(int fd) {
 	if (_socket[0] == fd || _socket[1] == fd)
 		return true;
 	return false;
-}
-
-void	CGI::ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients) {
-
-	{//Closing fd server
-		std::vector<Server>::iterator	it;
-		for (it = servers.begin(); it != servers.end(); ++it) {
-			close(it->getSocket());
-		}
-	}
-	{//Closing fd client && free data
-		std::vector<Client>::iterator	it;
-		for (it = clients.begin(); it != clients.end(); ++it) {
-			close(it->getSocket());
-			it->resetAll();
-		}
-	}
-	close(epoll_fd);
-	exit(EXIT_FAILURE);
-}
-
-void	CGI::execCGI(Request *httpRequest) {
-
-	std::string	path_str = this->getCgiPath();
-	std::string	scriptPath_str = this->getScriptPath();
-	const char	*path = path_str.c_str();
-	const char	*scriptPath = scriptPath_str.c_str();
-	setenv("REQUEST_METHOD", httpRequest->getMethod().c_str(), 1);
-    setenv("QUERY_STRING", httpRequest->getPathAfterSign().c_str(), 1);
-    setenv("SCRIPT_FILENAME", scriptPath, 1);
-	setenv("REDIRECT_STATUS", "200", 1);
-	char	*av[] = {
-		(char *)path,
-		(char *)scriptPath,
-		NULL
-	};
-
-	extern char **environ;
-	if (execve(path, av, environ) < 0) {
-		std::cerr << RED "Error: execve" RESET << std::endl;
-	}
-}
-
-void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event, std::vector<Server> &servers) {
-
-	Client &client = Client::getClient(event.data.fd, clients);
-
-	if (_pid == -2) {
-		//prep for child && add to epoll;
-		this->setSocketVector();
-		this->setStateMethod(client._requestParser->getMethod());
-		this->setFork();
-		if (this->getPid() == 0) {
-			this->setDup2();
-			this->execCGI(client._requestParser);
-			CGI::ManageErrExecve(epoll_fd, servers, clients);
-		}
-		else {
-			this->setEpoll(epoll_fd, clients, event, client.getSocket());
-			close(this->getSocketChild());
-		}
-		return ;
-	}
-
-	if (event.events & EPOLLIN && this->state == CGI_READING_OUTPUT) {
-		//lecture of CGI until bytesread == 0
-		char buffer[B_READ + 1];
-		memset(buffer, 0, sizeof(buffer));
-		ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-
-		if (bytesread == 0)
-		{
-			std::cout << BLUE << this->_bodyCgi << RESET << std::endl;
-			close(this->getSocketParent());
-			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, 0);	//suppress CGI fd from epoll
-			this->state = CGI_DONE;
-			event.events = EPOLLOUT;
-			event.data.fd = client.getSocket();
-			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event)) {
-				std::cerr << RED "Error: epoll_ctl in CGI: END of READ" RESET << std::strerror(errno) << std::endl;
-				this->setState(CGI_ERR);
-			}
-			return;
-		}
-		else if (bytesread < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-				// Erreur douce, on retente apres
-				return ;
-			}
-			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
-			this->setState(CGI_ERR);
-			return ;
-		}
-		std::string buff = buffer;
-		this->_bodyCgi += buff;
-	}
-	else if (event.events & EPOLLOUT && this->state == CGI_WRITING_BODY) {
-		//Send body to CGI then change to EPOLLIN
-		size_t	bSend = 0;
-		//maybe check et not all the body is send ?
-		bSend = send(event.data.fd, client._requestParser->getBody().c_str(), client._requestParser->getBody().size(), 0);
-
-		shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
-
-		this->setState(CGI_READING_OUTPUT);
-		event.events = EPOLLIN;
-		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
-			std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
-			this->setState(CGI_ERR);
-		}
-		return ;
-	}
-	else if (event.events & EPOLLOUT && this->state == CGI_DONE) {
-		
-		std::stringstream ss;
-		ss << _bodyCgi.size();
-		std::string content_length = ss.str();
-		
-		//creer le header pour la reponse
-		// ATTENTION CHECKER L'ERREUR
-		std::string http_response = "HTTP/1.1 200 OK\r\n";
-   		http_response += "Content-Type: text/html\r\n";
-    	http_response += "Content-Length: " + content_length + "\r\n";	
-    	http_response += "\r\n";
-    	http_response += _bodyCgi;
-    	_bodyCgi = http_response;
-    	this->state = CGI_SEND;
-	}
-	else if (event.events & EPOLLOUT && this->state == CGI_SEND) {
-		//send response body mais on a pas encore send le header
-		size_t	bytesToSend = B_SEND;
-		if (bytesSend + B_SEND > this->_bodyCgi.size()) {
-			bytesToSend = this->_bodyCgi.size() - bytesSend;
-		}
-		ssize_t	bSend = 0;
-		bSend = send(client.getSocket(), this->_bodyCgi.c_str() + bytesSend, bytesToSend, 0);
-		if (bSend < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-				// Erreur douce, on retente apres
-				return ;
-			}
-			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
-			this->setState(CGI_ERR);
-			return ;
-		}
-		bytesSend += bSend;
-		if (bytesSend >= _bodyCgi.size()) {
-			this->setState(CGI_END);
-			event.data.fd = client.getSocket();
-			event.events = EPOLLIN;
-			if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, client.getSocket(), &event) < 0) {
-				std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
-			}
-		}
-	}
 }

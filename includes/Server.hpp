@@ -113,6 +113,7 @@ class	Server {
 
 		/* NOUVELLES FONCTIONS : Gestion des locations et erreurs */
 		int findLocationIndex(const std::string& path) const;
+		ssize_t findBestLocationIndex(const std::string& path) const;
 		std::string getErrorPage(int error_code) const;
 		bool isMethodAllowed(const std::string& path, const std::string& method) const;
 

@@ -2,7 +2,7 @@
 #include<../includes/Request/Request.hpp>
 
 Server::Server() {
-	std::cout << "Constructor Server Called" << std::endl;
+	// std::cout << "Constructor Server Called" << std::endl;
 	_name = "ServerTest";
 	_ip = "127.0.0.1";
 	_port = 8080;
@@ -11,15 +11,16 @@ Server::Server() {
 }
 
 Server::~Server() {
-	std::cout << "Destructor Server Called" << std::endl;
+	// std::cout << "Destructor Server Called" << std::endl;
 }
 
 Server::Server(const Server& copy) {
-	std::cout << BLUE "Copy Server Called" RESET << std::endl;
+	// std::cout << BLUE "Copy Server Called" RESET << std::endl;
 
 	_name = copy.getName();
 	_ip = copy.getIp();
 	_port = copy.getPort();
+	_socket = copy.getSocket();
 
 	_error_pages = copy.getErrorPages();
 	_client_max_body_size = copy.getClientMaxBodySize();
@@ -36,12 +37,13 @@ Server::Server(const Server& copy) {
 }
 
 Server&	Server::operator = (const Server& src) {
-	std::cout << "Ope = Server Called" << std::endl;
+	// std::cout << "Ope = Server Called" << std::endl;
 	if (this == &src)
 		return *this;
 	_name = src.getName();
 	_ip = src.getIp();
 	_port = src.getPort();
+	_socket = src.getSocket();
 
 	// tmpiables de configuration
 	_error_pages = src.getErrorPages();
@@ -136,7 +138,7 @@ const std::map<std::string, std::string>& Server::getCgiConfig(size_t index) con
 /********* */
 
 void	Server::setServer(std::string name, std::string ip, int port) {
-	std::cout << GREEN "Server Set" RESET << std::endl;
+	// std::cout << GREEN "Server Set" RESET << std::endl;
 	_name = name;
 	_ip = ip;
 	_port = port;
@@ -146,7 +148,7 @@ void	Server::setSocket() {
 	_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	int	opt = 1;
 	if (_socket != -1 && (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) < 0) {
-		throw "Error SetsockOPT: ";
+		throw std::runtime_error("Error SetsockOPT: ");
 	}
 }
 
@@ -161,12 +163,12 @@ void	Server::setSockAddr() {
 
 void	Server::bindSocket() {
 	if (::bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
-		throw "Error bind: ";
+		throw std::runtime_error("Error bind: ");
 }
 
 void	Server::listenSocket() {
 	if (::listen(_socket, SOMAXCONN) < 0) { //max kernel connexion waiting
-		throw "Error listen: ";
+		throw std::runtime_error("Error listen: ");
 	}
 }
 
@@ -175,7 +177,7 @@ void	Server::addEpollCtl(int epfd) {
 	event.data.fd = _socket;
 	event.events = EPOLLIN;
 	if (::epoll_ctl(epfd, EPOLL_CTL_ADD, _socket, &event) == -1) {
-		throw "Error epoll_ctl: ";
+		throw std::runtime_error("Error epoll_ctl: ");
 	}
 }
 
@@ -251,9 +253,9 @@ void Server::initServer(const ServerConfig& config) {
 				   loc.upload_enabled, loc.cgi);
 	}
 	
-	std::cout << GREEN << "[INFO] Server initialized: " << _name 
-			  << " on " << _ip << ":" << _port << RESET << std::endl;
-	std::cout << "  - " << _location_paths.size() << " locations loaded" << std::endl;
+	// std::cout << GREEN << "[INFO] Server initialized: " << _name 
+	// 		  << " on " << _ip << ":" << _port << RESET << std::endl;
+	// std::cout << "  - " << _location_paths.size() << " locations loaded" << std::endl;
 }
 
 /*********** GESTION DES LOCATIONS ***********/
@@ -274,6 +276,25 @@ int Server::findLocationIndex(const std::string& path) const {
 		}
 	}
 	
+	return best_match_index;
+}
+
+ssize_t	Server::findBestLocationIndex(const std::string& path) const {
+
+	ssize_t	best_match_index = -1;
+	size_t best_match_length = 0;
+
+	for (size_t i = 0; i < _location_paths.size(); i++) {
+		const std::string& location_path = _location_paths[i];
+
+		if (path.find(location_path) == 0) {
+			if (location_path.length() > best_match_length) {
+				best_match_index = i;
+				best_match_length = location_path.length();
+			}
+		}
+	}
+
 	return best_match_index;
 }
 
@@ -335,8 +356,10 @@ bool	Server::isServerSocket(int fd, std::vector<Server> &server) {
 void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<Client> &clients) {
 	{
 		std::vector<Server>::iterator	it;
-		for (it = servers.begin(); it != servers.end(); ++it)
-			close(it->getSocket());
+		for (it = servers.begin(); it != servers.end(); ++it) {
+			if (it->getSocket() > 0)
+				close(it->getSocket());
+		}
 	}
 	{
 		std::vector<Client>::iterator	it;

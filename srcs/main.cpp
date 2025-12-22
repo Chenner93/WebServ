@@ -46,7 +46,7 @@ int main(int ac, char **av)
 	{
 		Server server;
 		server.initServer(server_configs[i]);
-		server.printServerInfo();
+		// server.printServerInfo(); NO
 		servers.push_back(server);
 	}
 
@@ -70,24 +70,16 @@ int main(int ac, char **av)
 			it->listenSocket();
 			it->addEpollCtl(epoll_fd);
 
-			std::cout << GREEN << "[LISTENING] " << it->getName()
-					  << " on port " << it->getPort()
-					  << RESET << std::endl;
+			// std::cout << GREEN << "[LISTENING] " << it->getName()
+			// 		  << " on port " << it->getPort()
+			// 		  << RESET << std::endl;
 		}
 	}
-	catch (const char *e)
+	catch (const std::exception &e)
 	{
-		close(epoll_fd);
-		std::cerr << RED << e << std::strerror(errno) << RESET << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	catch (std::exception &e)
-	{
-		close(epoll_fd);
 		std::cerr << RED << e.what() << std::strerror(errno) << RESET << std::endl;
-		exit(EXIT_FAILURE);
+		g_runWebserv = false;
 	}
-
 	time_t		lastTimeoutCheck = time(NULL);
 	const int	TIMEOUT_CHECK_INTERVAL = 5; // secondes
 
@@ -116,7 +108,6 @@ int main(int ac, char **av)
 
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN))
 			{
-				std::cout << GREEN "Creation client" RESET << std::endl;
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
 				continue;
 			}
@@ -134,7 +125,6 @@ int main(int ac, char **av)
 					waitpid(Cgi.getPid(), Cgi.getPtrErrCgi(), 0);
 					if (Cgi.hasError() == true) {
 						// FOR THOMAAAAAAAAAAAAAAAAAAAAAS
-						std::cout << MAGENTA "Thomas the best" RESET << std::endl;
 						Client::closingClient(epoll_fd, events[i].data.fd, clients);
 					}
 					else {

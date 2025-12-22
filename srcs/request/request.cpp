@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/10 13:33:10 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/12/22 20:05:02 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ bool Request::split_http_head_body(const std::string& raw,
 									std::string& head,
 									std::string& body_part)
 {
-	std::cout << GREEN << "[DEBUG] ENTREE parseRequest() → RAW COMPLET ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓" << RESET << std::endl;
-	std::cout << raw << std::endl;
-	std::cout << GREEN << "[DEBUG] FIN RAW" << RESET << std::endl;
+	// std::cout << GREEN << "[DEBUG] ENTREE parseRequest() → RAW COMPLET ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓" << RESET << std::endl;
+	// std::cout << raw << std::endl;
+	// std::cout << GREEN << "[DEBUG] FIN RAW" << RESET << std::endl;
 
 	const std::string sep = "\r\n\r\n";
 	std::size_t p = raw.find(sep);
@@ -108,14 +108,14 @@ void Request::parseRequest(const std::string& raw)
 	if (headers.count("transfer-encoding") &&
 		utils_parsing::to_lower(headers["transfer-encoding"]) == "chunked")
 	{
-		std::cout << GREEN << "[DEBUG] raw_body is:\n[" << raw_body << "]" << RESET << std::endl;
-		std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is chunked" << RESET << std::endl;
+		// std::cout << GREEN << "[DEBUG] raw_body is:\n[" << raw_body << "]" << RESET << std::endl;
+		// std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is chunked" << RESET << std::endl;
 
 		this->body = parseChunkedBody(raw_body);
 	}
 	else
 	{ 
-		std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is NOT chunked" << RESET << std::endl;
+		// std::cout << YELLOW << "[DEBUG] → Transfer-Encoding is NOT chunked" << RESET << std::endl;
 		this->body = raw_body;
 	}
 }
@@ -171,24 +171,24 @@ void printUrlParams(const Request& req)
 {
 	const std::map<std::string, std::string>& params = req.getUrlparams();
 
-	std::cout << "\n🔎 URL Parameters:\n";
+	// std::cout << "\n🔎 URL Parameters:\n";
 	if (params.empty()) {
-		std::cout << "  (aucun paramètre)\n";
+		// std::cout << "  (aucun paramètre)\n";
 		return;
 	}
 
 	for (std::map<std::string, std::string>::const_iterator it = params.begin(); it != params.end(); ++it)
 	{
-		std::cout << "  " << it->first << " = " << it->second << "\n";
+		// std::cout << "  " << it->first << " = " << it->second << "\n";
 	}
 }
 
 void Request::printFormDataParts(const std::vector<FormDataPart>& parts)
 {
-	std::cout << CYAN << "---- Parsed Multipart Form Data ----" << RESET << std::endl;
+	// std::cout << CYAN << "---- Parsed Multipart Form Data ----" << RESET << std::endl;
 
 	if (parts.empty()) {
-		std::cout << RED << "Aucune partie trouvée dans la requête." << RESET << std::endl;
+		// std::cout << RED << "Aucune partie trouvée dans la requête." << RESET << std::endl;
 		return;
 	}
 
@@ -233,7 +233,7 @@ void Request::handleClientRequest(Client &client)
 		Response response;
 		Server serv;
 		request.parse_url();
-		request.print_request(request);
+		// request.print_request(request);
 		response.Methodes(request, serv);
 	} catch (const std::exception &e) {
 		std::cerr << "Bad Request: " << e.what() << std::endl;
