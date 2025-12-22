@@ -31,6 +31,7 @@ enum CGIState {
 
 class CGI {
 	private:
+		CGI();
 
 		CGIState state;
 		std::string _cgi_path;		// /usr/bin/php-cgi
@@ -39,12 +40,13 @@ class CGI {
 		int 		_socket[2];
 		std::string	_bodyCgi;
 		size_t		bytesSend;
-		int			*errCgi;
+		int			errCgi;
 
 
 	public:
-		CGI();
 		CGI(const std::string& cgi_path, const std::string& script_path);
+		CGI(const CGI& copy);
+		CGI &operator = (const CGI& src);
 		~CGI();
 
 		bool	checkSocket(int fd);
@@ -67,7 +69,8 @@ class CGI {
 		int			getSocketParent() const;
 		int			getSocketChild() const;
 		int			getState() const;
-		int			*getErrCgi() const;
+		int			getErrCgi() const;
+		int			*getPtrErrCgi();
 
 		bool		hasError();
 

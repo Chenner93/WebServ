@@ -6,11 +6,11 @@ CGI::CGI () {
 
 	_socket[0] = -2;
 	_socket[1] = -2;
-	*errCgi = 0;
+	errCgi = 0;
 }
 
 CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
-	std::cout << "Constructor CGI Called + Data" << std::endl;
+	std::cout << CYAN "Constructor CGI Called + Data" RESET << std::endl;
 	_cgi_path = cgi_path;
 	_script_path = script_path;
 	_pid = -2;
@@ -18,7 +18,36 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	_socket[0] = -2;
 	_socket[1] = -2;
 	bytesSend = 0;
-	*errCgi = 0;
+	errCgi = 0;
+}
+
+CGI::CGI(const CGI& copy) {
+	std::cout << CYAN "Copy CGI Called" RESET << std::endl;
+	state = copy.state;
+	_cgi_path = copy._cgi_path;
+	_script_path = copy._script_path;
+	_pid = copy._pid;
+	_socket[0] = copy._socket[0];
+	_socket[1] = copy._socket[1];
+	_bodyCgi = copy._bodyCgi;
+	bytesSend = copy.bytesSend;
+	errCgi = copy.errCgi;
+}
+
+CGI&	CGI::operator = (const CGI& src) {
+	std::cout << CYAN "Ope = CGI Called" RESET << std::endl;
+	if (this != &src) {
+		state = src.state;
+		_cgi_path = src._cgi_path;
+		_script_path = src._script_path;
+		_pid = src._pid;
+		_socket[0] = src._socket[0];
+		_socket[1] = src._socket[1];
+		_bodyCgi = src._bodyCgi;
+		bytesSend = src.bytesSend;
+		errCgi = src.errCgi;
+	}
+	return *this;
 }
 
 CGI::~CGI() {
@@ -115,12 +144,16 @@ int		CGI::getState() const {
 	return state;
 }
 
-int*		CGI::getErrCgi() const {
+int		CGI::getErrCgi() const {
 	return errCgi;
 }
 
+int*	CGI::getPtrErrCgi() {
+	return &errCgi;
+}
+
 bool	CGI::hasError() {
-	return WIFEXITED(*errCgi) && WEXITSTATUS(*errCgi) != 0;
+	return WIFEXITED(errCgi) && WEXITSTATUS(errCgi) != 0;
 }
 
 /*	UTILS	*/
