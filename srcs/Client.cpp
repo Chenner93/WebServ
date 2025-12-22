@@ -275,10 +275,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	char buffer[B_READ + 1];
 	memset(buffer, 0, sizeof(buffer));
 
-	static ssize_t bytesreading = 0;
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	bytesreading += bytesread;
-	std::cout << RED << bytesreading << std::endl;
 	if (bytesread == 0)//Attention gerer si == 0 ou < 0
 	{
 		std::cout << CYAN "CLOSING CLIENT" RESET << std::endl;
@@ -449,15 +446,18 @@ bool	Client::isCGI() {
 
 bool	Client::CheckCGI() {
 
+	// this->_server->getPathCgi(".py") + 
+	// this->_server->getPathCgi(".php") + 
 	if (this->isCGI())
 		return true;
 	if (this->_requestParser->isPython()) {
-		this->_CGI = new CGI("/bin/python3", this->_server->getPathCgi(".py") + this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
+		this->_CGI = new CGI("/bin/python3", "." + this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
 		//check si on a beosin du root pour choper le chemin du script
 		this->_CGI->setState(CGI_NEW_EPOLL);
+		std::cout << RED << this->_requestParser->getPath() << RESET << std::endl;
 	}
 	else if (this->_requestParser->isPhp()) {
-		this->_CGI = new CGI("/bin/php-cgi", this->_server->getPathCgi(".php") + this->_requestParser->getPath());
+		this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
 		this->_CGI->setState(CGI_NEW_EPOLL);
 	}
 	else {

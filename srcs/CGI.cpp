@@ -281,6 +281,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		std::string content_length = ss.str();
 		
 		//creer le header pour la reponse
+		// ATTENTION CHECKER L'ERREUR
 		std::string http_response = "HTTP/1.1 200 OK\r\n";
    		http_response += "Content-Type: text/html\r\n";
     	http_response += "Content-Length: " + content_length + "\r\n";	

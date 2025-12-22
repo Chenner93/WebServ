@@ -9,8 +9,8 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
-#define B_READ	30
-#define B_SEND	30
+#define B_READ	4096
+#define B_SEND	4096
 #define TIMEOUT_CLIENT 60 // secondes
 
 #include <iostream>
