@@ -32,9 +32,7 @@ Server::Server(const Server& copy) {
 	_autoindex_flags = copy._autoindex_flags;
 	_index_files = copy._index_files;
 	_upload_paths = copy._upload_paths;
-	_upload_enabled_flags = copy._upload_enabled_flags;
 	_cgi_configs = copy._cgi_configs;
-	_cgi_enabled_flags = copy._cgi_enabled_flags;
 }
 
 Server&	Server::operator = (const Server& src) {
@@ -60,7 +58,6 @@ Server&	Server::operator = (const Server& src) {
 	_upload_paths = src._upload_paths;
 	_upload_enabled_flags = src._upload_enabled_flags;
 	_cgi_configs = src._cgi_configs;
-	_cgi_enabled_flags = src._cgi_enabled_flags;
 	return *this;
 }
 
@@ -135,9 +132,6 @@ const std::map<std::string, std::string>& Server::getCgiConfig(size_t index) con
 	return _cgi_configs[index];
 }
 
-bool Server::getCgiEnabled(size_t index) const {
-	return _cgi_enabled_flags[index];
-}
 
   /********* */
  /*	SETTER	*/
@@ -205,8 +199,7 @@ void Server::addLocation(const std::string& path,
 						const std::string& index_file,
 						const std::string& upload_path,
 						bool upload_enabled,
-						const std::map<std::string, std::string>& cgi_config,
-						bool cgi_enabled) {
+						const std::map<std::string, std::string>& cgi_config) {
 	_location_paths.push_back(path);
 	_allow_methods_per_location.push_back(allow_methods);
 	_roots.push_back(root);
@@ -216,7 +209,6 @@ void Server::addLocation(const std::string& path,
 	_upload_paths.push_back(upload_path);
 	_upload_enabled_flags.push_back(upload_enabled);
 	_cgi_configs.push_back(cgi_config);
-	_cgi_enabled_flags.push_back(cgi_enabled);
 }
 
 void Server::clearLocations() {
@@ -227,9 +219,7 @@ void Server::clearLocations() {
 	_autoindex_flags.clear();
 	_index_files.clear();
 	_upload_paths.clear();
-	_upload_enabled_flags.clear();
 	_cgi_configs.clear();
-	_cgi_enabled_flags.clear();
 }
 
 /*********** INITIALISATION DEPUIS CONFIG ***********/
@@ -259,7 +249,7 @@ void Server::initServer(const ServerConfig& config) {
 		const Location& loc = config.locations[i];
 		addLocation(loc.path, loc.allow_methods, loc.root, loc.redirect,
 				   loc.autoindex, loc.index, loc.upload_path, 
-				   loc.upload_enabled, loc.cgi, loc.cgi_enabled);
+				   loc.upload_enabled, loc.cgi);
 	}
 	
 	// std::cout << GREEN << "[INFO] Server initialized: " << _name 

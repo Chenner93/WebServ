@@ -239,7 +239,6 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 		}
 		else if (directive == "cgi_extension")
 		{
-			location.cgi_enabled = true;
 			skipWhitespace(content, pos);
 			std::vector<std::string> cgi_config = parseList(content, pos);
 			if (cgi_config.size() >= 2)
