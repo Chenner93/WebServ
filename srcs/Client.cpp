@@ -143,7 +143,7 @@ bool	Client::isTimeOut() const {
 }
 
 ssize_t	Client::getLocationIndex() const {
-	return this->_server->findBestLocationIndex(path);
+	return this->_server->findBestLocationIndex(this->_requestParser->getPath());
 }
 
   /********* */
@@ -360,11 +360,14 @@ bool	Client::isCGI() {
 }
 
 void	Client::setCgi(Server &server) {
-	(void)server;
-	ssize_t	index = this->getLocationIndex();
 
+	// const std::string &path = this->_requestParser->getPath();
+	ssize_t	index = this->getLocationIndex();
+	// const std::map<std::string, std::string>&	cgiConfig = server.getCgiConfig(index);
+	// const std::string							&root = server.getRoot(index);
 	// PATH CGI, php, python etc
-	// const std::map<std::string, std::string>&    getCgiConfig(size_t index) const; 
+	// const std::map<std::string, std::string>&    getCgiConfig(size_t index) const;
+	// avec end of path
 
 	//ROOT : const std::string&    getRoot(size_t index) const;
 	std::cout << "Root -> " << server.getRoot(index) << std::endl;
