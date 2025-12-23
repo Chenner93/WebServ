@@ -51,6 +51,7 @@ class	Server {
 		std::vector<std::string> _upload_paths;			// Répertoires d'upload par location
 		std::vector<bool> _upload_enabled_flags;		// Flags upload par location
 		std::vector<std::map<std::string, std::string> > _cgi_configs;// Configs CGI par location
+		std::vector<bool> _cgi_enabled_flags;			// Flags CGI par location
 
 	public:
 		Server();
@@ -80,6 +81,7 @@ class	Server {
 		bool				getUploadEnabled(size_t index) const;
 		const std::map<std::string, std::string>&	getCgiConfig(size_t index) const;
 		std::string			getPathCgi(std::string typeCgi);
+		bool				getCgiEnabled(size_t index) const;
 
 		/*	SETTER	*/
 		void	setServer(std::string name, std::string ip, int port);
@@ -99,7 +101,8 @@ class	Server {
 						const std::string& index_file,
 						const std::string& upload_path,
 						bool upload_enabled,
-						const std::map<std::string, std::string>& cgi_config);
+						const std::map<std::string, std::string>& cgi_config,
+						bool cgi_enabled);
 
 		// Clear toutes les locations
 		void	clearLocations();

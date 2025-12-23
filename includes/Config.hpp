@@ -18,6 +18,7 @@ struct Location
 	std::string upload_path;					// Répertoire des uploads
 	bool upload_enabled;						// Upload autorisé ou non
 	std::map<std::string, std::string> cgi;		// Extension -> path du CGI (.php -> /usr/bin/php-cgi)
+	bool cgi_enabled;							// CGI activé ou non
 
 	// Constructeur par défaut
 	Location()

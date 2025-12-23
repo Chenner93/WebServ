@@ -239,10 +239,18 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 		}
 		else if (directive == "cgi_extension")
 		{
+			location.cgi_enabled = true;
 			skipWhitespace(content, pos);
 			std::vector<std::string> cgi_config = parseList(content, pos);
 			if (cgi_config.size() >= 2)
 			{
+				// if (access(cgi_config[1].c_str(), X_OK) != 0)
+				// {
+				// 	std::ostringstream err;
+				// 	err << "CGI interpreter not found or not executable: " << cgi_config[1];
+				// 	throw std::runtime_error(err.str());
+				// }
+				std::cout << "CGI Config -> Extension: " << cgi_config[0] << " Path: " << cgi_config[1] << std::endl;
 				location.cgi[cgi_config[0]] = cgi_config[1];
 			}
 		}
