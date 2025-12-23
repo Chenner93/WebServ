@@ -4,6 +4,9 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 
 	Client &client = Client::getClient(event.data.fd, clients);
 
+	// if (this->getState() == CGI_ERR)
+	// 	return ;
+
 	if (_pid == -2) {
 		//prep for child && add to epoll;
 		this->setSocketVector();
@@ -41,12 +44,17 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			return;
 		}
 		else if (bytesread < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-				// Erreur douce, on retente apres
-				return ;
-			}
-			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
+			
+			std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR, 500);
+			event.events = EPOLLOUT;
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event)) {
+				std::cerr << RED "Error: epoll_ctl in CGI" RESET << std::strerror(errno) << std::endl;
+			}
+			event.data.fd = client.getSocket();
+			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event)) {
+				std::cerr << RED "Error: epoll_ctl in CGI" RESET << std::strerror(errno) << std::endl;
+			}	
 			return ;
 		}
 		std::string buff = buffer;

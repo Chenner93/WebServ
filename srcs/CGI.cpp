@@ -7,6 +7,8 @@ CGI::CGI () {
 	_socket[0] = -2;
 	_socket[1] = -2;
 	errCgi = 0;
+	this->setState(CGI_NEW_EPOLL);
+
 }
 
 CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
@@ -177,4 +179,46 @@ std::string	CGI::createScriptPath(const std::string root, const std::string path
 	if (i != std::string::npos)
 		return root + path.substr(i);
 	return "";
+}
+
+std::string CGI::sendError(int code, const std::string& msg, const Server &server)
+{
+	std::ostringstream response;
+	std::string body;
+	std::string ctype = "text/html";
+
+	std::map<int, std::string> const &error_map = server.getErrorPages();
+	std::map<int, std::string>::const_iterator it = error_map.find(code);
+	std::string error_path;
+
+	if (it != error_map.end())
+		error_path = it->second; 
+
+	if (!error_path.empty())
+	{
+		std::ifstream file(error_path.c_str(), std::ios::binary);
+		if (file.is_open())
+		{
+			std::ostringstream buf;
+			buf << file.rdbuf();
+			body = buf.str();
+			file.close();
+			ctype = "text/html";
+		}
+	}
+	if (body.empty())
+	{
+		std::ostringstream oss;
+		oss << code;
+		body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+	}
+    
+	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
+			 << "Content-Type: " << ctype << "\r\n"
+			 << "Content-Length: " << body.size() << "\r\n"
+			 << "Connection: close\r\n\r\n"
+			 << body;
+
+	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
+	return response.str();
 }

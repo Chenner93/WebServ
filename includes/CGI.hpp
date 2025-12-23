@@ -79,5 +79,7 @@ class CGI {
 		static void		ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
 
 		static std::string	createScriptPath(const std::string root, const std::string path);
+		static std::string	sendError(int code, const std::string& msg, const Server &server);
+
 
 };

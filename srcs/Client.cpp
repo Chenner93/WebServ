@@ -190,7 +190,6 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 	}
 	close(fd);
 	if (it->isCGI()) {
-		//close CGI socket in parent
 		close(it->_CGI->getSocketParent());
 	}
 	it->resetAll();
@@ -387,20 +386,7 @@ bool	Client::CheckCGI() {
 
 	if (this->isCGI())
 		return true;
-	//get pathcgi
+
 	return this->setCgi(*this->getPtrServer());
-	// if (this->_requestParser->isPython()) {
-	// 	this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
-	// 	//check si on a beosin du root pour choper le chemin du script
-	// 	this->_CGI->setState(CGI_NEW_EPOLL);
-	// }
-	// else if (this->_requestParser->isPhp()) {
-	// 	this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
-	// 	this->_CGI->setState(CGI_NEW_EPOLL);
-	// }
-	// else {
-	// 	return false;
-	// }
-	return true;
 }
 

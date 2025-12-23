@@ -113,6 +113,7 @@ int main(int ac, char **av)
 			}
 
 			Client &client = Client::getClient(events[i].data.fd, clients);
+			
 
 			if (client.isCGI() == true) {
 				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
@@ -123,15 +124,13 @@ int main(int ac, char **av)
 						if (Cgi.getPid() > 0)
 							kill(Cgi.getPid(), SIGKILL);
 					}
-					if (Cgi.getPid() > 0)
-						waitpid(Cgi.getPid(), Cgi.getPtrErrCgi(), 0);
-					if (Cgi.hasError() == true) {
-						// FOR THOMAAAAAAAAAAAAAAAAAAAAAS
+					if (Cgi.getState() == CGI_ERR && events[i].data.fd == client.getSocket()) {
+						std::string patate = CGI::sendError(Cgi.getErrCgi(), "Internal Server Error", *client.getPtrServer());
+						send(events[i].data.fd, patate.c_str(), patate.length(), 0);
 						Client::closingClient(epoll_fd, events[i].data.fd, clients);
 					}
-					else {
-						client.resetAll();
-					}
+					else if (Cgi.getState() == CGI_END)
+						Client::closingClient(epoll_fd, events[i].data.fd, clients);
 				}
 				continue ;
 			}
