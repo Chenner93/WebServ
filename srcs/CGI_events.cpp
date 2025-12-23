@@ -36,7 +36,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			event.data.fd = client.getSocket();
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event)) {
 				std::cerr << RED "Error: epoll_ctl in CGI: END of READ" RESET << std::strerror(errno) << std::endl;
-				this->setState(CGI_ERR);
+				this->setState(CGI_ERR, 500);
 			}
 			return;
 		}
@@ -46,7 +46,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 				return ;
 			}
 			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
-			this->setState(CGI_ERR);
+			this->setState(CGI_ERR, 500);
 			return ;
 		}
 		std::string buff = buffer;

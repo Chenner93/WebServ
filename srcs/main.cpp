@@ -120,9 +120,11 @@ int main(int ac, char **av)
 				CGI	&Cgi = *client._CGI;
 				if (Cgi.getState() == CGI_END || Cgi.getState() == CGI_ERR) {
 					if (Cgi.getState() == CGI_ERR) {
-						kill(Cgi.getPid(), SIGKILL);
+						if (Cgi.getPid() > 0)
+							kill(Cgi.getPid(), SIGKILL);
 					}
-					waitpid(Cgi.getPid(), Cgi.getPtrErrCgi(), 0);
+					if (Cgi.getPid() > 0)
+						waitpid(Cgi.getPid(), Cgi.getPtrErrCgi(), 0);
 					if (Cgi.hasError() == true) {
 						// FOR THOMAAAAAAAAAAAAAAAAAAAAAS
 						Client::closingClient(epoll_fd, events[i].data.fd, clients);

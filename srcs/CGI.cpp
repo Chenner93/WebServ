@@ -19,6 +19,7 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	_socket[1] = -2;
 	bytesSend = 0;
 	errCgi = 0;
+	this->setState(CGI_NEW_EPOLL);
 }
 
 CGI::CGI(const CGI& copy) {
@@ -32,6 +33,7 @@ CGI::CGI(const CGI& copy) {
 	_bodyCgi = copy._bodyCgi;
 	bytesSend = copy.bytesSend;
 	errCgi = copy.errCgi;
+	state = copy.state;
 }
 
 CGI&	CGI::operator = (const CGI& src) {
@@ -46,6 +48,7 @@ CGI&	CGI::operator = (const CGI& src) {
 		_bodyCgi = src._bodyCgi;
 		bytesSend = src.bytesSend;
 		errCgi = src.errCgi;
+		state = src.state;
 	}
 	return *this;
 }
@@ -76,6 +79,11 @@ void	CGI::setStateMethod(std::string method) {
 
 void	CGI::setState(CGIState step) {
 	state = step;
+}
+
+void	CGI::setState(CGIState step, int err) {
+	state = step;
+	this->errCgi = err;
 }
 
 void	CGI::setFork() {
@@ -155,4 +163,18 @@ bool	CGI::checkSocket(int fd) {
 	if (_socket[0] == fd || _socket[1] == fd)
 		return true;
 	return false;
+}
+
+  /***********/
+ /*	UTILS	*/
+/*	********/
+
+
+
+std::string	CGI::createScriptPath(const std::string root, const std::string path) {
+	size_t	i = path.find("/", 1);
+
+	if (i != std::string::npos)
+		return root + path.substr(i + 1);
+	return "";
 }

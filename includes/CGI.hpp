@@ -58,6 +58,7 @@ class CGI {
 		void	setSocketVector();
 		void	setStateMethod(std::string method);
 		void	setState(CGIState step);
+		void	setState(CGIState step, int err);
 		void	setFork();
 		void	setDup2();
 		void	setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event, int socketClient);
@@ -76,4 +77,7 @@ class CGI {
 
 		//CHILD
 		static void		ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
+
+		static std::string	createScriptPath(const std::string root, const std::string path);
+
 };

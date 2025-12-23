@@ -361,17 +361,20 @@ bool	Client::isCGI() {
 
 void	Client::setCgi(Server &server) {
 
-	// const std::string &path = this->_requestParser->getPath();
+	// check if in CGI 
+	const std::string &path = this->_requestParser->getPath();
 	ssize_t	index = this->getLocationIndex();
-	// const std::map<std::string, std::string>&	cgiConfig = server.getCgiConfig(index);
-	// const std::string							&root = server.getRoot(index);
-	// PATH CGI, php, python etc
-	// const std::map<std::string, std::string>&    getCgiConfig(size_t index) const;
-	// avec end of path
+	//get path to executable
+	const std::map<std::string, std::string>&	cgiConfig = server.getCgiConfig(index);
+	//get root
+	const std::string							&root = server.getRoot(index);
+	//get extension executable for cgiConfig
+	const std::string							extension = Request::getExtension(path);
 
-	//ROOT : const std::string&    getRoot(size_t index) const;
-	std::cout << "Root -> " << server.getRoot(index) << std::endl;
+	std::string	cgiPath = cgiConfig.at(extension);
+	std::string scriptPath = CGI::createScriptPath(root, path);
 
+	this->_CGI = new CGI(cgiPath, scriptPath);
 }
 
 bool	Client::CheckCGI() {
@@ -380,18 +383,18 @@ bool	Client::CheckCGI() {
 		return true;
 	//get pathcgi
 	this->setCgi(*this->getPtrServer());
-	if (this->_requestParser->isPython()) {
-		this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
-		//check si on a beosin du root pour choper le chemin du script
-		this->_CGI->setState(CGI_NEW_EPOLL);
-	}
-	else if (this->_requestParser->isPhp()) {
-		this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
-		this->_CGI->setState(CGI_NEW_EPOLL);
-	}
-	else {
-		return false;
-	}
+	// if (this->_requestParser->isPython()) {
+	// 	this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
+	// 	//check si on a beosin du root pour choper le chemin du script
+	// 	this->_CGI->setState(CGI_NEW_EPOLL);
+	// }
+	// else if (this->_requestParser->isPhp()) {
+	// 	this->_CGI = new CGI("/bin/php-cgi", this->_requestParser->getPath());
+	// 	this->_CGI->setState(CGI_NEW_EPOLL);
+	// }
+	// else {
+	// 	return false;
+	// }
 	return true;
 }
 

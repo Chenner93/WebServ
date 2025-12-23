@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check_if_CGI.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 14:16:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/10 13:26:00 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/12/23 14:09:51 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,4 +47,14 @@ void Request::extract_path_after_sign(const std::string &path, char sign)
         return;
     }
     path_after_sign = path.substr(pos + 1);
+}
+
+const std::string Request::getExtension(std::string path) {
+
+	size_t	findLast = 0;
+	findLast = path.rfind(".");
+	if (findLast == std::string::npos)
+		return "";
+
+	return path.substr(findLast);
 }

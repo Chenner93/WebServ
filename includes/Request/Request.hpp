@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/15 12:51:43 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/23 13:34:50 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,13 @@ class Request
     const std::vector<FormDataPart>& getFormDataParts() const;
     static std::vector<FormDataPart> parseMultipartFormData(const std::string& body, const std::string& boundary);
 	std::string	getPath();
-	bool 		check_path_cgi(const std::string &path, const std::string &suffix);
-    void        extract_path_after_sign(const std::string &path, char sign);
-	bool		isPython();
-	bool		isPhp();
-	bool		Python_Or_Php();
 
+	bool 	check_path_cgi(const std::string &path, const std::string &suffix);
+    void	extract_path_after_sign(const std::string &path, char sign);
+	bool	isPython();
+	bool	isPhp();
+	bool	Python_Or_Php();
+	static const std::string	getExtension(std::string path);
 
    
 };

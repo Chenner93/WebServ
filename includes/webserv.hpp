@@ -25,4 +25,3 @@
 #include <cstdlib>      // Pour std::exit, std::atoi, etc.
 #include <csignal>      // Pour std::signal, SIGINT, etc.
 #include <sys/wait.h>	// Pour waitpid
-
