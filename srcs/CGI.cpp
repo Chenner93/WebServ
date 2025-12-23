@@ -175,6 +175,6 @@ std::string	CGI::createScriptPath(const std::string root, const std::string path
 	size_t	i = path.find("/", 1);
 
 	if (i != std::string::npos)
-		return root + path.substr(i + 1);
+		return root + path.substr(i);
 	return "";
 }

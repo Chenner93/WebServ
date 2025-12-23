@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 14:16:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/23 14:09:51 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/23 14:55:59 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ std::string	Request::getPath() {
 bool Request::check_path_cgi(const std::string &path, const std::string &suffix) 
 {
 	if (path.length() < suffix.length())
-	return false;
-return path.compare(path.length() - suffix.length(), suffix.length(), suffix) == 0;
+		return false;
+	return path.compare(path.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
 bool	Request::isPython() {

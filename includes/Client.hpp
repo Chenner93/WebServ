@@ -62,7 +62,7 @@ class	Client {
 		void	appendRequest(char buffer[B_READ + 1]);
 		void	appendRequest(char buffer[B_READ + 1], ssize_t bytesread);
 
-		void	setCgi(Server &server);
+		bool	setCgi(Server &server);
 
 		void	updateLastActivity();
 

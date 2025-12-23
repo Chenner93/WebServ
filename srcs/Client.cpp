@@ -359,9 +359,12 @@ bool	Client::isCGI() {
 	return false;
 }
 
-void	Client::setCgi(Server &server) {
+bool	Client::setCgi(Server &server) {
 
 	// check if in CGI 
+	if (this->_requestParser->Python_Or_Php() == false)
+		return false;
+
 	const std::string &path = this->_requestParser->getPath();
 	ssize_t	index = this->getLocationIndex();
 	//get path to executable
@@ -375,6 +378,9 @@ void	Client::setCgi(Server &server) {
 	std::string scriptPath = CGI::createScriptPath(root, path);
 
 	this->_CGI = new CGI(cgiPath, scriptPath);
+	std::cout << MAGENTA << cgiPath << std::endl;
+	std::cout << scriptPath << RESET << std::endl;
+	return true;
 }
 
 bool	Client::CheckCGI() {
@@ -382,7 +388,7 @@ bool	Client::CheckCGI() {
 	if (this->isCGI())
 		return true;
 	//get pathcgi
-	this->setCgi(*this->getPtrServer());
+	return this->setCgi(*this->getPtrServer());
 	// if (this->_requestParser->isPython()) {
 	// 	this->_CGI = new CGI("/bin/python3", this->_requestParser->getPath());// ajouter le chemin de python ou php en fonction du truc
 	// 	//check si on a beosin du root pour choper le chemin du script
