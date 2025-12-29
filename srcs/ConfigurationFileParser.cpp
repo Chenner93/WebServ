@@ -249,7 +249,6 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 				// 	err << "CGI interpreter not found or not executable: " << cgi_config[1];
 				// 	throw std::runtime_error(err.str());
 				// }
-				std::cout << "CGI Config -> Extension: " << cgi_config[0] << " Path: " << cgi_config[1] << std::endl;
 				location.cgi[cgi_config[0]] = cgi_config[1];
 			}
 		}
