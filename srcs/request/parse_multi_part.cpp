@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 12:08:53 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/11/28 18:40:51 by ckenaip          ###   ########.fr       */
+/*   Updated: 2025/12/29 21:00:50 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,8 +130,8 @@ Request::parseMultipartFormData(const std::string& body, const std::string& boun
 	std::vector<FormDataPart> parts;
 	std::string sep = "--" + boundary;
 	std::string end = sep + "--";
-	std::cout << YELLOW << "[DEBUG multipart] boundary: " << boundary << RESET << std::endl;
-	std::cout << CYAN << "[DEBUG multipart] body raw:\n" << body << "\n" << RESET << std::endl;
+	// std::cout << YELLOW << "[DEBUG multipart] boundary: " << boundary << RESET << std::endl;
+	// std::cout << CYAN << "[DEBUG multipart] body raw:\n" << body << "\n" << RESET << std::endl;
 
 	size_t start = 0;
 	while (true)

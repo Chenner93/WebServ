@@ -41,6 +41,7 @@ class CGI {
 		std::string	_bodyCgi;
 		size_t		bytesSend;
 		int			errCgi;
+		// std::string	errMessage;
 
 	public:
 		CGI(const std::string& cgi_path, const std::string& script_path);
@@ -75,7 +76,9 @@ class CGI {
 		bool		hasError();
 
 		//CHILD
-		static void		ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
+		static void		ManageErrExecve(std::vector<Client> &clients);
+		static void		closeAllSocket(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
+
 
 		static std::string	createScriptPath(const std::string root, const std::string path);
 		static std::string	sendError(int code, const std::string& msg, const Server &server);

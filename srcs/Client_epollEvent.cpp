@@ -65,20 +65,12 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 		// Si tout le corps a été reçu
 		if (req.size() >= total_needed)
 		{
-			// std::cout << MAGENTA << "[DEBUG] Request complete (" << req.size()
-			// 		  << "/" << total_needed << " bytes)" << RESET << std::endl;
-
 			event.events = EPOLLOUT;
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
 			{
 				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 				Client::closingClient(epoll_fd, event.data.fd, clients);
 			}
-		}
-		else
-		{
-			// std::cout << CYAN << "[DEBUG] Partial body received (" << req.size()
-			// 		  << "/" << total_needed << " bytes)" << RESET << std::endl;
 		}
 	}
 }

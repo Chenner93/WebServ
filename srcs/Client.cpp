@@ -189,7 +189,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(fd);
-	if (it->isCGI()) {
+	if (it->isCGI() && it->_CGI->getSocketParent() > 0) {
 		close(it->_CGI->getSocketParent());
 	}
 	it->resetAll();
@@ -279,8 +279,6 @@ void	Client::ParseRequest() {
 		return ;
 
 	this->_requestParser = new Request(*this->getRequest(), this->getPtrServer());
-	// this->_requestParser->parse_url();
-	// this->_requestParser->print_request(*this->_requestParser);
 	
 	// --- DEBUG MULTIPART ---
 	const std::map<std::string, std::string> &headers = this->_requestParser->getHeaders();
@@ -294,18 +292,9 @@ void	Client::ParseRequest() {
 			std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
 		else
 		{
-			// std::cout << YELLOW << "[DEBUG] Boundary détectée : "
-			// << boundary << RESET << std::endl;
-
 			std::vector<FormDataPart> parts =
 				this->_requestParser->parseMultipartFormData(this->_requestParser->getBody(), boundary);
-
-			// this->_requestParser->printFormDataParts(parts);
 		}
-	}
-	else
-	{
-		// std::cout << YELLOW << "[DEBUG] Requête non multipart." << RESET << std::endl;
 	}
 
 	updateLastActivity();
@@ -364,6 +353,7 @@ bool	Client::setCgi(Server &server) {
 
 	const std::string &path = this->_requestParser->getPath();
 	ssize_t	index = this->getLocationIndex();
+
 	//get path to executable
 	const std::map<std::string, std::string>&	cgiConfig = server.getCgiConfig(index);
 	//get root
@@ -371,7 +361,16 @@ bool	Client::setCgi(Server &server) {
 	//get extension executable for cgiConfig
 	const std::string							extension = Request::getExtension(path);
 
-	std::string	cgiPath = cgiConfig.at(extension);
+	std::string	cgiPath;
+	try {
+		cgiPath = cgiConfig.at(extension);
+	}
+	catch (std::exception &e) {
+		std::cout << RED << "invalid Path Error 404" RESET << std::endl;
+		this->_CGI = new CGI("", "");
+		this->_CGI->setState(CGI_ERR, 404);
+		return true;
+	}
 	std::string scriptPath = CGI::createScriptPath(root, path);
 
 	this->_CGI = new CGI(cgiPath, scriptPath);

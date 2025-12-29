@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-import time
 
-def lignes_droles_et_intelligentes():
-    # Headers CGI
-    print("Content-Type: text/plain; charset=utf-8")
-    print("Status: 200x")
-    print()  # Ligne vide, SEP for header
-    
+def lignes_droles_et_intelligentes():    
     lignes = [
         "Si le savoir c'est le pouvoir, alors Google est un super-héros sous caféine.",
         "J'ai demandé à mon code d'être propre. Il a répondu : 'Je suis développeur, pas la vaisselle.'",
@@ -22,8 +16,6 @@ def lignes_droles_et_intelligentes():
 
     for ligne in lignes:
         print(ligne)
-
-    # time.sleep(5)
 
 if __name__ == "__main__":
     lignes_droles_et_intelligentes()

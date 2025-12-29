@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/29 15:40:29 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/12/29 21:01:29 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,26 +36,24 @@ std::string join_path(const std::string& a, const std::string& b)
 
 static void debug_headers(const std::map<std::string, std::string>& headers)
 {
-	std::cout << CYAN << "[DEBUG] Request Headers:" << RESET << std::endl;
+	// std::cout << CYAN << "[DEBUG] Request Headers:" << RESET << std::endl;
 
 	if (headers.empty())
 	{
-		std::cout << "  (aucun header)" << std::endl;
+		// std::cout << "  (aucun header)" << std::endl;
 		return;
 	}
 
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin();
 		 it != headers.end(); ++it)
 	{
-		std::cout << "  " << it->first << ": " << it->second << std::endl;
+		// std::cout << "  " << it->first << ": " << it->second << std::endl;
 	}
 }
 
 // // response.cpp
 std::string Response::Methodes(const Request &request, const Server &server)
 {
-    
-    std::cout<<YELLOW<<"PASS HERE in  Mehtode METHODE"<<std::endl;
     debug_headers(request.getHeaders());
     // 405 si méthode non autorisée par la location
     if (!server.isMethodAllowed(request.getPath(), request.getMethod()))
@@ -67,8 +65,6 @@ std::string Response::Methodes(const Request &request, const Server &server)
         return handlePost(request, server);
     else if (request.getMethod() == "DELETE")
         return handleDelete(request, server);
-    // else if (request.getMethod() == "HEAD")
-    //     return handleHead(request,server);
     
     return sendError(501, "Not Implemented", server);
 }
@@ -359,10 +355,10 @@ std::string Response::handleHead(const Request &request, const Server &server)
     std::string root   = server.getRoot(loc);
     std::string rel    = strip_location_prefix(path, server.getLocationPath(loc));
     std::string fsPath = join_path(root, rel);
-    std::cout << CYAN
-          << "root: "   << root   << "\n"
-          << "rel: "    << rel    << "\n"
-          << "fsPath: " << fsPath << RESET << std::endl;
+    // std::cout << CYAN
+    //       << "root: "   << root   << "\n"
+    //       << "rel: "    << rel    << "\n"
+    //       << "fsPath: " << fsPath << RESET << std::endl;
 
     struct stat st;
     if (stat(fsPath.c_str(), &st) != 0 || !S_ISREG(st.st_mode))

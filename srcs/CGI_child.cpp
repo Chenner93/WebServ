@@ -7,8 +7,7 @@ void	CGI::setDup2() {
 	close(getSocketChild());
 }
 
-void	CGI::ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients) {
-
+void	CGI::closeAllSocket(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients) {
 	{//Closing fd server
 		std::vector<Server>::iterator	it;
 		for (it = servers.begin(); it != servers.end(); ++it) {
@@ -19,10 +18,19 @@ void	CGI::ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vect
 		std::vector<Client>::iterator	it;
 		for (it = clients.begin(); it != clients.end(); ++it) {
 			close(it->getSocket());
-			it->resetAll();
 		}
 	}
 	close(epoll_fd);
+}
+
+void	CGI::ManageErrExecve(std::vector<Client> &clients) {
+
+	{//free data
+		std::vector<Client>::iterator	it;
+		for (it = clients.begin(); it != clients.end(); ++it) {
+			it->resetAll();
+		}
+	}
 	exit(EXIT_FAILURE);
 }
 
