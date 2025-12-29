@@ -6,7 +6,7 @@
 /*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/29 08:33:04 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/12/29 15:40:29 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -447,4 +447,32 @@ std::string Response::getContentType(const std::string& path)
 	if (mimeTypes.count(ext))
 		return mimeTypes[ext];
 	return "application/octet-stream";
+}
+
+void Response::saveFormDataToDisk(const FormDataPart& part,
+                                  const std::string& base_dir)
+{
+    std::string safe = part.filename;
+    if (safe.empty())
+    {
+        std::ostringstream oss;
+        oss << "upload_" << std::time(0) << ".bin";
+        safe = oss.str();
+    }
+
+    if (safe.find('/') != std::string::npos)
+        safe = safe.substr(safe.find_last_of('/') + 1);
+    if (safe.find('\\') != std::string::npos)
+        safe = safe.substr(safe.find_last_of('\\') + 1);
+
+    std::string full = join_path(base_dir, safe);
+    std::ofstream file(full.c_str(), std::ios::binary);
+    if (!file.is_open())
+        throw std::runtime_error("cannot open upload target");
+
+    file << part.content;
+    file.close();
+
+    std::cout << GREEN << "[DEBUG] Saved file → " << full
+              << " (" << part.content.size() << " bytes)" << RESET << std::endl;
 }
