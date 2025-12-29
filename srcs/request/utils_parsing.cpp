@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_parsing.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:05:27 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/10/29 15:40:31 by kahoumou         ###   ########.fr       */
+/*   Updated: 2025/12/29 08:34:07 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,11 +115,6 @@ std::string utils_parsing::to_lower(const std::string &str)
 		result += std::tolower(static_cast<unsigned char>(str[i]));
 	return (result);
 }
-
-// GET /search?q=Jean%20Dupont&ville=St%20Ouen HTTP/1.1
-// q     → "Jean Dupont"
-// ville → "St Ouen"
-
 
 std::string utils_parsing::decode_url(const std::string& url_str)
 {

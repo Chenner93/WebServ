@@ -6,7 +6,7 @@
 /*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/19 09:31:52 by thbasse          ###   ########.fr       */
+/*   Updated: 2025/12/29 08:33:04 by thbasse          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ std::string join_path(const std::string& a, const std::string& b)
     if (a[a.size()-1] != '/' && b[0] != '/') return a + "/" + b;
     return a + b;
 }
-
 
 static void debug_headers(const std::map<std::string, std::string>& headers)
 {
@@ -73,9 +72,6 @@ std::string Response::Methodes(const Request &request, const Server &server)
     
     return sendError(501, "Not Implemented", server);
 }
-
-
-
 
 // // Modification dans handleGet pour intégrer l'autoindex
 std::string Response::handleGet(const Request &request, const Server &server)
@@ -156,81 +152,6 @@ std::string Response::handleGet(const Request &request, const Server &server)
 		<< bodyStr;
 	return res.str();
 }
-
-
-
-// std::string Response::handlePost(const Request &request, const Server &server)
-// {
-//     const std::string& path = request.getPath();
-//     int loc = server.findLocationIndex(path);
-//     if (loc == -1) return sendError(404, "Not Found");
-
-//     if (!server.getUploadEnabled(loc))
-//         return sendError(403, "Uploads not allowed");
-
-//     const std::string& uploadDir = server.getUploadPath(loc);
-//     if (uploadDir.empty())
-//         return sendError(500, "Upload path not configured");
-
-//     // 413 si le body (non-chunked) dépasse client_max_body_size
-//     const std::map<std::string, std::string>& headers = request.getHeaders();
-//     std::map<std::string, std::string>::const_iterator it = headers.find("content-length");
-//     if (it != headers.end()) {
-//         size_t cl = std::strtoul(it->second.c_str(), 0, 10);
-//         if (cl > server.getClientMaxBodySize())
-//             return sendError(413, "Payload Too Large");
-//     }
-
-//     // Multipart
-//     if (headers.count("content-type") &&
-//         headers.at("content-type").find("multipart/form-data") != std::string::npos)
-//     {
-//         std::string boundary = Request::ParseBoundary(headers);
-//         if (boundary.empty())
-//             return sendErro contentType;r(400, "Bad Request");
-
-//         std::vector<Request::FormDataPart> parts =
-//             Request::parseMultipartFormData(request.getBody(), boundary);
-
-//         for (size_t i = 0; i < parts.size(); ++i) {
-//             if (!parts[i].filename.empty()) {
-//                 // Sauvegarde dans le répertoire configuré
-//                 saveFormDataToDisk(parts[i], uploadDir);
-//             }
-//         }
-
-//         const std::string msg = "Upload terminé avec succès.";
-//         std::ostringstream r;
-//         r << "HTTP/1.1 200 OK\r\n"
-//           << "Content-Type: text/plain\r\n"
-//           << "Content-Length: " << msg.size() << "\r\n"
-//           << "\r\n"
-//           << msg;
-//         return r.str();
-//     }
-
-//     // POST non-multipart : on écrit le body brut dans un fichier daté/unique
-//     std::string filename = "upload.bin";
-//     {
-//         // facultatif: générer un nom unique
-//         static size_t n = 0;
-//         std::ostringstream oss; oss << "upload_" << ++n << ".bin";
-//         filename = oss.str();
-//     }
-
-//     std::string full = join_path(uploadDir, filename);
-//     std::ofstream out(full.c_str(), std::ios::binary);
-//     if (!out.is_open())
-//         return sendError(500, "Internal Server Error");
-//     out << request.getBody();
-//     out.close();
-
-//     std::ostringstream r;
-//     r << "HTTP/1.1 201 Created\r\n"
-//       << "Content-Length: 0\r\n"
-//       << "Connection: keep-alive\r\n\r\n";
-//     return r.str();
-// }
 
 std::string Response::resolveUploadPath(const Server &server, int loc, const std::string &filename) const
 {
@@ -404,9 +325,6 @@ std::string Response::handlePost(const Request &request, const Server &server)
     return sendError(400, "Bad Request: Unsupported POST format", server);
 }
 
-
-
-
 std::string Response::handleDelete(const Request &request, const Server &server)
 {
     const std::string& path = request.getPath();
@@ -460,96 +378,6 @@ std::string Response::handleHead(const Request &request, const Server &server)
 
     return res.str();
 }
-
-
-// void Response::saveFormDataToDisk(const Request::FormDataPart& part,
-//                                   const std::string& upload_dir)
-// {
-//     std::string safe = part.filename;
-//     if (safe.find('/') != std::string::npos)   safe = safe.substr(safe.find_last_of('/') + 1);
-//     if (safe.find('\\') != std::string::npos)  safe = safe.substr(safe.find_last_of('\\') + 1);
-
-//     std::string full = join_path(upload_dir, safe);
-//     std::ofstream file(full.c_str(), std::ios::binary);
-//     if (!file.is_open())
-//         throw std::runtime_error("cannot open upload target");
-//     file << part.content;
-//     file.close();
-// }
-
-
-void Response::saveFormDataToDisk(const FormDataPart& part,
-                                  const std::string& base_dir)
-{
-    std::string safe = part.filename;
-    if (safe.empty())
-    {
-        std::ostringstream oss;
-        oss << "upload_" << std::time(0) << ".bin";
-        safe = oss.str();
-    }
-
-    if (safe.find('/') != std::string::npos)
-        safe = safe.substr(safe.find_last_of('/') + 1);
-    if (safe.find('\\') != std::string::npos)
-        safe = safe.substr(safe.find_last_of('\\') + 1);
-
-    std::string full = join_path(base_dir, safe);
-    std::ofstream file(full.c_str(), std::ios::binary);
-    if (!file.is_open())
-        throw std::runtime_error("cannot open upload target");
-
-    file << part.content;
-    file.close();
-
-    std::cout << GREEN << "[DEBUG] Saved file → " << full
-              << " (" << part.content.size() << " bytes)" << RESET << std::endl;
-}
-
-
-
-// std::string Response::sendError(int code, const std::string& msg)
-// {
-// 	std::ostringstream response;
-//     std::string error_path;
-//     switch (code)
-// 	{
-// 		case 404: error_path = "tmp/www/error_pages/404.html"; break;
-// 		// case 403: error_path = "tmp/www/error_pages/403.html"; break;
-// 		// case 500: error_path = "tmp/www/error_pages/500.html"; break;
-// 		default:  error_path = ""; break;
-// 	}
-
-//     std::string body;
-// 	std::string ctype = "text/plain";
-//     if (!error_path.empty())
-// 	{
-// 		std::ifstream file(error_path.c_str(), std::ios::binary);
-// 		if (file.is_open())
-// 		{
-// 			std::ostringstream buf;
-// 			buf << file.rdbuf();
-// 			body = buf.str();
-// 			file.close();
-// 			ctype = "text/html";
-// 		}
-// 	}
-//     if (body.empty())
-//     {
-//         std::ostringstream oss;
-//         oss << code;
-//         body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
-
-//     }
-//     response << "HTTP/1.1 " << code << " " << msg << "\r\n"
-// 			 << "Content-Type: " << ctype << "\r\n"
-// 			 << "Content-Length: " << body.size() << "\r\n"
-// 			 << "Connection: close\r\n\r\n"
-// 			 << body;
-//     std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;       
-// 	return response.str();
-// }
-
 
 std::string Response::sendError(int code, const std::string& msg, const Server &server)
 {
