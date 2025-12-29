@@ -233,6 +233,9 @@ void	Client::checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd) {
 	
 	while (it != clients.end()) {
 		if (it->isTimeOut() == true) {
+			if (it->isCGI() == true) {
+				it->_CGI->setState(CGI_ERR, 500);
+			}
 			std::cout << BLUE "Client timed out (socket:" << it->getSocket()
 					<< ", inactive for " << difftime(time(NULL), it->getLastActivity())
 					<< " seconds)" RESET << std::endl;
@@ -328,12 +331,7 @@ void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &even
 		bytesToSend, 0);
 
 	if (bSend < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-			// Erreur douce, on retente apres
-			return ;
-		}
 		std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
-		//close le client, erreur grave;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return ;
 	}

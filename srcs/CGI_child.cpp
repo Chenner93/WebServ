@@ -28,6 +28,9 @@ void	CGI::ManageErrExecve(int &epoll_fd, std::vector<Server> &servers, std::vect
 
 void	CGI::execCGI(Request *httpRequest) {
 
+	std::vector<std::string>	envVector;
+	
+
 	std::string	path_str = this->getCgiPath();
 	std::string	scriptPath_str = this->getScriptPath();
 	const char	*path = path_str.c_str();

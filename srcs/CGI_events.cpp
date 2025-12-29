@@ -93,7 +93,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
     	this->state = CGI_SEND;
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_SEND) {
-		//send response body mais on a pas encore send le header
+
 		size_t	bytesToSend = B_SEND;
 		if (bytesSend + B_SEND > this->_bodyCgi.size()) {
 			bytesToSend = this->_bodyCgi.size() - bytesSend;
@@ -101,10 +101,6 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		ssize_t	bSend = 0;
 		bSend = send(client.getSocket(), this->_bodyCgi.c_str() + bytesSend, bytesToSend, 0);
 		if (bSend < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-				// Erreur douce, on retente apres
-				return ;
-			}
 			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR);
 			return ;

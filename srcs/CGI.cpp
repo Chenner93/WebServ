@@ -25,7 +25,7 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 }
 
 CGI::CGI(const CGI& copy) {
-	// std::cout << CYAN "Copy CGI Called" RESET << std::endl;
+
 	state = copy.state;
 	_cgi_path = copy._cgi_path;
 	_script_path = copy._script_path;
@@ -39,7 +39,7 @@ CGI::CGI(const CGI& copy) {
 }
 
 CGI&	CGI::operator = (const CGI& src) {
-	// std::cout << CYAN "Ope = CGI Called" RESET << std::endl;
+
 	if (this != &src) {
 		state = src.state;
 		_cgi_path = src._cgi_path;
@@ -55,9 +55,7 @@ CGI&	CGI::operator = (const CGI& src) {
 	return *this;
 }
 
-CGI::~CGI() {
-	// std::cout << "Destructor CGI Called" << std::endl;
-}
+CGI::~CGI() {}
 
 /*	SETTER	*/
 
@@ -109,12 +107,10 @@ void	CGI::setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_even
 	event.data.fd = this->getSocketParent();
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketClient, 0) < 0) {
 		std::cerr << RED "Error: epoll_ctl in CGI: blops " RESET << std::strerror(errno) << std::endl;
-		//kill child, send right error wait pid pour zombie;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 	}
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->getSocketParent(), &event) < 0) {
 		std::cerr << RED "Error: epoll_ctl in CGI: blops" RESET << std::strerror(errno) << std::endl;
-		//kill child, send right error wait pid pour zombie;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 	}
 	std::cerr << CYAN "CLIENT DEL IN EPOLL" RESET << std::endl;

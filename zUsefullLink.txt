@@ -24,34 +24,14 @@ To-Do list :
 	rentre la reponse non bloquante
 	utiliser EPOLLHUB pour les CGIs
 	EPOLLERR   // Erreur sur le fd
-	struct CGIrequest en plus
-	
 
-enum CGIState {
-    PARSING_HEADERS,
-    SENDING_BODY
-};
-
-struct CGIRequest {
-    int cgi_fd;
-    int client_fd;
-    CGIState state;
-    std::string header_buffer;  // Bufferiser jusqu'à \r\n\r\n, avec NEW
-    int status_code;			// Pour le waitpid
-    std::map<string, string> cgi_headers;	// Gerer le lenght 
-};
-
-
-Ptin jvoulais stream, pas stocker moi :(
-Pas oublier le time OUT
 
 =====================================================================
 						TO DO LIST;
 =====================================================================
 
--> changer setenv()
--> creer la class _location (potentiellement)
--> changer chemin executable cgi dans fichier de config
--> error page
--> refacto tout le code 
+-> changer setenv() dans CGIChild
+-> header dans CGI
+	-> check if header ifnot err500
+	->
 -> fin du monde 

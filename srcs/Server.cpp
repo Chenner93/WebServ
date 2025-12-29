@@ -2,7 +2,6 @@
 #include<../includes/Request/Request.hpp>
 
 Server::Server() {
-	// std::cout << "Constructor Server Called" << std::endl;
 	_name = "ServerTest";
 	_ip = "127.0.0.1";
 	_port = 8080;
@@ -10,12 +9,9 @@ Server::Server() {
 	_client_max_body_size = 1048576; // 1MB par défaut
 }
 
-Server::~Server() {
-	// std::cout << "Destructor Server Called" << std::endl;
-}
+Server::~Server() {}
 
 Server::Server(const Server& copy) {
-	// std::cout << BLUE "Copy Server Called" RESET << std::endl;
 
 	_name = copy.getName();
 	_ip = copy.getIp();
@@ -36,7 +32,7 @@ Server::Server(const Server& copy) {
 }
 
 Server&	Server::operator = (const Server& src) {
-	// std::cout << "Ope = Server Called" << std::endl;
+
 	if (this == &src)
 		return *this;
 	_name = src.getName();
@@ -251,10 +247,6 @@ void Server::initServer(const ServerConfig& config) {
 				   loc.autoindex, loc.index, loc.upload_path, 
 				   loc.upload_enabled, loc.cgi);
 	}
-	
-	// std::cout << GREEN << "[INFO] Server initialized: " << _name 
-	// 		  << " on " << _ip << ":" << _port << RESET << std::endl;
-	// std::cout << "  - " << _location_paths.size() << " locations loaded" << std::endl;
 }
 
 /*********** GESTION DES LOCATIONS ***********/
@@ -305,23 +297,6 @@ std::string Server::getErrorPage(int error_code) const {
 	return "";
 }
 
-// bool Server::isMethodAllowed(const std::string& path, const std::string& method) const {
-// 	int location_index = findLocationIndex(path);
-	
-// 	if (location_index == -1) {
-// 		return false;
-// 	}
-	
-// 	const std::vector<std::string>& allowed_methods = _allow_methods_per_location[location_index];
-// 	for (size_t i = 0; i < allowed_methods.size(); ++i) {
-// 		if (allowed_methods[i] == method) {
-// 			return true;
-// 		}
-// 	}
-	
-// 	return false;
-// }
-
 bool Server::isMethodAllowed(const std::string& path, const std::string& method) const {
     int location_index = findLocationIndex(path);
     if (location_index == -1)
@@ -371,9 +346,9 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 	close(epfd);
 }
 
-   /********* */
-  /*	DEBUG*/
- /********* */
+   /************ */
+  /*	DEBUG	*/
+ /************ */
 
 void Server::printServerInfo() const {
 	std::cout << CYAN << "=== Server Information ===" << RESET << std::endl;

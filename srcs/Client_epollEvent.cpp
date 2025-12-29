@@ -8,18 +8,12 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	memset(buffer, 0, sizeof(buffer));
 
 	ssize_t bytesread = recv(event.data.fd, buffer, B_READ, 0);
-	if (bytesread == 0)//Attention gerer si == 0 ou < 0
+	if (bytesread == 0)
 	{
-		// std::cout << CYAN "CLOSING CLIENT" RESET << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return;
 	}
 	else if (bytesread < 0) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
-			if (errno == EAGAIN)	
-				// std::cout << CYAN "EAGAAAAAAAAAAAAIN" RESET << std::endl;
-			return ;
-		}
 		std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return ;
