@@ -64,9 +64,8 @@ class	Client {
 
 		bool	setCgi(Server &server);
 
-		void	updateLastActivity();
-
-	/*	GETTER	*/
+		
+		/*	GETTER	*/
 		int					getSocket() const;
 		Server				*getPtrServer() const;
 		int					getAddrlen() const;
@@ -74,24 +73,24 @@ class	Client {
 		std::string			*getRequest() const;
 		bool				getKeepAlive() const;
 		static Client		&getClient(int fd, std::vector<Client> &clients);
-		ssize_t	getLocationIndex() const;
-
+		ssize_t				getLocationIndex() const;
 		time_t				getLastActivity() const;
-		bool				isTimeOut() const;
-
-	/*	STATIC	*/
+		
+		/*	STATIC	*/
 		static bool	isClientSocket(int fd, std::vector<Client> &clients);
 		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);
 		static void	epollinEvent(std::vector<Client> &clients, struct epoll_event &event, int epoll_fd);
 		static void epolloutEvent(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 		static void checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd);
-
-	/*	UTILS	*/
+		
+		/*	UTILS	*/
 		void	sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd);
 		void	ParseRequest();
 		bool	isCGI();
 		bool	CheckCGI();
 		void	ParseResponse();
 		void	resetAll();
-};
+		void	updateLastActivity();
+		bool	isTimeOut() const;
+	};

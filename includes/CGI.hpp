@@ -42,7 +42,6 @@ class CGI {
 		size_t		bytesSend;
 		int			errCgi;
 
-
 	public:
 		CGI(const std::string& cgi_path, const std::string& script_path);
 		CGI(const CGI& copy);
