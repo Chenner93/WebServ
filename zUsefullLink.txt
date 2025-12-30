@@ -22,15 +22,17 @@ https://www.codequoi.com/en/sockets-and-network-programming-in-c/ (eng)
 						TO DO LIST;
 =====================================================================
 
-DONE -> changer setenv() dans CGIChild
+A REFAIRE -> changer setenv() dans CGIChild
 DONE -> Mauvais chemin CGI ca boucle infini		+		Err close
 DONE -> Ajout content lenght PLUS BUGGUER !
 -> Time Out CGI
--> header dans CGI
-	-DONE-	-> check if header ifnot err500 
-	-DONE-	-> if header with Status: <code> <message>
-	-DONE-	-> check if GET && POST autoriser in local
+-DONE-	-> header dans CGI
+		-DONE-	-> check if header ifnot err500 
+		-DONE-	-> if header with Status: <code> <message>
+		-DONE-	-> check if GET && POST autoriser in local
 -> fin du monde 
 -> RETIRER TOUT LES STD::COUT et cerr pour vitesse ?
 -> fin du monde 
 
+-> FULL TEST cgi POST GET DELETE
+	classique DEL Et POST (GET fonctionne)

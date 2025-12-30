@@ -31,8 +31,8 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 
 		if (bytesread == 0)
 		{
-			close(this->getSocketParent());
 			epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, 0);	//suppress CGI fd from epoll
+			close(this->getSocketParent());
 			this->state = CGI_DONE;
 			event.events = EPOLLOUT;
 			event.data.fd = client.getSocket();

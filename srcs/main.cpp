@@ -102,10 +102,17 @@ int main(int ac, char **av)
 			std::cerr << RED "Error epoll_wait: " RESET << std::strerror(errno) << std::endl;
 			break;
 		}
-	
+		
+		std::vector<int> seen_fds;
+		seen_fds.clear();
+
 		for (int i = 0; i < n; i++)
 		{
-
+			if (std::find(seen_fds.begin(), seen_fds.end(), events[i].data.fd) != seen_fds.end()) {
+				std::cerr << RED << "⚠️ DUPLICATE FD " << events[i].data.fd << " in same batch! Skipping." << RESET << std::endl;
+				continue ;
+			}
+			seen_fds.push_back(events[i].data.fd);
 			if (Server::isServerSocket(events[i].data.fd, servers) && (events[i].events & EPOLLIN))
 			{
 				Client::acceptClient(events[i].data.fd, servers, clients, epoll_fd);
@@ -150,6 +157,9 @@ int main(int ac, char **av)
 
 			if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
 			{
+				if (events[i].data.fd != client.getSocket()) {
+					std::cerr << RED "THE FUCK ?!!!" << std::endl;
+				}
 				Client::epollinEvent(clients, events[i], epoll_fd);
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))

@@ -211,7 +211,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		}
 	}
 	if (epoll_ctl(epfd, EPOLL_CTL_DEL, it->getSocket(), 0) < 0) {
-		// std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(it->getSocket());
 	it->resetAll();
