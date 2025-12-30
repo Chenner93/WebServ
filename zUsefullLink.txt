@@ -17,14 +17,6 @@ https://www.codequoi.com/programmation-reseau-via-socket-en-c/ (fr)
 https://www.codequoi.com/en/sockets-and-network-programming-in-c/ (eng)
 
 
-To-Do list :
-
-	bien recup la valeur de retour execve
-	regarder les codes d'erreurs adapter aux pages d'erreurs
-	rentre la reponse non bloquante
-	utiliser EPOLLHUB pour les CGIs
-	EPOLLERR   // Erreur sur le fd
-
 
 =====================================================================
 						TO DO LIST;
@@ -37,5 +29,6 @@ DONE -> Ajout content lenght PLUS BUGGUER !
 -> header dans CGI
 	-DONE-	-> check if header ifnot err500 
 	-DONE-	-> if header with Status: <code> <message>
-	-> check if GET && POST autoriser in local
+	-DONE-	-> check if GET && POST autoriser in local
 -> fin du monde 
+-> RETIRER TOUT LES STD::COUT et cerr pour vitesse ?

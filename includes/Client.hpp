@@ -22,6 +22,8 @@
 #include <stdlib.h>		// exit
 #include <Request/Response.hpp>
 #include <Request/Request.hpp>
+#include <signal.h>      // Pour SIGKILL, kill()
+#include <sys/wait.h>    // Pour waitpid(), WIFEXITED(), WEXITSTATUS()
 
 
 class	CGI;
@@ -77,6 +79,8 @@ class	Client {
 		time_t				getLastActivity() const;
 		
 		/*	STATIC	*/
+		static bool	checkClient(int fd, std::vector<Client> &clients);
+		
 		static bool	isClientSocket(int fd, std::vector<Client> &clients);
 		static void closingClient(int epfd, int fd, std::vector<Client> &clients);
 		static void	acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd);

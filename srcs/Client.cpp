@@ -150,6 +150,18 @@ ssize_t	Client::getLocationIndex() const {
  /*	STATIC	*/
 /********* */
 
+bool	Client::checkClient(int fd, std::vector<Client> &clients) {
+	std::vector<Client>::iterator	it;
+	for (it = clients.begin(); it != clients.end(); ++it) {
+		if (it->getSocket() == fd)
+			return true;
+		//check fd CGI
+		if (it->_CGI && it->_CGI->checkSocket(fd))
+			return true;
+	}
+	return false;
+}
+
 Client	&Client::getClient(int fd, std::vector<Client> &clients){
 	
 	std::vector<Client>::iterator	it;
@@ -160,6 +172,7 @@ Client	&Client::getClient(int fd, std::vector<Client> &clients){
 		if (it->_CGI && it->_CGI->checkSocket(fd))
 			return *it;
 	}
+	std::cerr << "Client not found for fd=" << fd << std::endl;
 	throw "Error getClient. Should never happens";
 }
 
@@ -173,6 +186,7 @@ bool	Client::isClientSocket(int fd, std::vector<Client> &clients) {
 	return false;
 }
 
+
 void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 
 	std::vector<Client>::iterator	it;
@@ -185,13 +199,24 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error closingClient:" RESET << "Should never happens" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	if (epoll_ctl(epfd, EPOLL_CTL_DEL, fd, 0) < 0) {
-		std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+	if (it->isCGI()) {
+        int cgi_fd = it->_CGI->getSocketParent();
+        if (cgi_fd > 0) {
+            epoll_ctl(epfd, EPOLL_CTL_DEL, cgi_fd, NULL);  // ← ESSENTIEL
+            close(cgi_fd);
+        }
+        if (it->_CGI->getPid() > 0) {
+            kill(it->_CGI->getPid(), SIGKILL);
+            waitpid(it->_CGI->getPid(), NULL, 0);  // ← ESSENTIEL
+        }
+    }
+	if (epoll_ctl(epfd, EPOLL_CTL_DEL, it->getSocket(), 0) < 0) {
+		// std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
-	close(fd);
-	if (it->isCGI() && it->_CGI->getSocketParent() > 0) {
-		close(it->_CGI->getSocketParent());
-	}
+	close(it->getSocket());
+	// if (it->isCGI() && it->_CGI->getSocketParent() > 0) {
+	// 	close(it->_CGI->getSocketParent());
+	// }
 	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
@@ -345,6 +370,8 @@ bool	Client::isCGI() {
 	return false;
 }
 
+
+
 bool	Client::setCgi(Server &server) {
 
 	// check if in CGI 
@@ -361,6 +388,15 @@ bool	Client::setCgi(Server &server) {
 	//get extension executable for cgiConfig
 	const std::string							extension = Request::getExtension(path);
 
+	//get Allowed method
+	const std::vector<std::string>				allowedMethod = server.getAllowMethods(index);
+	if (CGI::isMethodAllowed(allowedMethod, this->_requestParser->getMethod()) == false) {
+		std::cout << RED << "unAuthorized Method 405" RESET << std::endl;
+		this->_CGI = new CGI("", "");
+		this->_CGI->setState(CGI_ERR, 405);
+		return true;
+	}
+
 	std::string	cgiPath;
 	try {
 		cgiPath = cgiConfig.at(extension);
@@ -374,8 +410,6 @@ bool	Client::setCgi(Server &server) {
 	std::string scriptPath = CGI::createScriptPath(root, path);
 
 	this->_CGI = new CGI(cgiPath, scriptPath);
-	std::cout << MAGENTA << cgiPath << std::endl;
-	std::cout << scriptPath << RESET << std::endl;
 	return true;
 }
 

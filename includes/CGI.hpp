@@ -81,7 +81,8 @@ class CGI {
 
 
 		static std::string	createScriptPath(const std::string root, const std::string path);
-		static std::string	sendError(int code, const std::string& msg, const Server &server);
+		static std::string	sendError(int code, std::string msg, const Server &server);
+		static bool			isMethodAllowed(const std::vector<std::string> allowedMethod, std::string method);
 
 
 };

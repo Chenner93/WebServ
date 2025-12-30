@@ -177,8 +177,20 @@ std::string	CGI::createScriptPath(const std::string root, const std::string path
 	return "";
 }
 
-std::string CGI::sendError(int code, const std::string& msg, const Server &server)
+bool		CGI::isMethodAllowed(const std::vector<std::string> allowedMethod, std::string method) {
+	std::vector<std::string>::const_iterator	it;
+	for (it = allowedMethod.begin(); it != allowedMethod.end(); ++it) {
+		if (*it == method)
+			return true;
+	}
+	return false;
+}
+
+std::string CGI::sendError(int code, std::string msg, const Server &server)
 {
+	if (code == 405) {
+		msg = "Method Not Allowed";
+	}
 	std::ostringstream response;
 	std::string body;
 	std::string ctype = "text/html";

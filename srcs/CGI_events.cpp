@@ -58,8 +58,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			}	
 			return ;
 		}
-		std::string buff = buffer;
-		this->_bodyCgi += buff;
+		this->_bodyCgi.append(buffer, bytesread);
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_WRITING_BODY) {
 		//Send body to CGI then change to EPOLLIN
@@ -108,7 +107,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			else
 				cgi_headers.erase(status_pos);
 		}
-		if ((status < 100 || status > 599) && ) {
+		if (status < 100 || status > 599) {
 			std::cerr << RED "Invalid CGI status: " << status << RESET << std::endl;
 			this->setState(CGI_ERR, 500);
 			return;
@@ -132,7 +131,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		http_response += "\r\n\r\n";	// Fin headers HTTP
 		http_response += body;
 		
-		std::cout << MAGENTA << http_response << RESET << std::endl;
+		// std::cout << MAGENTA << http_response << RESET << std::endl;
     	_bodyCgi = http_response;
     	this->state = CGI_SEND;
 	}

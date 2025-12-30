@@ -112,8 +112,12 @@ int main(int ac, char **av)
 				continue;
 			}
 
+			if (Client::checkClient(events[i].data.fd, clients) == false) {
+				std::cerr << "Stale event for fd = " << events[i].data.fd << std::endl;
+				continue ;
+			}
+
 			Client &client = Client::getClient(events[i].data.fd, clients);
-			
 
 			if (client.isCGI() == true) {
 				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
