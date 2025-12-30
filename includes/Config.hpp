@@ -68,6 +68,8 @@ class Config
 
 		Config();
 		Config(const std::string &config_path);
+		Config(const Config &other);
+		Config &operator=(const Config &other);
 		~Config();
 
 		// Parsing principale

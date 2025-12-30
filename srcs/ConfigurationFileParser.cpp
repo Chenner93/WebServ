@@ -11,6 +11,19 @@ Config::Config()
 Config::Config(const std::string &file_path)
 	: config_file_path(file_path) {}
 
+Config::Config(const Config &other)
+	: servers(other.servers), config_file_path(other.config_file_path) {}
+
+Config &Config::operator=(const Config &other)
+{
+	if (this !=  &other)
+	{
+		servers = other.servers;
+		config_file_path = other.config_file_path;
+	}
+	return (*this);
+}
+
 Config::~Config() {}
 
 bool	Config::parseConfigFile(const std::string &config_path)
