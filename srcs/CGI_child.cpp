@@ -58,8 +58,7 @@ void	CGI::execCGI(Request *httpRequest) {
 		NULL
 	};
 
-	extern char **environ;
-	if (execve(path, av, environ) < 0) {
+	if (execve(path, av, envp.data()) < 0) {
 		std::cerr << RED "Error: execve" RESET << std::endl;
 	}
 }
