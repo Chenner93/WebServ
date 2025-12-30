@@ -14,7 +14,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 		return;
 	}
 	else if (bytesread < 0) {
-		std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
+		std::cerr << RED "Error recv: (epollinevent)" RESET << std::strerror(errno) << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 		return ;
 	}

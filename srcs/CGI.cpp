@@ -60,12 +60,9 @@ CGI::~CGI() {}
 /*	SETTER	*/
 
 void	CGI::setSocketVector() {
-//Mettre un catch a ce throw
 
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, _socket) == -1)
-	{
-		throw "Error: socketpair CGI";
-	}
+		throw std::runtime_error(std::string("CGI: socketpair failed: ") + std::strerror(errno));
 }
 
 void	CGI::setStateMethod(std::string method) {

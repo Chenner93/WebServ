@@ -4,9 +4,6 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 
 	Client &client = Client::getClient(event.data.fd, clients);
 
-	// if (this->getState() == CGI_ERR)
-	// 	return ;
-
 	if (_pid == -2 && this->getState() != CGI_ERR) {
 		//prep for child && add to epoll;
 		this->setSocketVector();
@@ -21,6 +18,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		else {
 			this->setEpoll(epoll_fd, clients, event, client.getSocket());
 			close(this->getSocketChild());
+			_socket[1] = -1;
 		}
 		return ;
 	}
@@ -76,8 +74,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 		return ;
 	}
-	else if (event.events & EPOLLOUT && this->state == CGI_DONE) {
-		
+	else if (event.events & EPOLLOUT && this->state == CGI_DONE) {;
 		// 1- CHECKif Header&Body
 		size_t	sep = _bodyCgi.find("\n\n");
 		size_t	offset = 2;
@@ -131,7 +128,6 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		http_response += "\r\n\r\n";	// Fin headers HTTP
 		http_response += body;
 		
-		// std::cout << MAGENTA << http_response << RESET << std::endl;
     	_bodyCgi = http_response;
     	this->state = CGI_SEND;
 	}

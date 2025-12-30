@@ -199,24 +199,21 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 		std::cerr << RED "Error closingClient:" RESET << "Should never happens" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	if (it->isCGI()) {
-        int cgi_fd = it->_CGI->getSocketParent();
-        if (cgi_fd > 0) {
-            epoll_ctl(epfd, EPOLL_CTL_DEL, cgi_fd, NULL);  // ← ESSENTIEL
-            close(cgi_fd);
-        }
-        if (it->_CGI->getPid() > 0) {
-            kill(it->_CGI->getPid(), SIGKILL);
-            waitpid(it->_CGI->getPid(), NULL, 0);  // ← ESSENTIEL
-        }
-    }
+	if (it->isCGI() && it->_CGI->checkSocket(fd) == true) {
+		int cgi_fd = it->_CGI->getSocketParent();
+		if (cgi_fd > 0) {
+			epoll_ctl(epfd, EPOLL_CTL_DEL, cgi_fd, NULL); 
+			close(cgi_fd);
+		}
+		if (it->_CGI->getPid() > 0) {
+			kill(it->_CGI->getPid(), SIGKILL);
+			waitpid(it->_CGI->getPid(), NULL, 0);
+		}
+	}
 	if (epoll_ctl(epfd, EPOLL_CTL_DEL, it->getSocket(), 0) < 0) {
 		// std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
 	}
 	close(it->getSocket());
-	// if (it->isCGI() && it->_CGI->getSocketParent() > 0) {
-	// 	close(it->_CGI->getSocketParent());
-	// }
 	it->resetAll();
 	clients.erase(it);
 	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
@@ -240,7 +237,7 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 		std::cerr << RED "Error accept: " RESET << std::strerror(errno) << std::endl;
 		return ;
 	}
-	int	flags =fcntl(client.getSocket(), F_GETFL, 0);
+	int	flags = fcntl(client.getSocket(), F_GETFL, 0);
 	fcntl(client.getSocket(), F_SETFL, O_NONBLOCK | flags);
 	struct epoll_event	event;
 	event.data.fd = client.getSocket();

@@ -113,16 +113,24 @@ int main(int ac, char **av)
 			}
 
 			if (Client::checkClient(events[i].data.fd, clients) == false) {
-				std::cerr << "Stale event for fd = " << events[i].data.fd << std::endl;
+				// std::cerr << "Stale event for fd = " << events[i].data.fd << std::endl;
 				continue ;
 			}
 
 			Client &client = Client::getClient(events[i].data.fd, clients);
 
 			if (client.isCGI() == true) {
-				client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
 				
 				CGI	&Cgi = *client._CGI;
+				try {
+					client._CGI->CGIEvent(epoll_fd, clients, events[i], servers);
+				}
+				catch(std::runtime_error &e) {
+					std::cerr << RED "Runtime error: " << e.what() << RESET << std::endl;
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+					continue ;
+				}
+				
 				if (Cgi.getState() == CGI_END || Cgi.getState() == CGI_ERR) {
 					if (Cgi.getState() == CGI_ERR) {
 						if (Cgi.getPid() > 0)
@@ -130,6 +138,7 @@ int main(int ac, char **av)
 					}
 					if (Cgi.getState() == CGI_ERR && events[i].data.fd == client.getSocket()) {
 						std::string patate = CGI::sendError(Cgi.getErrCgi(), "Internal Server Error", *client.getPtrServer());//+ in cgi errMessage;
+						// std::cout << BLUE << patate << RESET << std::endl;
 						send(events[i].data.fd, patate.c_str(), patate.length(), 0);
 						Client::closingClient(epoll_fd, events[i].data.fd, clients);
 					}
