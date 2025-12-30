@@ -30,7 +30,7 @@ To-Do list :
 						TO DO LIST;
 =====================================================================
 
--> changer setenv() dans CGIChild
+DONE -> changer setenv() dans CGIChild
 DONE -> Mauvais chemin CGI ca boucle infini		+		Err close
 DONE -> Ajout content lenght PLUS BUGGUER !
 -> Time Out CGI
@@ -39,3 +39,6 @@ DONE -> Ajout content lenght PLUS BUGGUER !
 	-DONE-	-> if header with Status: <code> <message>
 	-> check if GET && POST autoriser in local
 -> fin du monde 
+
+
+-> what the fuck is the lost condition in CGI_envents.cpp &&?

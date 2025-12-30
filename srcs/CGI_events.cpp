@@ -108,7 +108,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			else
 				cgi_headers.erase(status_pos);
 		}
-		if ((status < 100 || status > 599) && ) {
+		if ((status < 100 || status > 599)) {
 			std::cerr << RED "Invalid CGI status: " << status << RESET << std::endl;
 			this->setState(CGI_ERR, 500);
 			return;
