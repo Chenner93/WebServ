@@ -22,7 +22,7 @@ https://www.codequoi.com/en/sockets-and-network-programming-in-c/ (eng)
 						TO DO LIST;
 =====================================================================
 
--> changer setenv() dans CGIChild
+DONE -> changer setenv() dans CGIChild
 DONE -> Mauvais chemin CGI ca boucle infini		+		Err close
 DONE -> Ajout content lenght PLUS BUGGUER !
 -> Time Out CGI
@@ -32,3 +32,5 @@ DONE -> Ajout content lenght PLUS BUGGUER !
 	-DONE-	-> check if GET && POST autoriser in local
 -> fin du monde 
 -> RETIRER TOUT LES STD::COUT et cerr pour vitesse ?
+-> fin du monde 
+
