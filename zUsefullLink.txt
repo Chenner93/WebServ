@@ -36,3 +36,34 @@ DONE -> Ajout content lenght PLUS BUGGUER !
 
 -> FULL TEST cgi POST GET DELETE
 	classique DEL Et POST (GET fonctionne)
+
+
+
+--------- A TESTER ---------
+
+Tout le fichier de config
+    les client_max_body_size
+    les errors_page
+    Essayer de faire segfault le parser
+        server/location nested
+        Unclosed brakets
+        Unclosed quote
+        ...
+    auto_index
+    index
+    allowed_methods
+    create_full_path
+    timeout ??
+
+--------- KC ---------
+Quand il manque les deux point entre l'ip et
+le port pour la directive listen ca throw une
+exception qui n'est pas catche
+
+
+le parsing du fichier de config ne met pas d'erreur
+quand il y a une directive qui existe pas
+exemple: cacacacacacca: pipipipipi
+fonctione
+
+ATTENTION au requete POST sans body 
