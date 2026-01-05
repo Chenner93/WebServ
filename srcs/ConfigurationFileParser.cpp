@@ -5,6 +5,33 @@
 #include <algorithm>
 #include <cctype>
 
+
+static const char* VALID_SERVER_DIRECTIVES[] = 
+{
+	"listen",
+	"server_name",
+	"client_max_body_size",
+	"error_page",
+	"location"
+};
+
+static const char* VALID_LOCATION_DIRECTIVES[] = 
+{
+	"allow_methods",
+	"root",
+	"return",
+	"autoindex",
+	"index",
+	"upload_dir",
+	"cgi_extension"
+};
+
+static const size_t VALID_SERVER_DIRECTIVES_SIZE = 
+	sizeof(VALID_SERVER_DIRECTIVES) / sizeof(VALID_SERVER_DIRECTIVES[0]);
+
+static const size_t VALID_LOCATION_DIRECTIVES_SIZE = 
+	sizeof(VALID_LOCATION_DIRECTIVES) / sizeof(VALID_LOCATION_DIRECTIVES[0]);
+
 Config::Config()
 	: config_file_path("./Configuration_Files/DefaultWebserv.conf") {}
 
@@ -14,7 +41,7 @@ Config::Config(const std::string &file_path)
 Config::Config(const Config &other)
 	: servers(other.servers), config_file_path(other.config_file_path) {}
 
-Config &Config::operator=(const Config &other)
+Config	&Config::operator=(const Config &other)
 {
 	if (this !=  &other)
 	{
@@ -37,7 +64,6 @@ bool	Config::parseConfigFile(const std::string &config_path)
 		return false;
 	}
 
-	// Lire tout le fichier en mémoire
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	std::string content = buffer.str();
@@ -54,13 +80,11 @@ bool	Config::parseConfigFile(const std::string &config_path)
 			if (pos >= content.length())
 				break;
 
-			// Détecter et parser un bloc server
 			if (content.substr(pos, 6) == "server")
 			{
-				pos += 6; // Move past the "server" keyword
+				pos += 6;
 				parseServer(content, pos);
 			}
-			// Ignorer les autres lignes
 			else
 			{
 				while (pos < content.length() && content[pos] != '\n')
@@ -77,13 +101,12 @@ bool	Config::parseConfigFile(const std::string &config_path)
 	return (validateConfig());
 }
 
-void Config::parseServer(const std::string &content, size_t &pos)
+void	Config::parseServer(const std::string &content, size_t &pos)
 {
 	ServerConfig server;
 
 	skipWhitespace(content, pos);
 
-	// Attendre une accolade ouvrante
 	if (pos >= content.length() || content[pos] != '{')
 	{
 		throw std::runtime_error("Expected '{' after server");
@@ -114,7 +137,6 @@ void Config::parseServer(const std::string &content, size_t &pos)
 			brace_count++;
 		}
 
-		// Parser les directives du serveur
 		std::string directive;
 		while (pos < content.length() && !std::isspace(content[pos]) && content[pos] != ';')
 			directive += content[pos++];
@@ -124,21 +146,62 @@ void Config::parseServer(const std::string &content, size_t &pos)
 			skipWhitespace(content, pos);
 			std::string listen_value = parseValue(content, pos);
 
-			// Parser host:port ou juste port
+			if (listen_value.empty())
+			{
+				throw std::runtime_error("Error: 'listen' directive cannot be empty");
+			}
+		
 			size_t colon_pos = listen_value.find(':');
 			if (colon_pos != std::string::npos)
 			{
 				server.host = listen_value.substr(0, colon_pos);
+
+				if (colon_pos + 1 >= listen_value.length())
+				{
+					throw std::runtime_error("Error: Missing port number after ':' in listen directive");
+				}
+
+				std::string port_str = listen_value.substr(colon_pos + 1);
+
+				if (port_str.empty())
+				{
+					throw std::runtime_error("Error: Port number is empty in listen directive");
+				}
+
 				if (!isValidIP(server.host))
 				{
 					std::ostringstream err;
 					err << "Invalid IP address in listen directive: " << server.host;
 					throw std::runtime_error(err.str());
 				}
-				server.port = std::atoi(listen_value.substr(colon_pos + 1).c_str());
+
+				for (size_t i = 0; i < port_str.size(); ++i)
+				{
+					if (!std::isdigit(port_str[i]))
+					{
+						std::ostringstream err;
+						err << "Invalid port number in listen directive: '" << port_str 
+							<< "' (contains non-digit characters)";
+						throw std::runtime_error(err.str());
+					}
+				}
+
+				server.port = std::atoi(port_str.c_str());
 			}
 			else
+			{
+				for (size_t i = 0; i < listen_value.size(); ++i)
+				{
+					if (!std::isdigit(listen_value[i]))
+					{
+						std::ostringstream err;
+						err << "Invalid port number in listen directive: '" << listen_value 
+							<< "' (expected format: 'host:port' or 'port')";
+						throw std::runtime_error(err.str());
+					}
+				}
 				server.port = std::atoi(listen_value.c_str());
+			}
 		}
 		else if (directive == "server_name")
 		{
@@ -175,7 +238,12 @@ void Config::parseServer(const std::string &content, size_t &pos)
 		}
 		else
 		{
-			// Ignorer les directives inconnues
+			if (!directive.empty() && !isValidServerDirective(directive))
+			{
+				std::ostringstream err;
+				err << "Invalid server directive: " << directive;
+				throw std::runtime_error(err.str());
+			}
 			parseValue(content, pos);
 		}
 	}
@@ -188,7 +256,7 @@ void Config::parseServer(const std::string &content, size_t &pos)
 	servers.push_back(server);
 }
 
-void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig &server)
+void	Config::parseLocation(const std::string &content, size_t &pos, ServerConfig &server)
 {
 	Location location;
 
@@ -198,7 +266,7 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 
 	if (pos >= content.length() || content[pos] != '{')
 		throw std::runtime_error("Expected '{' after server directive");
-	pos++; // Skip '{'
+	pos++;
 
 	while (pos < content.length())
 	{
@@ -210,7 +278,7 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 
 		if (content[pos] == '}')
 		{
-			pos++; // Skip '}'
+			pos++;
 			break;
 		}
 
@@ -267,8 +335,16 @@ void Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 		}
 		else
 		{
+			if (!directive.empty() && !isValidLocationDirective(directive))
+			{
+				std::ostringstream err;
+				err << "Unknown directive '" << directive << "' in location block. "
+				<< "Valid directives are: allow_methods, root, return, autoindex, index, upload_dir, cgi_extension";
+			throw std::runtime_error(err.str());
+			}
 			parseValue(content, pos);
 		}
+
 	}
 	server.locations.push_back(location);
 }
@@ -291,7 +367,7 @@ std::string Config::parseValue(const std::string& content, size_t& pos)
 	return value;
 }
 
-std::vector<std::string> Config::parseList(const std::string& content, size_t& pos)
+std::vector<std::string>	Config::parseList(const std::string& content, size_t& pos)
 {
 	std::vector<std::string> list;
 	std::string current_item;
@@ -327,7 +403,7 @@ std::vector<std::string> Config::parseList(const std::string& content, size_t& p
 	return list;
 }
 
-bool Config::validateConfig()
+bool	Config::validateConfig()
 {
 	if (servers.empty())
 	{
@@ -361,12 +437,12 @@ bool Config::validateConfig()
 
 	return true;
 }
-bool Config::isValidMethod(const std::string& method)
+bool	Config::isValidMethod(const std::string& method)
 {
 	return (method == "GET" || method == "POST" || method == "DELETE" || method == "HEAD");
 }
 
-std::vector<std::string> Config::split(const std::string &ip, char delimiter)
+std::vector<std::string>	Config::split(const std::string &ip, char delimiter)
 {
 	std::vector<std::string> result;
 	std::string current;
@@ -393,10 +469,10 @@ std::vector<std::string> Config::split(const std::string &ip, char delimiter)
 	return result;
 }
 
-bool Config::isValidIP(const std::string& ip) {
+bool	Config::isValidIP(const std::string& ip) {
 	// Cas spéciaux
 	if (ip == "0.0.0.0" || ip == "localhost") {
-		return true;
+		return (true);
 	}
 
 	std::vector<std::string> octets = split(ip, '.');
@@ -405,73 +481,92 @@ bool Config::isValidIP(const std::string& ip) {
 	if (octets.size() != 4) {
 		std::cerr << "Error: IP address must have 4 octets, got " 
 				  << octets.size() << std::endl;
-		return false;
+		return (false);
 	}
 
 	for (size_t i = 0; i < octets.size(); ++i) {
 		const std::string& octet = octets[i];
 
-		// Vérifier que c'est pas vide
 		if (octet.empty()) {
 			std::cerr << "Error: Empty octet in IP address" << std::endl;
-			return false;
+			return (false);
 		}
 
-		// Vérifier que ce sont tous des chiffres
 		for (size_t j = 0; j < octet.length(); ++j) {
 			if (!std::isdigit(octet[j])) {
 				std::cerr << "Error: Invalid character '" << octet[j] 
 						  << "' in IP address octet" << std::endl;
-				return false;
+				return (false);
 			}
 		}
 
-		// Vérifier les zéros en tête (ex: 01, 001)
 		if (octet.length() > 1 && octet[0] == '0') {
 			std::cerr << "Error: Leading zeros not allowed in IP octet: " 
 					  << octet << std::endl;
-			return false;
+			return (false);
 		}
 
-		// Convertir en nombre
 		long value = std::atol(octet.c_str());
 
-		// Vérifier overflow et range
 		if (value < 0 || value > 255) {
 			std::cerr << "Error: IP octet " << octet << " is out of range [0-255]" 
 					  << std::endl;
-			return false;
+			return (false);
 		}
 	}
 
-	return true;
+	return (true);
 }
 
-bool Config::isValidPort(int port)
+bool	Config::isValidPort(int port)
 {
 	if (port <= 0)
 	{
-		throw std::runtime_error("Port number must be positive");
-		return false;
+		std::ostringstream err;
+		err << "Port number must be positive (got " << port << ")";
+		throw std::runtime_error(err.str());
 	}
 	if (port > 65535)
 	{
-		throw std::runtime_error("Port number must be less than 65536");
-		return false;
+		std::ostringstream err;
+		err << "Port number must be less than 65536 (got " << port << ")";
+		throw std::runtime_error(err.str());
 	}
 	if (port < 1024)
 	{
 		std::cerr << "Warning: Using a privileged port (<1024) may require elevated permissions." << std::endl;
 	}
-	return true;
+	return (true);
 }
 
-const std::vector<ServerConfig>& Config::getServers() const
+bool	Config::isValidServerDirective(const std::string& directive)
 {
-	return servers;
+	size_t count = sizeof(VALID_SERVER_DIRECTIVES) / sizeof(VALID_SERVER_DIRECTIVES[0]);
+	for (size_t i = 0; i < count; ++i)
+	{
+		if (directive == VALID_SERVER_DIRECTIVES[i])
+			return (true);
+	}
+	return (false);
 }
 
-ServerConfig *Config::findServer(const std::string &host, int port, const std::string &server_name)
+bool	Config::isValidLocationDirective(const std::string& directive)
+{
+	size_t count = sizeof(VALID_LOCATION_DIRECTIVES) / sizeof(VALID_LOCATION_DIRECTIVES[0]);
+	for (size_t i = 0; i < count; ++i)
+	{
+		if (directive == VALID_LOCATION_DIRECTIVES[i])
+			return (true);
+	}
+	return (false);
+}
+
+const	std::vector<ServerConfig>& Config::getServers() const
+{
+	return (servers);
+}
+
+ServerConfig	*Config::findServer(const std::string &host, int port, const std::string &server_name)
 {
 	if (!server_name.empty())
 	{
@@ -499,23 +594,25 @@ ServerConfig *Config::findServer(const std::string &host, int port, const std::s
 	return (NULL);
 }
 
-void Config::skipWhitespace(const std::string& content, size_t& pos)
+void	Config::skipWhitespace(const std::string& content, size_t& pos)
 {
 	while (pos < content.length() && std::isspace(content[pos]))
 		pos++;
 }
 
-void Config::skipComment(const std::string& content, size_t& pos) {
+void	Config::skipComment(const std::string& content, size_t& pos)
+{
 	if (pos < content.length() && content[pos] == '#') {
 		while (pos < content.length() && content[pos] != '\n')
 			pos++;
 		if (pos < content.length())
-			pos++; // Skip the newline
+			pos++;
 		skipWhitespace(content, pos);
 	}
 }
 
-void Config::printConfig() const {
+void	Config::printConfig() const
+{
 	for (size_t i = 0; i < servers.size(); ++i) {
 		const ServerConfig& server = servers[i];
 		std::cout << "Server " << i + 1 << ":" << std::endl;
@@ -542,7 +639,7 @@ void Config::printConfig() const {
 	}
 }
 
-bool Config::isEmpty() const
+bool	Config::isEmpty() const
 {
 	return (servers.empty());
 }

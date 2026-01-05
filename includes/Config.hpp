@@ -60,6 +60,8 @@ class Config
 		bool isValidMethod(const std::string &method);
 		bool isValidIP(const std::string &ip);
 		bool isValidPort(int port);
+		bool isValidServerDirective(const std::string &directive);
+		bool isValidLocationDirective(const std::string &directive);
 
 		// Utils
 		std::vector<std::string> split(const std::string &ip, char delimiter);
