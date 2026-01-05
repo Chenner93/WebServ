@@ -7,7 +7,10 @@ import cgitb
 cgitb.enable()
 
 # Indique que la réponse est du HTML
-print("Content-Type: text/html\n")
+print("Content-Type: text/html; charset=utf-8")
+# print("Content-Type: text/plain; charset=utf-8")
+# print("Status: 300")
+print()
 
 # Récupération des données POST
 form = cgi.FieldStorage()

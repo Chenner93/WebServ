@@ -41,7 +41,7 @@ class CGI {
 		std::string	_bodyCgi;
 		size_t		bytesSend;
 		int			errCgi;
-		// std::string	errMessage;
+		std::string	message;
 
 	public:
 		CGI(const std::string& cgi_path, const std::string& script_path);
@@ -59,6 +59,7 @@ class CGI {
 		void	setStateMethod(std::string method);
 		void	setState(CGIState step);
 		void	setState(CGIState step, int err);
+		void	setState(CGIState step, int err, std::string message);
 		void	setFork();
 		void	setDup2();
 		void	setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_event &event, int socketClient);
@@ -72,6 +73,8 @@ class CGI {
 		int			getState() const;
 		int			getErrCgi() const;
 		int			*getPtrErrCgi();
+		std::string	getMessage() const;
+
 
 		bool		hasError();
 
