@@ -254,15 +254,18 @@ void	Client::checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd) {
 	std::vector<Client>::iterator	it = clients.begin();
 	
 	while (it != clients.end()) {
+		int socketToClose;
 		if (it->isTimeOut() == true) {
 			if (it->isCGI() == true) {
-				it->_CGI->setState(CGI_ERR, 500);
+				it->_CGI->TimeOutCGI(epoll_fd, it->getSocket());
+				it++;
+				continue ;
 			}
 			std::cout << BLUE "Client timed out (socket:" << it->getSocket()
 					<< ", inactive for " << difftime(time(NULL), it->getLastActivity())
 					<< " seconds)" RESET << std::endl;
 		
-			int socketToClose = it->getSocket();
+			socketToClose = it->getSocket();
 
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketToClose, 0) < 0) {
 				std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
@@ -271,7 +274,7 @@ void	Client::checkTimeoutClients(std::vector<Client> &clients, int &epoll_fd) {
 			it->resetAll();
 			it = clients.erase(it);
 		} else {
-		it++;
+			it++;
 		}
 	}
 }			

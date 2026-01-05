@@ -11,7 +11,7 @@
 
 #define B_READ	4096
 #define B_SEND	4096
-#define TIMEOUT_CLIENT 5 // secondes
+#define TIMEOUT_CLIENT 3 // secondes
 
 #include <iostream>
 #include <vector>

@@ -69,10 +69,6 @@ int main(int ac, char **av)
 			it->bindSocket();
 			it->listenSocket();
 			it->addEpollCtl(epoll_fd);
-
-			// std::cout << GREEN << "[LISTENING] " << it->getName()
-			// 		  << " on port " << it->getPort()
-			// 		  << RESET << std::endl;
 		}
 	}
 	catch (const std::exception &e)
@@ -120,7 +116,6 @@ int main(int ac, char **av)
 			}
 
 			if (Client::checkClient(events[i].data.fd, clients) == false) {
-				// std::cerr << "Stale event for fd = " << events[i].data.fd << std::endl;
 				continue ;
 			}
 
@@ -140,16 +135,19 @@ int main(int ac, char **av)
 				
 				if (Cgi.getState() == CGI_END || Cgi.getState() == CGI_ERR) {
 					if (Cgi.getState() == CGI_ERR) {
-						if (Cgi.getPid() > 0)
+						if (Cgi.getPid() > 0) {
 							kill(Cgi.getPid(), SIGKILL);
+							int status = 0;
+							waitpid(Cgi.getPid(), &status, 0);
+						}
 					}
 					if (Cgi.getState() == CGI_ERR && events[i].data.fd == client.getSocket()) {
 						std::string errMessage;
 						if (Cgi.getMessage().empty()) {
-							errMessage = CGI::sendError(Cgi.getErrCgi(), "Internal Server Error", *client.getPtrServer());//+ in cgi errMessage;
+							errMessage = CGI::sendError(Cgi.getErrCgi(), "Internal Server Error", *client.getPtrServer());
 						}
 						else {
-							errMessage = CGI::sendError(Cgi.getErrCgi(), Cgi.getMessage(), *client.getPtrServer());//+ in cgi errMessage;
+							errMessage = CGI::sendError(Cgi.getErrCgi(), Cgi.getMessage(), *client.getPtrServer());
 						}
 						send(events[i].data.fd, errMessage.c_str(), errMessage.length(), 0);
 						Client::closingClient(epoll_fd, events[i].data.fd, clients);

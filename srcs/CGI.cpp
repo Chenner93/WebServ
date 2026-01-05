@@ -247,3 +247,20 @@ std::string CGI::sendError(int code, std::string msg, const Server &server)
 	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
+void	CGI::TimeOutCGI(int epoll_fd, int socketClient) {
+	if (this->getState() != CGI_ERR) {
+		struct epoll_event event;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, this->getSocketParent(), 0) < 0) {
+			std::cerr << RED "Hmmmm ?: " RESET << std::strerror(errno) << std::endl;
+		}
+		close(this->getSocketParent());
+		this->_socket[0] = -1;
+		event.data.fd = socketClient;
+		event.events = EPOLLOUT;
+		if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socketClient, &event) < 0) {
+			std::cerr << RED "Hmmmm ?: " RESET << std::strerror(errno) << std::endl;
+		}
+		
+	}
+	this->setState(CGI_ERR, 504, "Gateway Timeout");
+}
