@@ -91,7 +91,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 
 		if (sep == std::string::npos) {
-			std::cerr << RED "no headers CGI" << std::endl;
+			// std::cerr << RED "no headers CGI" << std::endl;
 			this->setState(CGI_ERR, 500);
 			return ;
 		}
@@ -111,9 +111,14 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			else
 				cgi_headers.erase(status_pos);
 		}
+		else {
+			std::cerr << RED "no status code" << std::endl;
+			this->setState(CGI_ERR, 500, "Internal Server Error: No status code");
+			return ;
+		}
 		if (status < 100 || status > 599) {
 			std::cerr << RED "Invalid CGI status: " << status << RESET << std::endl;
-			this->setState(CGI_ERR, 500, "Invalid CGI status");
+			this->setState(CGI_ERR, 500, "Internal Server Error: Invalid CGI status");
 			return;
 		}
 
