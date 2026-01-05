@@ -12,7 +12,7 @@ def lignes_droles_et_intelligentes():
     print("Patate")
     sys.stdout.flush()
 
-    # time.sleep(10)
+    time.sleep(60)
 
 if __name__ == "__main__":
     lignes_droles_et_intelligentes()

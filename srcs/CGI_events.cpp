@@ -44,7 +44,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 		else if (bytesread < 0) {
 			
-			std::cerr << RED "Error recv: " RESET << std::strerror(errno) << std::endl;
+			std::cerr << RED "Error recv: CGI_READING_OUTPUT" RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR, 500);
 			event.events = EPOLLOUT;
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event.data.fd, &event)) {
@@ -53,7 +53,8 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			event.data.fd = client.getSocket();
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, event.data.fd, &event)) {
 				std::cerr << RED "Error: epoll_ctl in CGI" RESET << std::strerror(errno) << std::endl;
-			}	
+			}
+			close(this->getSocketParent());
 			return ;
 		}
 		this->_bodyCgi.append(buffer, bytesread);
@@ -63,11 +64,17 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		size_t	bSend = 0;
 		//maybe check et not all the body is send ?
 		bSend = send(event.data.fd, client._requestParser->getBody().c_str(), client._requestParser->getBody().size(), 0);
-
+		std::cerr << bSend << std::endl;
 		shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
 
 		this->setState(CGI_READING_OUTPUT);
 		event.events = EPOLLIN;
+
+		if (bSend < 0) {
+			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
+			this->setState(CGI_ERR, 500);
+			event.events = EPOLLOUT;
+		}
 		if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0) {
 			std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR);
@@ -106,7 +113,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 		if (status < 100 || status > 599) {
 			std::cerr << RED "Invalid CGI status: " << status << RESET << std::endl;
-			this->setState(CGI_ERR, 500);
+			this->setState(CGI_ERR, 500, "Invalid CGI status");
 			return;
 		}
 
@@ -115,7 +122,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		ssStatus << status;
 		std::string http_response = "HTTP/1.1 ";
 		http_response += ssStatus.str();
-		http_response += (status == 200 ? " OK" : " Error");
+		http_response += ((status >= 200 && status <= 299) ? " OK" : " Error");
 		http_response += "\r\n";
 		http_response += cgi_headers;
 		if (cgi_headers.find("Content-Length:") == std::string::npos) {

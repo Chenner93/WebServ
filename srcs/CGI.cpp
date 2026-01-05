@@ -22,6 +22,14 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	bytesSend = 0;
 	errCgi = 0;
 	this->setState(CGI_NEW_EPOLL);
+	if (access(script_path.c_str(), F_OK) == 0) {
+		if (access(script_path.c_str(), X_OK) != 0) {
+			this->setState(CGI_ERR, 403, "Forbidden");
+		}
+	}
+	else {
+		this->setState(CGI_ERR, 404);
+	}
 }
 
 CGI::CGI(const CGI& copy) {
@@ -36,6 +44,7 @@ CGI::CGI(const CGI& copy) {
 	bytesSend = copy.bytesSend;
 	errCgi = copy.errCgi;
 	state = copy.state;
+	message = copy.message;
 }
 
 CGI&	CGI::operator = (const CGI& src) {
@@ -51,6 +60,7 @@ CGI&	CGI::operator = (const CGI& src) {
 		bytesSend = src.bytesSend;
 		errCgi = src.errCgi;
 		state = src.state;
+		message = src.message;
 	}
 	return *this;
 }
@@ -81,6 +91,12 @@ void	CGI::setState(CGIState step) {
 void	CGI::setState(CGIState step, int err) {
 	state = step;
 	this->errCgi = err;
+}
+
+void	CGI::setState(CGIState step, int err, std::string message) {
+	state = step;
+	this->errCgi = err;
+	this->message = message;
 }
 
 void	CGI::setFork() {
@@ -150,6 +166,10 @@ int*	CGI::getPtrErrCgi() {
 
 bool	CGI::hasError() {
 	return WIFEXITED(errCgi) && WEXITSTATUS(errCgi) != 0;
+}
+
+std::string	CGI::getMessage() const {
+	return this->message;
 }
 
 /*	UTILS	*/
