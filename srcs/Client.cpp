@@ -237,8 +237,8 @@ void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Clie
 		std::cerr << RED "Error accept: " RESET << std::strerror(errno) << std::endl;
 		return ;
 	}
-	int	flags = fcntl(client.getSocket(), F_GETFL, 0);
-	fcntl(client.getSocket(), F_SETFL, O_NONBLOCK | flags);
+	// int	flags = fcntl(client.getSocket(), F_GETFL, 0);
+	fcntl(client.getSocket(), F_SETFL, O_NONBLOCK);
 	struct epoll_event	event;
 	event.data.fd = client.getSocket();
 	event.events = EPOLLIN;
