@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 13:59:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/23 13:34:50 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/06 16:35:24 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,8 @@ class Request
 	bool	Python_Or_Php();
 	static const std::string	getExtension(std::string path);
 
+	std::string	getHeader(std::string toFind);
+	void	printHeader();
    
 };
 

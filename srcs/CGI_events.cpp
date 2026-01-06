@@ -65,7 +65,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		//maybe check et not all the body is send ?
 		bSend = send(event.data.fd, client._requestParser->getBody().c_str(), client._requestParser->getBody().size(), 0);
 		std::cerr << bSend << std::endl;
-		shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
+		// shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
 
 		this->setState(CGI_READING_OUTPUT);
 		event.events = EPOLLIN;
@@ -79,6 +79,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR);
 		}
+		shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
 		return ;
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_DONE) {;

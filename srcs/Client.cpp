@@ -196,8 +196,8 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 			break;
 	}
 	if (it == clients.end()) {
-		std::cerr << RED "Error closingClient:" RESET << "Should never happens" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << RED "Error closingClient:" RESET << "Should never happens, but can happen in some specific case" << std::endl;
+		// exit(EXIT_FAILURE);
 	}
 	if (it->isCGI() && it->_CGI->checkSocket(fd) == true) {
 		int cgi_fd = it->_CGI->getSocketParent();
@@ -216,7 +216,7 @@ void	Client::closingClient(int epfd, int fd, std::vector<Client> &clients) {
 	close(it->getSocket());
 	it->resetAll();
 	clients.erase(it);
-	std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
+	// std::cout << BLUE "client ERASEEEEED" RESET << std::endl;
 }
 
 void	Client::acceptClient(int fd, std::vector<Server> &servers, std::vector<Client> &clients, int epfd) {
@@ -391,9 +391,8 @@ bool	Client::setCgi(Server &server) {
 	//get Allowed method
 	const std::vector<std::string>				allowedMethod = server.getAllowMethods(index);
 	if (CGI::isMethodAllowed(allowedMethod, this->_requestParser->getMethod()) == false) {
-		std::cout << RED << "unAuthorized Method 405" RESET << std::endl;
 		this->_CGI = new CGI("", "");
-		this->_CGI->setState(CGI_ERR, 405);
+		this->_CGI->setState(CGI_ERR, 405, "unAuthorized Method");
 		return true;
 	}
 
@@ -402,7 +401,7 @@ bool	Client::setCgi(Server &server) {
 		cgiPath = cgiConfig.at(extension);
 	}
 	catch (std::exception &e) {
-		std::cout << RED << "invalid Path Error 404" RESET << std::endl;
+		// std::cout << RED << "invalid Path Error 404" RESET << std::endl;
 		this->_CGI = new CGI("", "");
 		this->_CGI->setState(CGI_ERR, 404);
 		return true;

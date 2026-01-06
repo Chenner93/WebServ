@@ -53,6 +53,8 @@ class CGI {
 
 		void	CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event, std::vector<Server> &servers);
 		void	execCGI(Request *httpRequest);
+		void	setEnvp(Request *httpRequest, std::vector<std::string> &envVector);
+
 		void	TimeOutCGI(int epoll_fd, int socketClient);
 
 		//SETTER
@@ -80,8 +82,10 @@ class CGI {
 		bool		hasError();
 
 		//CHILD
-		static void		ManageErrExecve(std::vector<Client> &clients);
-		static void		closeAllSocket(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
+		static void			ManageErrExecve(std::vector<Client> &clients);
+		static void			closeAllSocket(int &epoll_fd, std::vector<Server> &servers, std::vector<Client> &clients);
+		static std::string	intToString(size_t n);
+
 
 
 		static std::string	createScriptPath(const std::string root, const std::string path);

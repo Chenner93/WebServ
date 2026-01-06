@@ -34,6 +34,61 @@ void	CGI::ManageErrExecve(std::vector<Client> &clients) {
 	exit(EXIT_FAILURE);
 }
 
+std::string	CGI::intToString(size_t n) {
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
+}
+
+void	CGI::setEnvp(Request *httpRequest, std::vector<std::string> &envVector) {
+
+	//BASIC
+	envVector.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	envVector.push_back("SERVER_SOFTWARE=webserv/1.0");
+	envVector.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+	envVector.push_back("PATH_INFO=" + httpRequest->getPath());
+	envVector.push_back("SCRIPT_NAME=" + httpRequest->getPath());
+	envVector.push_back("SCRIPT_FILENAME=" + this->getScriptPath());
+	envVector.push_back("REDIRECT_STATUS=200");
+	envVector.push_back("REQUEST_METHOD=" + httpRequest->getMethod());
+
+	if (httpRequest->getPathAfterSign().empty() == false)
+		envVector.push_back("QUERY_STRING=" + httpRequest->getPathAfterSign());
+
+	//Content-type
+	std::string contentType;// = httpRequest->getHeader("Content-Type");
+	if (contentType.empty())
+		contentType = "application/x-www-form-urlencoded";
+	envVector.push_back("CONTENT_TYPE=" + contentType);
+
+	//content-lenght
+	std::string body = httpRequest->getBody();
+	envVector.push_back("CONTENT_LENGTH=" + CGI::intToString(body.length()));
+
+	//Dir cookie
+	envVector.push_back("TMPDIR=/home/ckenaip/42Projects/webserv/cookie");
+	envVector.push_back("TMP=/home/ckenaip/42Projects/webserv/cookie");
+	envVector.push_back("TEMP=/home/ckenaip/42Projects/webserv/cookie");
+
+	//header http
+	std::string cookie = httpRequest->getHeader("cookie");
+	if (!cookie.empty()) {
+	    envVector.push_back("HTTP_COOKIE=" + cookie);
+		std::cerr << BLUE << cookie << RESET << std::endl;
+	}
+
+	std::string host = httpRequest->getHeader("host");
+	if (!host.empty())
+	    envVector.push_back("HTTP_HOST=" + host);
+
+	std::string userAgent = httpRequest->getHeader("user-Agent");
+	if (!userAgent.empty())
+	    envVector.push_back("HTTP_USER_AGENT=" + userAgent);
+	httpRequest->printHeader();
+
+}
+
 void	CGI::execCGI(Request *httpRequest) {
 
 	std::vector<std::string>	envVector;
@@ -43,10 +98,8 @@ void	CGI::execCGI(Request *httpRequest) {
 	std::string	scriptPath_str = this->getScriptPath();
 	const char	*path = path_str.c_str();
 	const char	*scriptPath = scriptPath_str.c_str();
-	envVector.push_back("REQUEST_METHOD=" + httpRequest->getMethod());
-	envVector.push_back("QUERY_STRING=" + httpRequest->getPathAfterSign());
-	envVector.push_back("SCRIPT_FILENAME=" + this->getScriptPath());
-	envVector.push_back("REDIRECT_STATUS=200");
+
+	this->setEnvp(httpRequest, envVector);
 
 	for (size_t i = 0; i < envVector.size(); i++)
 		envp.push_back(const_cast<char *>(envVector[i].c_str()));

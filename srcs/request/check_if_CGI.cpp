@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/29 14:16:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/23 14:55:59 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/06 16:35:19 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,24 @@ const std::string Request::getExtension(std::string path) {
 		return "";
 
 	return path.substr(findLast);
+}
+
+
+void	Request::printHeader() {
+	std::map<std::string, std::string>::iterator it;
+	for (it = headers.begin(); it != headers.end(); ++it) {
+	    std::cerr << it->first << ": " << it->second << std::endl;
+	}
+}
+
+std::string	Request::getHeader(std::string toFind) {
+
+	std::map<std::string, std::string>::iterator	it;
+
+	it = this->headers.find(toFind);
+	if (it != this->headers.end()) {
+		return it->second;
+	}
+	
+	return "";
 }

@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/29 21:01:29 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/06 14:45:39 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,7 +262,7 @@ std::string Response::handlePost(const Request &request, const Server &server)
         if (boundary.empty())
             return sendError(400, "Bad Request: Missing boundary", server);
 
-        std::cout << YELLOW << "[DEBUG] Boundary nettoyé: [" << boundary << "]" << RESET << std::endl;
+        // std::cout << YELLOW << "[DEBUG] Boundary nettoyé: [" << boundary << "]" << RESET << std::endl;
 
         std::vector<FormDataPart> parts =
             Request::parseMultipartFormData(request.getBody(), boundary);
@@ -274,8 +274,8 @@ std::string Response::handlePost(const Request &request, const Server &server)
         for (size_t i = 0; i < parts.size(); ++i)
         {
             try {
-                std::cout << GREEN << "[DEBUG] Saving part " << i + 1 << " / " << parts.size()
-                          << ": " << parts[i].filename << RESET << std::endl;
+                // std::cout << GREEN << "[DEBUG] Saving part " << i + 1 << " / " << parts.size()
+                        //   << ": " << parts[i].filename << RESET << std::endl;
                 saveFormDataToDisk(parts[i], fullDir);
                 ++saved;
             }
@@ -413,7 +413,7 @@ std::string Response::sendError(int code, const std::string& msg, const Server &
 			 << "Connection: close\r\n\r\n"
 			 << body;
 
-	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
+	// std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
 

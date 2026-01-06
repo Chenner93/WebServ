@@ -39,6 +39,7 @@ $levels = [
 list($face, $speech) = $levels[min($_SESSION['hunger'], 4)];
 
 header('Content-Type: text/html; charset=utf-8');
+header('Status: 200');
 ?>
 <!DOCTYPE html><html lang="fr"><head>
 <meta charset="utf-8">

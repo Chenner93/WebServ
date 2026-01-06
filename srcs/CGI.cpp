@@ -119,14 +119,13 @@ void	CGI::setEpoll(int epoll_fd, std::vector<Client> &clients, struct epoll_even
 
 	event.data.fd = this->getSocketParent();
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, socketClient, 0) < 0) {
-		std::cerr << RED "Error: epoll_ctl in CGI: blops " RESET << std::strerror(errno) << std::endl;
+		std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 	}
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, this->getSocketParent(), &event) < 0) {
-		std::cerr << RED "Error: epoll_ctl in CGI: blops" RESET << std::strerror(errno) << std::endl;
+		std::cerr << RED "Error: epoll_ctl in CGI: " RESET << std::strerror(errno) << std::endl;
 		Client::closingClient(epoll_fd, event.data.fd, clients);
 	}
-	std::cerr << CYAN "CLIENT DEL IN EPOLL" RESET << std::endl;
 }
 
 /*	GETTER	*/
@@ -244,7 +243,7 @@ std::string CGI::sendError(int code, std::string msg, const Server &server)
 			 << "Connection: close\r\n\r\n"
 			 << body;
 
-	std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
+	// std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
 void	CGI::TimeOutCGI(int epoll_fd, int socketClient) {

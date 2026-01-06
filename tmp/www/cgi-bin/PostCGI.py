@@ -7,6 +7,7 @@ import cgitb
 cgitb.enable()
 
 # Indique que la réponse est du HTML
+print("Status: 200")
 print("Content-Type: text/html; charset=utf-8")
 # print("Content-Type: text/plain; charset=utf-8")
 # print("Status: 300")
