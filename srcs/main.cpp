@@ -79,6 +79,7 @@ int main(int ac, char **av)
 	time_t		lastTimeoutCheck = time(NULL);
 	const int	TIMEOUT_CHECK_INTERVAL = 5; // secondes
 
+	servers[0].printServerInfo();
 	while (g_runWebserv)
 	{
 		//check if TimeOut

@@ -352,46 +352,47 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
 
 void Server::printServerInfo() const {
 	std::cout << CYAN << "=== Server Information ===" << RESET << std::endl;
-	std::cout << "Name: " << _name << std::endl;
-	std::cout << "IP: " << _ip << ":" << _port << std::endl;
-	std::cout << "Socket FD: " << _socket << std::endl;
-	std::cout << "Max Body Size: " << _client_max_body_size << " bytes" << std::endl;
+	// std::cout << "Name: " << _name << std::endl;
+	// std::cout << "IP: " << _ip << ":" << _port << std::endl;
+	// std::cout << "Socket FD: " << _socket << std::endl;
+	// std::cout << "Max Body Size: " << _client_max_body_size << " bytes" << std::endl;
 	
-	std::cout << "Error Pages (" << _error_pages.size() << "):" << std::endl;
-	for (std::map<int, std::string>::const_iterator it = _error_pages.begin();
-			it != _error_pages.end(); ++it) 
-	{
-		std::cout << "  " << it->first << " -> " << it->second << std::endl;
-	}
+	// std::cout << "Error Pages (" << _error_pages.size() << "):" << std::endl;
+	// for (std::map<int, std::string>::const_iterator it = _error_pages.begin();
+	// 		it != _error_pages.end(); ++it) 
+	// {
+	// 	std::cout << "  " << it->first << " -> " << it->second << std::endl;
+	// }
 	
-	std::cout << "Locations (" << _location_paths.size() << "):" << std::endl;
-	for (size_t i = 0; i < _location_paths.size(); ++i)
-	{
-		std::cout << "  [" << i << "] " << _location_paths[i] << std::endl;
-		std::cout << "      Root: " << _roots[i] << std::endl;
-		std::cout << "      Methods: ";
-		for (size_t j = 0; j < _allow_methods_per_location[i].size(); ++j)
-		{
-			std::cout << _allow_methods_per_location[i][j];
-			if (j < _allow_methods_per_location[i].size() - 1) std::cout << ", ";
-		}
-		std::cout << std::endl;
-		std::cout << "      Autoindex: " << (_autoindex_flags[i] ? "on" : "off") << std::endl;
-		std::cout << "      Index: " << _index_files[i] << std::endl;
-		if (_upload_enabled_flags[i])
-		{
-			std::cout << "      Upload: " << _upload_paths[i] << std::endl;
-		}
-		if (!_cgi_configs[i].empty())
-		{
-			std::cout << "      CGI: ";
-			for (std::map<std::string, std::string>::const_iterator it = _cgi_configs[i].begin();
-				 it != _cgi_configs[i].end(); ++it) {
-				std::cout << it->first << "->" << it->second << " ";
-			}
-			std::cout << std::endl;
-		}
-	}
+	// std::cout << "Locations (" << _location_paths.size() << "):" << std::endl;
+	// for (size_t i = 0; i < _location_paths.size(); ++i)
+	// {
+	// 	std::cout << "  [" << i << "] " << _location_paths[i] << std::endl;
+	// 	std::cout << "      Root: " << _roots[i] << std::endl;
+	// 	std::cout << "      Methods: ";
+	// 	for (size_t j = 0; j < _allow_methods_per_location[i].size(); ++j)
+	// 	{
+	// 		std::cout << _allow_methods_per_location[i][j];
+	// 		if (j < _allow_methods_per_location[i].size() - 1) std::cout << ", ";
+	// 	}
+	// 	std::cout << std::endl;
+	// 	std::cout << "      Autoindex: " << (_autoindex_flags[i] ? "on" : "off") << std::endl;
+	// 	std::cout << "      Index: " << _index_files[i] << std::endl;
+	// 	if (_upload_enabled_flags[i])
+	// 	{
+	// 		std::cout << "      Upload: " << _upload_paths[i] << std::endl;
+	// 	}
+	// 	if (!_cgi_configs[i].empty())
+	// 	{
+	// 		std::cout << "      CGI: ";
+	// 		for (std::map<std::string, std::string>::const_iterator it = _cgi_configs[i].begin();
+	// 			 it != _cgi_configs[i].end(); ++it) {
+	// 			std::cout << it->first << "->" << it->second << " ";
+	// 		}
+	// 		std::cout << std::endl;
+	// 	}
+	// }
+	std::cout << _upload_enabled_flags[0] << std::endl;
 	std::cout << CYAN << "========================" << RESET << std::endl;
 }
 
