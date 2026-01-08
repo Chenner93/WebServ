@@ -28,6 +28,7 @@ Server::Server(const Server& copy) {
 	_autoindex_flags = copy._autoindex_flags;
 	_index_files = copy._index_files;
 	_upload_paths = copy._upload_paths;
+	_upload_enabled_flags = copy._upload_enabled_flags;
 	_cgi_configs = copy._cgi_configs;
 }
 
