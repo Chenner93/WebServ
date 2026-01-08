@@ -61,15 +61,10 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_WRITING_BODY) {
 		//Send body to CGI then change to EPOLLIN
-		size_t	bSend = 0;
-		//maybe check et not all the body is send ?
+		ssize_t	bSend = 0;
 		bSend = send(event.data.fd, client._requestParser->getBody().c_str(), client._requestParser->getBody().size(), 0);
-		std::cerr << bSend << std::endl;
-		// shutdown(this->getSocketParent(), SHUT_WR);// to do after sendind all info
-
 		this->setState(CGI_READING_OUTPUT);
 		event.events = EPOLLIN;
-
 		if (bSend < 0) {
 			std::cerr << RED "Error send: " RESET << std::strerror(errno) << std::endl;
 			this->setState(CGI_ERR, 500);
@@ -92,7 +87,6 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 		}
 
 		if (sep == std::string::npos) {
-			// std::cerr << RED "no headers CGI" << std::endl;
 			this->setState(CGI_ERR, 500);
 			return ;
 		}
@@ -138,7 +132,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 			}
 			http_response += "Content-Length: " + ss.str();
 		}
-		http_response += "\r\n\r\n";	// Fin headers HTTP
+		http_response += "\r\n\r\n";	// End headers HTTP
 		http_response += body;
 		
     	_bodyCgi = http_response;
@@ -146,7 +140,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 	}
 	else if (event.events & EPOLLOUT && this->state == CGI_SEND) {
 
-		size_t	bytesToSend = B_SEND;
+		ssize_t	bytesToSend = B_SEND;
 		if (bytesSend + B_SEND > this->_bodyCgi.size()) {
 			bytesToSend = this->_bodyCgi.size() - bytesSend;
 		}

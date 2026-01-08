@@ -341,7 +341,7 @@ void	Client::ParseResponse() {
 
 void	Client::sendResponse(std::vector<Client> &clients, struct epoll_event &event, int &epoll_fd) {
 
-	size_t	bytesToSend = B_SEND;
+	ssize_t	bytesToSend = B_SEND;
 	if (_bytesSend + B_SEND > this->_responseToSend.size())
 		bytesToSend = this->_responseToSend.size() - _bytesSend;
 
