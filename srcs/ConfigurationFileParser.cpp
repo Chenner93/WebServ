@@ -541,7 +541,7 @@ bool	Config::isValidPort(int port)
 
 bool	Config::isValidServerDirective(const std::string& directive)
 {
-	size_t count = sizeof(VALID_SERVER_DIRECTIVES_SIZE);
+	size_t count = VALID_SERVER_DIRECTIVES_SIZE;
 	for (size_t i = 0; i < count; ++i)
 	{
 		if (directive == VALID_SERVER_DIRECTIVES[i])
@@ -552,7 +552,7 @@ bool	Config::isValidServerDirective(const std::string& directive)
 
 bool	Config::isValidLocationDirective(const std::string& directive)
 {
-	size_t count = sizeof(VALID_LOCATION_DIRECTIVES_SIZE);
+	size_t count = VALID_LOCATION_DIRECTIVES_SIZE;
 	for (size_t i = 0; i < count; ++i)
 	{
 		if (directive == VALID_LOCATION_DIRECTIVES[i])
