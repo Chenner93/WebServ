@@ -24,7 +24,7 @@ CGI::CGI(const std::string& cgi_path, const std::string& script_path) {
 	this->setState(CGI_NEW_EPOLL);
 	if (access(script_path.c_str(), F_OK) == 0) {
 		if (access(script_path.c_str(), X_OK) != 0) {
-			this->setState(CGI_ERR, 403, "Forbidden");
+			this->setState(CGI_ERR, 403, "Forbidden: unauthorized execution");
 		}
 	}
 	else {
