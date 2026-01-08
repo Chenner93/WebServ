@@ -30,6 +30,9 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	// Ajouter les données reçues à la requête en cours
 	clients[i].appendRequest(buffer, bytesread);
 	std::string &req = *clients[i].getRequest();
+	if (req.length() > clients[i].getMaxBodySize()) {
+		std::cout << MAGENTA << "MAX BBODY SIZE OVER 9000" << RESET << std::endl;
+	}
 
 	// Chercher la fin des headers
 	size_t header_end = req.find("\r\n\r\n");

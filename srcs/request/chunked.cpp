@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   chunked.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:47:03 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/09/18 19:16:37 by kahoumou         ###   ########.fr       */
+/*   Updated: 2026/01/08 12:11:36 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,12 @@ std::string Request::parseChunkedBody(const std::string& rawBody)
 
 	// Skip header parasite s'il y a un seul mot hexadécimal tout seul au début
 	std::stringstream precheck;
-	precheck << std::hex << lines[0];
+	if (lines.empty()) {
+		precheck << std::hex;	
+	}
+	else {
+		precheck << std::hex << lines[0];
+	}
 	size_t tmpSize = 0;
 	precheck >> tmpSize;
 	if (!precheck.fail() && tmpSize > 20) // seuil arbitraire

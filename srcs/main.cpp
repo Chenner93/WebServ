@@ -161,10 +161,13 @@ int main(int ac, char **av)
 
 			if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLIN))
 			{
-				if (events[i].data.fd != client.getSocket()) {
-					std::cerr << RED "THE FUCK ?!!!" << std::endl;
+				try {
+					Client::epollinEvent(clients, events[i], epoll_fd);
 				}
-				Client::epollinEvent(clients, events[i], epoll_fd);
+				catch (const std::exception &e) {
+					std::cerr << RED << "hmm ?" << e.what() << RESET << std::endl;
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
+				}
 			}
 			else if (Client::isClientSocket(events[i].data.fd, clients) && (events[i].events & EPOLLOUT))
 			{
@@ -172,7 +175,8 @@ int main(int ac, char **av)
 					Client::epolloutEvent(clients, events[i], epoll_fd);
 				}
 				catch (const std::exception &e) {
-					std::cerr << RED << "Bad Request: " << e.what() << RESET << std::endl;
+					std::cerr << RED << e.what() << RESET << std::endl;
+					Client::closingClient(epoll_fd, events[i].data.fd, clients);
 				}
 			}
 		}

@@ -133,6 +133,11 @@ std::string	*Client::getRequest() const {
 	return _request;
 }
 
+size_t	Client::getMaxBodySize() const {
+	return _server->getClientMaxBodySize();
+}
+
+
 time_t	Client::getLastActivity() const {
 	return _lastActivity;
 }

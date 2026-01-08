@@ -22,6 +22,7 @@
 #include <stdlib.h>		// exit
 #include <Request/Response.hpp>
 #include <Request/Request.hpp>
+#include <Server.hpp>
 #include <signal.h>      // Pour SIGKILL, kill()
 #include <sys/wait.h>    // Pour waitpid(), WIFEXITED(), WEXITSTATUS()
 
@@ -77,6 +78,8 @@ class	Client {
 		static Client		&getClient(int fd, std::vector<Client> &clients);
 		ssize_t				getLocationIndex() const;
 		time_t				getLastActivity() const;
+		size_t				getMaxBodySize() const;
+
 		
 		/*	STATIC	*/
 		static bool	checkClient(int fd, std::vector<Client> &clients);

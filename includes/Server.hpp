@@ -25,6 +25,7 @@
 #include <Config.hpp>
 #include"Request/Request.hpp"
 
+class	Client;
 class	Server {
 
 	private:
