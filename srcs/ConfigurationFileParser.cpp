@@ -316,7 +316,7 @@ void	Config::parseLocation(const std::string &content, size_t &pos, ServerConfig
 		{
 			skipWhitespace(content, pos);
 			location.upload_path = parseValue(content, pos);
-			location.upload_enabled = !location.upload_path.empty();
+			location.upload_enabled = 1;
 		}
 		else if (directive == "cgi_extension")
 		{
