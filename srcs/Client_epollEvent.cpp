@@ -30,9 +30,31 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	// Ajouter les données reçues à la requête en cours
 	clients[i].appendRequest(buffer, bytesread);
 	std::string &req = *clients[i].getRequest();
-	if (req.length() > clients[i].getMaxBodySize()) {
+	if (req.length() > clients[i].getMaxBodySize()) 
+	{
 		std::cout << MAGENTA << "MAX BBODY SIZE OVER 9000" << RESET << std::endl;
+		// Préparer une réponse 413 sans modifier epolloutEvent :
+		// - rendre _response non-null pour bloquer ParseResponse()
+			if (clients[i]._response == 0)
+				clients[i]._response = new Response();
+
+					clients[i]._responseToSend =
+					clients[i]._response->sendError(413, "Payload Too Large", *clients[i].getPtrServer());
+
+					clients[i]._bytesSend = 0;
+					clients[i]._keepAlive = false;
+
+					event.events = EPOLLOUT;
+				if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
+				{
+					std::cerr << RED "Error epoll_ctl: " RESET << std::strerror(errno) << std::endl;
+					Client::closingClient(epoll_fd, event.data.fd, clients);
+				}
+				return;
 	}
+
+	// mon ajout pour tester getbodyize max
+	
 
 	// Chercher la fin des headers
 	size_t header_end = req.find("\r\n\r\n");

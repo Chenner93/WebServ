@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2026/01/06 14:45:39 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/09 13:16:16 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,18 +375,63 @@ std::string Response::handleHead(const Request &request, const Server &server)
     return res.str();
 }
 
+// std::string Response::sendError(int code, const std::string& msg, const Server &server)
+// {
+// 	std::ostringstream response;
+// 	std::string body;
+// 	std::string ctype = "text/html";
+
+// 	std::map<int, std::string> const &error_map = server.getErrorPages();
+// 	std::map<int, std::string>::const_iterator it = error_map.find(code);
+// 	std::string error_path;
+
+// 	if (it != error_map.end())
+// 		error_path = it->second; 
+
+// 	if (!error_path.empty())
+// 	{
+// 		std::ifstream file(error_path.c_str(), std::ios::binary);
+// 		if (file.is_open())
+// 		{
+// 			std::ostringstream buf;
+// 			buf << file.rdbuf();
+// 			body = buf.str();
+// 			file.close();
+// 			ctype = "text/html";
+// 		}
+// 	}
+// 	if (body.empty())
+// 	{
+// 		std::ostringstream oss;
+// 		oss << code;
+// 		body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+// 	}
+    
+// 	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
+// 			 << "Content-Type: " << ctype << "\r\n"
+// 			 << "Content-Length: " << body.size() << "\r\n"
+// 			 << "Connection: close\r\n\r\n"
+// 			 << body;
+
+// 	// std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
+// 	return response.str();
+// }
+
+
 std::string Response::sendError(int code, const std::string& msg, const Server &server)
 {
 	std::ostringstream response;
 	std::string body;
 	std::string ctype = "text/html";
 
+	const size_t maxBody = server.getClientMaxBodySize();
+
 	std::map<int, std::string> const &error_map = server.getErrorPages();
 	std::map<int, std::string>::const_iterator it = error_map.find(code);
 	std::string error_path;
 
 	if (it != error_map.end())
-		error_path = it->second; 
+		error_path = it->second;
 
 	if (!error_path.empty())
 	{
@@ -398,24 +443,34 @@ std::string Response::sendError(int code, const std::string& msg, const Server &
 			body = buf.str();
 			file.close();
 			ctype = "text/html";
+
+			if (maxBody != 0 && body.size() > maxBody)
+				body.clear();
 		}
 	}
+
 	if (body.empty())
 	{
 		std::ostringstream oss;
 		oss << code;
 		body = "<html><body><h1>" + oss.str() + " " + msg + "</h1></body></html>";
+		ctype = "text/html";
 	}
-    
+
+	if (maxBody != 0 && body.size() > maxBody)
+		body.resize(maxBody);
+
 	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
 			 << "Content-Type: " << ctype << "\r\n"
 			 << "Content-Length: " << body.size() << "\r\n"
 			 << "Connection: close\r\n\r\n"
 			 << body;
 
-	// std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
+
+
+
 
 std::string Response::getContentType(const std::string& path)
 {
