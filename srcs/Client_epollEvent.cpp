@@ -34,11 +34,12 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	size_t bodySize = 0;
 	size_t header_end = req.find("\r\n\r\n");
 	if (header_end != std::string::npos) {
-		bodySize = req.length() - header_end + 4;
+		bodySize = req.length() - (header_end + 4);
 	}
 	if (bodySize > clients[i].getMaxBodySize()) 
 	{
-		std::cerr << RED << "MAX BBODY SIZE OVER 9000" << RESET << std::endl;
+		std::cerr << RED << "Body size = " << bodySize << RESET << std::endl;
+		std::cerr << RED << req << RESET << std::endl;
 		// Préparer une réponse 413 sans modifier epolloutEvent :
 		// - rendre _response non-null pour bloquer ParseResponse()
 			if (clients[i]._response == 0)

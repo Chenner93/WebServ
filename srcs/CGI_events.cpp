@@ -4,6 +4,7 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 
 	Client &client = Client::getClient(event.data.fd, clients);
 
+	std::cout << RED "CGI" RESET <<std::endl;
 	
 	if (_pid == -2 && this->getState() != CGI_ERR) {
 		std::cout << MAGENTA << client.getRequest()->length() - (client.getRequest()->find("\r\n\r") + 4) << RESET << std::endl;
