@@ -75,7 +75,6 @@ void	CGI::setEnvp(Request *httpRequest, std::vector<std::string> &envVector) {
 	std::string cookie = httpRequest->getHeader("cookie");
 	if (!cookie.empty()) {
 	    envVector.push_back("HTTP_COOKIE=" + cookie);
-		std::cerr << BLUE << cookie << RESET << std::endl;
 	}
 
 	std::string host = httpRequest->getHeader("host");
@@ -85,7 +84,6 @@ void	CGI::setEnvp(Request *httpRequest, std::vector<std::string> &envVector) {
 	std::string userAgent = httpRequest->getHeader("user-Agent");
 	if (!userAgent.empty())
 	    envVector.push_back("HTTP_USER_AGENT=" + userAgent);
-	httpRequest->printHeader();
 
 }
 

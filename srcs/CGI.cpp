@@ -243,7 +243,6 @@ std::string CGI::sendError(int code, std::string msg, const Server &server)
 			 << "Connection: close\r\n\r\n"
 			 << body;
 
-	// std::cerr << RED << "[HTTP " << code << "] " << msg << RESET << std::endl;
 	return response.str();
 }
 void	CGI::TimeOutCGI(int epoll_fd, int socketClient) {

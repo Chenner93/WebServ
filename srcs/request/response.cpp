@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2026/01/10 11:28:16 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/10 11:55:00 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,8 +248,8 @@ std::string Response::handlePost(const Request &request, const Server &server)
     struct stat st;
     if (stat(fullDir.c_str(), &st) != 0 || !S_ISDIR(st.st_mode))
     {
-        std::cerr << RED << "[DEBUG] Upload directory missing → creating: "
-                  << fullDir << RESET << std::endl;
+        // std::cerr << RED << "[DEBUG] Upload directory missing → creating: "
+        //           << fullDir << RESET << std::endl;
         system(("mkdir -p " + fullDir).c_str());
     }
 
@@ -447,7 +447,7 @@ std::string Response::sendError(int code, const std::string& msg, const Server &
 			if (maxBody != 0 && body.size() > maxBody)
 				body.clear();
 			
-			std::cout << GREEN << "BodySize -> "<< body.size() << " && maxbody -> " << maxBody << RESET << std::endl;
+			// std::cout << GREEN << "BodySize -> "<< body.size() << " && maxbody -> " << maxBody << RESET << std::endl;
 		}
 	}
 

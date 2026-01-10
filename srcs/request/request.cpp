@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 14:48:50 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/22 20:05:02 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/10 11:52:22 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ void Request::parse_one_line(const std::vector<std::string>& line)
 		throw std::runtime_error("invalid request line");
 
 	method	= parts[0];
-	std::cout<<RED<<method<<std::endl;
 	path	= parts[1];
 	version	= parts[2];
 }
@@ -147,25 +146,25 @@ const std::string Request::getPathAfterSign() const
     return  path_after_sign;
 }
 
-void Request::print_request(const Request& req)
-{
-	std::cout << CYAN << "---- Parsed Request ----" << RESET << "\n";
-	std::cout << GREEN << "Method:  " << RESET << req.getMethod() << "\n";
-	std::cout << GREEN << "Path:    " << RESET << req.getPath() << "\n";
-	std::cout << GREEN << "Version: " << RESET << req.getVersion() << "\n";
+// void Request::print_request(const Request& req)
+// {
+// // 	// std::cout << CYAN << "---- Parsed Request ----" << RESET << "\n";
+// // 	// std::cout << GREEN << "Method:  " << RESET << req.getMethod() << "\n";
+// // 	// std::cout << GREEN << "Path:    " << RESET << req.getPath() << "\n";
+// // 	// std::cout << GREEN << "Version: " << RESET << req.getVersion() << "\n";
 
-	std::cout << YELLOW << "Headers:" << RESET << "\n";
-	for (std::map<std::string,std::string>::const_iterator it = req.getHeaders().begin();
-		 it != req.getHeaders().end(); ++it)
-	{
-		std::cout << "  " << MAGENTA << it->first << RESET
-				  << " -> " << BLUE << it->second << RESET << "\n";
-	}
+// // 	// std::cout << YELLOW << "Headers:" << RESET << "\n";
+// // 	// for (std::map<std::string,std::string>::const_iterator it = req.getHeaders().begin();
+// // 	// 	 it != req.getHeaders().end(); ++it)
+// // 	// {
+// // 	// 	std::cout << "  " << MAGENTA << it->first << RESET
+// // 	// 			  << " -> " << BLUE << it->second << RESET << "\n";
+// // 	// }
 
-	std::cout	<< YELLOW << "Body:" << RESET << "\n"
-				<< req.getBody() << "\n";
-	std::cout	<< CYAN << "------------------------" << RESET << "\n\n";
-}
+// // 	// std::cout	<< YELLOW << "Body:" << RESET << "\n"
+// // 	// 			<< req.getBody() << "\n";
+// // 	// std::cout	<< CYAN << "------------------------" << RESET << "\n\n";
+// }
 
 void printUrlParams(const Request& req)
 {
@@ -194,29 +193,29 @@ void Request::printFormDataParts(const std::vector<FormDataPart>& parts)
 
 	for (size_t i = 0; i < parts.size(); ++i)
 	{
-		std::cout << YELLOW << "[Part " << i << "]" << RESET << std::endl;
+		// std::cout << YELLOW << "[Part " << i << "]" << RESET << std::endl;
 
-		std::cout	<< GREEN << "  name: " << RESET << parts[i].name << std::endl;
-		std::cout	<< GREEN << "  filename: " << RESET
-					<< (parts[i].filename.empty() ? "(vide)" : parts[i].filename) << std::endl;
-		std::cout	<< "[DEBUG] Content length: " << parts[i].content.size() << " bytes" << std::endl;
+		// std::cout	<< GREEN << "  name: " << RESET << parts[i].name << std::endl;
+		// std::cout	<< GREEN << "  filename: " << RESET
+					// << (parts[i].filename.empty() ? "(vide)" : parts[i].filename) << std::endl;
+		// std::cout	<< "[DEBUG] Content length: " << parts[i].content.size() << " bytes" << std::endl;
 
-		std::cout	<< GREEN << "  contentType: " << RESET
-					<< (parts[i].contentType.empty() ? "(non spécifié)" : parts[i].contentType) << std::endl;
-		std::cout	<< BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
+		// std::cout	<< GREEN << "  contentType: " << RESET
+		// 			<< (parts[i].contentType.empty() ? "(non spécifié)" : parts[i].contentType) << std::endl;
+		// std::cout	<< BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
 
 		// Afficher les 200 premiers caractères du contenu max pour éviter le flood
 		std::string preview = parts[i].content.substr(0, 200);
-		std::cout << BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
-		std::cout << preview;
-		if (parts[i].content.size() > 200)
-			std::cout << "..." << std::endl;
-		else
-			std::cout << std::endl;
+		// std::cout << BLUE << "  content (taille = " << parts[i].content.size() << " octets):" << RESET << std::endl;
+		// std::cout << preview;
+		// if (parts[i].content.size() > 200)
+		// 	std::cout << "..." << std::endl;
+		// else
+		// 	std::cout << std::endl;
 
-		std::cout << CYAN << "-----------------------------------" << RESET << std::endl;
+		// std::cout << CYAN << "-----------------------------------" << RESET << std::endl;
 	}
-	std::cout << std::endl;
+	// std::cout << std::endl;
 }
 
 void Request::handleClientRequest(Client &client) 

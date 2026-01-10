@@ -3,11 +3,8 @@
 void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_event &event, std::vector<Server> &servers) {
 
 	Client &client = Client::getClient(event.data.fd, clients);
-
-	std::cout << RED "CGI" RESET <<std::endl;
 	
 	if (_pid == -2 && this->getState() != CGI_ERR) {
-		std::cout << MAGENTA << client.getRequest()->length() - (client.getRequest()->find("\r\n\r") + 4) << RESET << std::endl;
 		if (client.getRequest()->length() - client.getRequest()->find("\r\n\r") > client.getMaxBodySize()) {
 			this->setState(CGI_ERR, 413, "Payload Too Large");
 			return ;
@@ -114,12 +111,10 @@ void	CGI::CGIEvent(int &epoll_fd, std::vector<Client> &clients, struct epoll_eve
 				cgi_headers.erase(status_pos);
 		}
 		else {
-			std::cerr << RED "no status code" << std::endl;
 			this->setState(CGI_ERR, 500, "Internal Server Error: No status code");
 			return ;
 		}
 		if (status < 100 || status > 599) {
-			std::cerr << RED "Invalid CGI status: " << status << RESET << std::endl;
 			this->setState(CGI_ERR, 500, "Internal Server Error: Invalid CGI status");
 			return;
 		}

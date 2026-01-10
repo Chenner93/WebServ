@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:47:03 by kahoumou          #+#    #+#             */
-/*   Updated: 2026/01/08 12:11:36 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/10 11:48:46 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,9 @@ std::string Request::parseChunkedBody(const std::string& rawBody)
 
 	utils_parsing::clean_chunk_lines(lines); // Supprime \r, \t, espaces
 
-	std::cout << "--- [DEBUG] Étape 2 : lignes nettoyées ---" << std::endl;
-	for (size_t i = 0; i < lines.size(); ++i)
-		std::cout << "Cleaned[" << i << "] = [" << lines[i] << "]" << std::endl;
+	// std::cout << "--- [DEBUG] Étape 2 : lignes nettoyées ---" << std::endl;
+	// for (size_t i = 0; i < lines.size(); ++i)
+	// 	std::cout << "Cleaned[" << i << "] = [" << lines[i] << "]" << std::endl;
 
 	// Skip header parasite s'il y a un seul mot hexadécimal tout seul au début
 	std::stringstream precheck;
@@ -67,7 +67,6 @@ std::string Request::parseChunkedBody(const std::string& rawBody)
 
 		if (ss.fail())
 		{
-			std::cout << "⚠️ Ignoré (pas un nombre hexadécimal valide)" << std::endl;
 			i++;
 			continue;
 		}

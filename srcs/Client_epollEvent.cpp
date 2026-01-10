@@ -38,8 +38,6 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	}
 	if (bodySize > clients[i].getMaxBodySize()) 
 	{
-		std::cerr << RED << "Body size = " << bodySize << RESET << std::endl;
-		std::cerr << RED << req << RESET << std::endl;
 		// Préparer une réponse 413 sans modifier epolloutEvent :
 		// - rendre _response non-null pour bloquer ParseResponse()
 			if (clients[i]._response == 0)
@@ -59,9 +57,6 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 				}
 				return;
 	}
-
-	// mon ajout pour tester getbodyize max
-	
 
 	// Chercher la fin des headers
 	// size_t header_end = req.find("\r\n\r\n");
@@ -84,7 +79,6 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 
 		if (content_length == 0)
 		{
-			// std::cout << YELLOW << "[DEBUG] No Content-Length found — treating as complete" << RESET << std::endl;
 			event.events = EPOLLOUT;
 			if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, event.data.fd, &event) < 0)
 			{

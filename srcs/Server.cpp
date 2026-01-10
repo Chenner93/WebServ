@@ -352,7 +352,7 @@ void	Server::closeAllSocket(int epfd, std::vector<Server> &servers, std::vector<
  /************ */
 
 void Server::printServerInfo() const {
-	std::cout << CYAN << "=== Server Information ===" << RESET << std::endl;
+	// std::cout << CYAN << "=== Server Information ===" << RESET << std::endl;
 	// std::cout << "Name: " << _name << std::endl;
 	// std::cout << "IP: " << _ip << ":" << _port << std::endl;
 	// std::cout << "Socket FD: " << _socket << std::endl;
@@ -393,8 +393,8 @@ void Server::printServerInfo() const {
 	// 		std::cout << std::endl;
 	// 	}
 	// }
-	std::cout << _upload_enabled_flags[0] << std::endl;
-	std::cout << CYAN << "========================" << RESET << std::endl;
+	// std::cout << _upload_enabled_flags[0] << std::endl;
+	// std::cout << CYAN << "========================" << RESET << std::endl;
 }
 
 // Handle request 

@@ -6,7 +6,7 @@
 /*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 12:08:53 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/29 21:00:50 by ckenaip          ###   ########.fr       */
+/*   Updated: 2026/01/10 11:48:53 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,11 +195,11 @@ Request::parseMultipartFormData(const std::string& body, const std::string& boun
 		part.contentType = contentType;
 		part.content = contentPart;
 		part.contentLength = contentPart.size();
-		std::cout << GREEN << "[DEBUG multipart] Found part:" << RESET << std::endl;
-		std::cout << "  name=" << part.name << "\n";
-		std::cout << "  filename=" << part.filename << "\n";
-		std::cout << "  type=" << part.contentType << "\n";
-		std::cout << "  length=" << part.contentLength << "\n";
+		// std::cout << GREEN << "[DEBUG multipart] Found part:" << RESET << std::endl;
+		// std::cout << "  name=" << part.name << "\n";
+		// std::cout << "  filename=" << part.filename << "\n";
+		// std::cout << "  type=" << part.contentType << "\n";
+		// std::cout << "  length=" << part.contentLength << "\n";
 
 		parts.push_back(part);
 		start = nextPart;

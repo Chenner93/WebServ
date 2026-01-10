@@ -318,8 +318,8 @@ void	Client::ParseRequest() {
 		it->second.find("multipart/form-data") != std::string::npos)
 	{
 		std::string boundary = Request::ParseBoundary(headers);
-		if (boundary.empty())
-			std::cerr << RED << "[DEBUG] Aucun boundary trouvé." << RESET << std::endl;
+		if (boundary.empty()) {
+		}
 		else
 		{
 			std::vector<FormDataPart> parts =
@@ -406,7 +406,6 @@ bool	Client::setCgi(Server &server) {
 		cgiPath = cgiConfig.at(extension);
 	}
 	catch (std::exception &e) {
-		// std::cout << RED << "invalid Path Error 404" RESET << std::endl;
 		this->_CGI = new CGI("", "");
 		this->_CGI->setState(CGI_ERR, 404);
 		return true;

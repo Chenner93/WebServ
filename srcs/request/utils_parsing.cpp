@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_parsing.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thbasse <thbasse@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ckenaip <ckenaip@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 15:05:27 by kahoumou          #+#    #+#             */
-/*   Updated: 2025/12/29 08:34:07 by thbasse          ###   ########.fr       */
+/*   Updated: 2026/01/10 11:50:01 by ckenaip          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,12 +167,10 @@ std::string utils_parsing::decode_url(const std::string& url_str)
 std::string utils_parsing::remove_all_r(const std::string& s)
 {
     std::string result;
-    std::cout << GREEN << "remove_all deb = " << s << RESET << std::endl;
     for (size_t i = 0; i < s.length(); ++i)
     {
         if (s[i] != '\r' && s[i] != '\t' && s[i] != '\v' && s[i] != '\f')
             result += s[i];
     }
-    std::cout << GREEN << "remove_all end = " << result << RESET << std::endl;
     return result;
 }
