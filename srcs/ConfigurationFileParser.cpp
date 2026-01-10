@@ -57,11 +57,17 @@ bool	Config::parseConfigFile(const std::string &config_path)
 {
 	std::string path = config_path.empty() ? config_file_path : config_path;
 
+	if (path.length() < 5 || path.substr(path.length() - 5) != ".conf")
+	{
+		std::cerr << "Error: Configuration file must have .conf extension: " << path << std::endl;
+		return (false);
+	}
+
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
 	{
 		std::cerr << "Error: Could not open config file: " << path << std::endl;
-		return false;
+		return (false);
 	}
 
 	std::stringstream buffer;
