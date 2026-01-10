@@ -1,0 +1,13 @@
+server {
+    listen 0.0.0.0:8080;
+    server_name localhost;
+
+    index index.html;
+
+    error_page 404 /Error_pages/404.html;
+
+    location / {
+        autoindex off;
+        allow_methods GET;
+    }
+}
