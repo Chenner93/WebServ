@@ -30,9 +30,15 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	// Ajouter les données reçues à la requête en cours
 	clients[i].appendRequest(buffer, bytesread);
 	std::string &req = *clients[i].getRequest();
-	if (req.length() > clients[i].getMaxBodySize()) 
+
+	size_t bodySize = 0;
+	size_t header_end = req.find("\r\n\r\n");
+	if (header_end != std::string::npos) {
+		bodySize = req.length() - header_end + 4;
+	}
+	if (bodySize > clients[i].getMaxBodySize()) 
 	{
-		std::cout << MAGENTA << "MAX BBODY SIZE OVER 9000" << RESET << std::endl;
+		std::cerr << RED << "MAX BBODY SIZE OVER 9000" << RESET << std::endl;
 		// Préparer une réponse 413 sans modifier epolloutEvent :
 		// - rendre _response non-null pour bloquer ParseResponse()
 			if (clients[i]._response == 0)
@@ -57,7 +63,7 @@ void Client::epollinEvent(std::vector<Client> &clients, struct epoll_event &even
 	
 
 	// Chercher la fin des headers
-	size_t header_end = req.find("\r\n\r\n");
+	// size_t header_end = req.find("\r\n\r\n");
 
 	if (header_end != std::string::npos)
 	{
