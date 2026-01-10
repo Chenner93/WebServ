@@ -6,7 +6,7 @@
 /*   By: kahoumou <kahoumou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/14 15:57:19 by kahoumou          #+#    #+#             */
-/*   Updated: 2026/01/09 13:16:16 by kahoumou         ###   ########.fr       */
+/*   Updated: 2026/01/10 11:13:24 by kahoumou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,8 +457,8 @@ std::string Response::sendError(int code, const std::string& msg, const Server &
 		ctype = "text/html";
 	}
 
-	if (maxBody != 0 && body.size() > maxBody)
-		body.resize(maxBody);
+	// if (maxBody != 0 && body.size() > maxBody)
+	// 	body.resize(maxBody);
 
 	response << "HTTP/1.1 " << code << " " << msg << "\r\n"
 			 << "Content-Type: " << ctype << "\r\n"
